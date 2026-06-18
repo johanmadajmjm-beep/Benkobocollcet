@@ -275,12 +275,12 @@ main{max-width:1380px;margin:0 auto;padding:18px}
   <div class="sec" style="border-color:#f59e0b">🏘️ Faktor Lingkungan</div>
   <div class="narr" id="narr-lingkungan"></div>
   <div class="card" style="margin-bottom:14px">
-    <div class="card-hd" style="color:#f59e0b">Fasilitator vs Hambatan per Sub-Kategori
+    <div class="card-hd" style="color:#f59e0b">Dukungan vs Hambatan per Sub-Kategori
       <span style="font-size:10px;color:var(--mut);font-weight:400;margin-left:8px">Klik bar untuk lihat detail anak</span>
     </div>
     <div class="ch h300"><canvas id="c-lingkungan"></canvas></div>
     <div style="display:flex;gap:16px;padding:10px 0 2px;flex-wrap:wrap">
-      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut2)"><span style="width:12px;height:12px;border-radius:2px;background:#22c55e;display:inline-block"></span>Fasilitator (Mendukung)</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut2)"><span style="width:12px;height:12px;border-radius:2px;background:#22c55e;display:inline-block"></span>Dukungan</span>
       <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut2)"><span style="width:12px;height:12px;border-radius:2px;background:#f59e0b;display:inline-block"></span>Hambatan</span>
     </div>
   </div>
@@ -813,7 +813,7 @@ const THEMES_ICF = {
       keywords_pos: ['ekonomi baik','penghasilan cukup','ekonomi cukup','kondisi ekonomi baik','cukup mampu','ekonomi stabil','pendapatan cukup'],
       keywords_neg: ['ekonomi pas-pasan','ekonomi kurang','penghasilan rendah','keluarga miskin','prasejahtera','ekonomi lemah','tidak mampu','penghasilan tidak tetap','kondisi ekonomi memprihatinkan','penghasilan kecil','ekonomi sulit','ekonomi rendah','kekurangan','petani miskin','buruh','tidak punya penghasilan'],
       col3: 'Peran',
-      label_pos: 'Fasilitator',
+      label_pos: 'Dukungan',
       label_neg: 'Hambatan',
     },
     {
@@ -821,7 +821,7 @@ const THEMES_ICF = {
       keywords_pos: ['rumah permanen','rumah tembok','rumah layak','aksesibel','ramah disabilitas','kondisi rumah baik','lantai keramik','rumah baik','bangunan permanen'],
       keywords_neg: ['rumah semi permanen','rumah tidak layak','tidak aksesibel','rumah papan','rumah bambu','gubuk','lantai tanah','tidak ramah disabilitas','kondisi rumah memprihatinkan','rumah darurat','rumah rusak'],
       col3: 'Peran',
-      label_pos: 'Fasilitator',
+      label_pos: 'Dukungan',
       label_neg: 'Hambatan',
     },
     {
@@ -829,7 +829,7 @@ const THEMES_ICF = {
       keywords_pos: ['akses kesehatan baik','puskesmas dekat','bpjs aktif','akses layanan mudah','fasilitas kesehatan dekat','mendapat layanan kesehatan','ada puskesmas','ada dokter','posyandu','punya bpjs','memiliki bpjs','bpjs aktif','layanan kesehatan','dapat layanan','akses ke puskesmas','rumah sakit dekat'],
       keywords_neg: ['akses kesehatan jauh','tidak punya bpjs','tidak memiliki bpjs','jauh dari puskesmas','tidak ada dokter','akses sulit','layanan jauh','tidak ada layanan','belum punya bpjs','tidak ada puskesmas'],
       col3: 'Peran',
-      label_pos: 'Fasilitator',
+      label_pos: 'Dukungan',
       label_neg: 'Hambatan',
     },
     {
@@ -837,7 +837,7 @@ const THEMES_ICF = {
       keywords_pos: ['keluarga mendukung','keluarga sayang','dukungan keluarga','orang tua mendukung','pengasuh baik','diasuh dengan baik','orang tua berkomitmen','keluarga suportif','orang tua peduli','keluarga peduli','ibu mendukung','ayah mendukung','mendukung anak'],
       keywords_neg: ['keluarga tidak mendukung','tidak bertanggung jawab','tidak ada dukungan','diabaikan','kurang perhatian','orang tua abai','tidak peduli','keluarga tidak peduli'],
       col3: 'Peran',
-      label_pos: 'Fasilitator',
+      label_pos: 'Dukungan',
       label_neg: 'Hambatan',
     },
     {
@@ -845,7 +845,7 @@ const THEMES_ICF = {
       keywords_pos: ['diterima masyarakat','tidak ada stigma','lingkungan mendukung','diterima dengan baik','masyarakat inklusif','lingkungan ramah','diterima tetangga'],
       keywords_neg: ['stigma','digosipi','dikucilkan','tidak diterima','diskriminasi','bully','diejek','direndahkan','masyarakat memandang sebelah'],
       col3: 'Peran',
-      label_pos: 'Fasilitator',
+      label_pos: 'Dukungan',
       label_neg: 'Hambatan',
     },
     {
@@ -1064,13 +1064,13 @@ function renderChartPersonal(themes, color) {
   });
 }
 
-// Chart lingkungan: grouped bar Fasilitator vs Hambatan
+// Chart lingkungan: grouped bar Dukungan vs Hambatan
 function renderChartLingkungan(themes, color) {
   mk('c-lingkungan', 'bar', {
     labels: themes.map(t => t.label),
     datasets: [
       {
-        label: 'Fasilitator',
+        label: 'Dukungan',
         data: themes.map(t => t.count_pos),
         backgroundColor: '#22c55ecc',
         borderColor: '#22c55e',
@@ -1132,7 +1132,7 @@ function buildNarasi(key, themes) {
   if (key === 'lingkungan') {
     const hambatan = themes.slice().sort((a,b) => b.count_neg - a.count_neg)[0];
     const fasil = themes.slice().sort((a,b) => b.count_pos - a.count_pos)[0];
-    return `Hambatan terbesar: <strong>${hambatan?.label}</strong> (${hambatan?.count_neg} kasus). Fasilitator terkuat: <strong>${fasil?.label}</strong> (${fasil?.count_pos} kasus). <em>Klik bar untuk lihat detail.</em>`;
+    return `Hambatan terbesar: <strong>${hambatan?.label}</strong> (${hambatan?.count_neg} kasus). Dukungan terkuat: <strong>${fasil?.label}</strong> (${fasil?.count_pos} kasus). <em>Klik bar untuk lihat detail.</em>`;
   }
   return '';
 }
@@ -1156,7 +1156,7 @@ function showTabel(key, themeIdx, type) {
     titleSuffix = theme.label;
   } else if (type === 'pos') {
     rows = theme.rows_pos;
-    const lp = theme.label_pos || (key === 'lingkungan' ? 'Fasilitator' : key === 'struktur' ? 'Baik' : 'Mampu');
+    const lp = theme.label_pos || (key === 'lingkungan' ? 'Dukungan' : key === 'struktur' ? 'Baik' : 'Mampu');
     titleSuffix = `${theme.label} — ${lp}`;
   } else {
     rows = theme.rows_neg;
@@ -1194,7 +1194,7 @@ function renderTabel(key, rows, type, theme) {
 
   // Header
   let col3Header = col3Label;
-  if (type === 'pos') col3Header = theme?.label_pos || (key === 'struktur' ? 'Baik' : key === 'lingkungan' ? 'Fasilitator' : 'Mampu');
+  if (type === 'pos') col3Header = theme?.label_pos || (key === 'struktur' ? 'Baik' : key === 'lingkungan' ? 'Dukungan' : 'Mampu');
   else if (type === 'neg') col3Header = theme?.label_neg || (key === 'struktur' ? 'Terganggu' : key === 'lingkungan' ? 'Hambatan' : 'Terbatas');
   else col3Header = col3Label;
 
@@ -1215,7 +1215,7 @@ function renderTabel(key, rows, type, theme) {
     let kondisiCell = '';
     if (type === 'pos') {
       const cls = key === 'lingkungan' ? 'kondisi-fasil' : 'kondisi-baik';
-      const label = theme?.label_pos || (key === 'struktur' ? 'Baik' : key === 'lingkungan' ? 'Fasilitator' : 'Mampu');
+      const label = theme?.label_pos || (key === 'struktur' ? 'Baik' : key === 'lingkungan' ? 'Dukungan' : 'Mampu');
       kondisiCell = `<td class="${cls}">✅ ${label}</td>`;
     } else if (type === 'neg') {
       const cls = key === 'lingkungan' ? 'kondisi-hambat' : 'kondisi-buruk';
