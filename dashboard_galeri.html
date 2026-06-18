@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Galeri Foto – BEN SCN Manggarai</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#050810;--sur:#0a0f1e;--card:#0e1628;--card2:#131d35;
@@ -117,15 +116,14 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
   <div class="hdr-logo">GALERI</div>
   <div class="hdr-title">Foto Kunjungan <span class="hdr-sub">BEN SCN Manggarai</span></div>
   <div class="hdr-right">
-    <button class="hbtn" onclick="refreshData()">🔄 Refresh</button>
-    <button class="hbtn primary" onclick="downloadSelected()" id="btnDlSel" style="display:none">⬇️ Unduh Dipilih</button>
-    <button class="hbtn primary" onclick="downloadAll()">⬇️ Unduh Semua</button>
-    <button class="hbtn" onclick="exportExcel()">📊 Export Excel</button>
+    <button class="hbtn" onclick="refreshData()">🔄</button>
+    <button class="hbtn primary" onclick="downloadSelected()" id="btnDlSel" style="display:none">⬇️</button>
+    <button class="hbtn primary" onclick="downloadAll()">⬇️</button>
     <!-- Hapus Dipilih / Hapus Semua disembunyikan: endpoint deleteFoto di Apps Script belum
          memiliki proteksi login/token/admin, sehingga aksi hapus permanen ke Drive ini
          tidak aman untuk ditampilkan ke semua pengguna dashboard. -->
-    <button class="hbtn danger" onclick="deleteSelected()" id="btnDelSel" style="display:none">🗑️ Hapus Dipilih</button>
-    <button class="hbtn danger" onclick="deleteAll()" id="btnDelAll" style="display:none">🗑️ Hapus Semua</button>
+    <button class="hbtn danger" onclick="deleteSelected()" id="btnDelSel" style="display:none">🗑️</button>
+    <button class="hbtn danger" onclick="deleteAll()" id="btnDelAll" style="display:none">🗑️</button>
   </div>
 </div>
 
@@ -189,9 +187,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount">0 dipilih</span>
   <button class="hbtn" onclick="clearSelection()">Batal</button>
-  <button class="hbtn primary" onclick="downloadSelected()">⬇️ Unduh</button>
+  <button class="hbtn primary" onclick="downloadSelected()">⬇️</button>
   <!-- Tombol Hapus disembunyikan: lihat catatan keamanan di header -->
-  <button class="hbtn danger" onclick="deleteSelected()" id="selBarDelBtn" style="display:none">🗑️ Hapus</button>
+  <button class="hbtn danger" onclick="deleteSelected()" id="selBarDelBtn" style="display:none">🗑️</button>
 </div>
 
 <!-- TOAST -->
@@ -430,23 +428,6 @@ function triggerDownload(url, filename) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
-
-// ── EXPORT EXCEL ──────────────────────────────────────────────
-function exportExcel() {
-  if (!FILTERED.length) { showToast('Tidak ada data untuk diekspor'); return; }
-  const rows = FILTERED.map(r => ({
-    'Nama Anak': r.na || '',
-    'CBR Worker': r.cb || '',
-    'Tanggal Kunjungan': r.tgl || '',
-    'Nama File': r.filename || '',
-    'Link Foto': r.drive_url || '',
-  }));
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Galeri Foto');
-  const now = new Date();
-  XLSX.writeFile(wb, 'Galeri-Foto-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
 }
 
 // ── DELETE ────────────────────────────────────────────────────

@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
 <style>
 :root{
   --bg:#060b18;--sur:#0a1020;--card:#0e1628;--card2:#121e32;
@@ -206,6 +209,11 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
   </div>
   <div class="tb-right">
     <button class="back-btn" id="backBtn" style="display:none" onclick="showList()">← Kembali ke Daftar</button>
+    <button class="back-btn" id="btnRefreshAnak" onclick="fetchAllData()">🔄</button>
+    <button class="back-btn" id="btnExcelAllAnak" onclick="exportAllExcel()">📊</button>
+    <button class="back-btn" id="btnPdfAllAnak" onclick="exportAllPDF()">📄</button>
+    <button class="back-btn" id="btnExcelOneAnak" style="display:none" onclick="exportOneExcel(ACTIVE_ANAK)">📊</button>
+    <button class="back-btn" id="btnPdfOneAnak" style="display:none" onclick="exportOnePDF(ACTIVE_ANAK)">📄</button>
     <div class="tb-badge" id="tbBadge">0 anak</div>
   </div>
 </div>
@@ -356,6 +364,7 @@ const APPS_SCRIPT_URL_ANAK = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode
 var DATA_AWAL = [];
 var DATA_OBS  = [];
 var SEMUA_ANAK = []; // 200 anak dari master list
+var ACTIVE_ANAK = null; // nama anak yang sedang dibuka di mode profil
 var currentSort = { key: 'na', asc: true };
 var filteredData = [];
 
@@ -930,6 +939,11 @@ function showProfil(nama) {
   document.getElementById('topbar-profil').style.display = 'block';
   document.getElementById('topbar-nama').textContent = a.na||'—';
   document.getElementById('backBtn').style.display = 'inline-flex';
+  ACTIVE_ANAK = a.na;
+  document.getElementById('btnExcelAllAnak').style.display = 'none';
+  document.getElementById('btnPdfAllAnak').style.display = 'none';
+  document.getElementById('btnExcelOneAnak').style.display = 'inline-flex';
+  document.getElementById('btnPdfOneAnak').style.display = 'inline-flex';
 }
 
 function ntCard(title, raw, color) {
@@ -951,6 +965,11 @@ function showList() {
   document.getElementById('backBtn').style.display = 'none';
   document.querySelector('.main-content').scrollTop = 0;
   closeNamaPanel();
+  ACTIVE_ANAK = null;
+  document.getElementById('btnExcelAllAnak').style.display = 'inline-flex';
+  document.getElementById('btnPdfAllAnak').style.display = 'inline-flex';
+  document.getElementById('btnExcelOneAnak').style.display = 'none';
+  document.getElementById('btnPdfOneAnak').style.display = 'none';
 }
 
 // ── INIT ──
@@ -978,6 +997,274 @@ window.addEventListener('storage', function(e) {
     document.getElementById('tbBadge').textContent = (SEMUA_ANAK.length || DATA_AWAL.length) + ' anak';
   }
 });
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT EXCEL — format tabel (bukan range biasa)
+// ═══════════════════════════════════════════════════════════
+function anakToRows(list) {
+  return list.map(function(a){
+    var obsCount = getObsAnak(a.na).length;
+    return {
+      'Nama Anak': a.na || '',
+      'Nama Pengasuh': a.np || '',
+      'Usia': a.u !== null && a.u !== undefined ? a.u : '',
+      'Jenis Kelamin': a.j || '',
+      'Kecamatan': a.k || '',
+      'Desa': a.d || '',
+      'Ragam Disabilitas': a.rg || '',
+      'Level Disabilitas': a.lv || '',
+      'Gunakan Alat Bantu': a.gu || '',
+      'CBR Worker': a.cb || '',
+      'Epilepsi': a.ep || '',
+      'Pengobatan Aktif': a.ob || '',
+      'Pernah Terapi': a.tr || '',
+      'Skor Pengasuh': a.sp !== null && a.sp !== undefined ? a.sp : '',
+      'Skor Anak': a.sa !== null && a.sa !== undefined ? a.sa : '',
+      'Jumlah Kunjungan Observasi': obsCount,
+    };
+  });
+}
+
+function buildAnakExcelSheet(wb, rows, sheetName) {
+  var ws = XLSX.utils.json_to_sheet(rows);
+  var ref = ws['!ref'];
+  if (ref) { ws['!autofilter'] = { ref: ref }; }
+  if (rows.length) {
+    var headers = Object.keys(rows[0]);
+    ws['!cols'] = headers.map(function(h){
+      var maxLen = h.length;
+      rows.forEach(function(r){ var v = String(r[h] == null ? '' : r[h]); if (v.length > maxLen) maxLen = v.length; });
+      return { wch: Math.min(Math.max(maxLen + 2, 10), 50) };
+    });
+  }
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+}
+
+function exportAllExcel() {
+  if (!DATA_AWAL.length) { alert('Belum ada data untuk diekspor.'); return; }
+  var wb = XLSX.utils.book_new();
+  buildAnakExcelSheet(wb, anakToRows(filteredData.length ? filteredData : DATA_AWAL), 'Profil Anak');
+  var now = new Date();
+  XLSX.writeFile(wb, 'Profil-Anak-Semua-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+function exportOneExcel(nama) {
+  if (!nama) { alert('Tidak ada anak yang dipilih.'); return; }
+  var a = DATA_AWAL.find(function(d){ return (d.na||'').trim() === nama.trim(); });
+  if (!a) { alert('Data anak tidak ditemukan.'); return; }
+  var wb = XLSX.utils.book_new();
+  buildAnakExcelSheet(wb, anakToRows([a]), 'Profil Anak');
+
+  // Sheet riwayat observasi anak ini
+  var obsRows = getObsAnak(nama).map(function(o){
+    return {
+      'Tanggal': formatTgl(o.tgl),
+      'CBR Worker': o.cb || '',
+      'Struktur & Fungsi Tubuh': o.st || '',
+      'Kegiatan & Partisipasi': o.kg || '',
+      'Faktor Personal': o.pf || '',
+      'Faktor Lingkungan': o.lg || '',
+    };
+  });
+  if (obsRows.length) buildAnakExcelSheet(wb, obsRows, 'Riwayat Observasi');
+
+  var safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
+  var now = new Date();
+  XLSX.writeFile(wb, 'Profil-' + safeName + '-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT PDF — summary report
+// ═══════════════════════════════════════════════════════════
+function anakPdfHeader(doc, title, subtitle, W, M) {
+  doc.setFillColor(20, 28, 46);
+  doc.rect(0, 0, W, 26, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text(title, M, 12);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  doc.setTextColor(190, 200, 220);
+  doc.text(subtitle, M, 19);
+  doc.setTextColor(0, 0, 0);
+}
+
+function anakPdfFooter(doc, W, H, M) {
+  var pg = doc.internal.getNumberOfPages();
+  var tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  for (var i = 1; i <= pg; i++) {
+    doc.setPage(i);
+    doc.setFillColor(20, 28, 46);
+    doc.rect(0, H - 8, W, 8, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+    doc.setTextColor(170, 180, 200);
+    doc.text('SCN Manggarai · NTT', M, H - 3);
+    doc.text(i + '/' + pg, W / 2, H - 3, { align: 'center' });
+    doc.text(tgl, W - M, H - 3, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+  }
+}
+
+function exportAllPDF() {
+  if (!DATA_AWAL.length) { alert('Belum ada data untuk diekspor.'); return; }
+  var list = filteredData.length ? filteredData : DATA_AWAL;
+  var jsPDFlib = window.jspdf.jsPDF;
+  var doc = new jsPDFlib({ unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+  var M = 14;
+  var y = 36;
+
+  anakPdfHeader(doc, 'Ringkasan Profil Anak Benefisiari', 'BEN SCN Manggarai · ' + list.length + ' Anak Dampingan', W, M);
+
+  // Hitung ringkasan
+  var ragamCount = {};
+  list.forEach(function(a){ var r = a.rg || 'Tidak diketahui'; ragamCount[r] = (ragamCount[r]||0)+1; });
+  var levelParah = list.filter(function(a){ return (a.lv||'').toLowerCase().indexOf('parah') > -1; }).length;
+  var epilepsi = list.filter(function(a){ return a.ep === 'Ya'; }).length;
+  var terapi = list.filter(function(a){ return a.tr === 'Ya'; }).length;
+  var kritis = list.filter(function(a){ return a.sa !== null && a.sa !== undefined && a.sa <= 3; }).length;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Ringkasan Eksekutif', M, y); y += 6;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+  var ringkasanText = 'Dari total ' + list.length + ' anak benefisiari yang terdaftar, ' + levelParah + ' anak (' + Math.round(levelParah/list.length*100) + '%) berada pada level disabilitas parah, ' + epilepsi + ' anak memiliki kondisi epilepsi, ' + terapi + ' anak pernah menjalani terapi, dan ' + kritis + ' anak menunjukkan skor kondisi kritis (≤3) yang memerlukan perhatian lebih.';
+  var wrapped = doc.splitTextToSize(ringkasanText, W - 2*M);
+  doc.text(wrapped, M, y); y += wrapped.length * 4.6 + 6;
+
+  // Tabel distribusi ragam disabilitas
+  doc.autoTable({
+    startY: y,
+    head: [['Ragam Disabilitas', 'Jumlah Anak', 'Persentase']],
+    body: Object.keys(ragamCount).sort(function(a,b){return ragamCount[b]-ragamCount[a];}).map(function(r){
+      return [r, String(ragamCount[r]), Math.round(ragamCount[r]/list.length*100) + '%'];
+    }),
+    theme: 'grid',
+    headStyles: { fillColor: [20,28,46], fontSize: 9 },
+    bodyStyles: { fontSize: 9 },
+    margin: { left: M, right: M },
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // Ringkasan per CBR Worker
+  var cbrSet = [];
+  list.forEach(function(a){ if (a.cb && cbrSet.indexOf(a.cb) === -1) cbrSet.push(a.cb); });
+  cbrSet.sort();
+  if (y > H - 60) { doc.addPage(); y = 20; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
+  doc.autoTable({
+    startY: y,
+    head: [['CBR Worker', 'Jumlah Dampingan', 'Level Parah', 'Epilepsi', 'Pernah Terapi']],
+    body: cbrSet.map(function(cb){
+      var g = list.filter(function(a){ return a.cb === cb; });
+      return [cb, g.length,
+        g.filter(function(a){ return (a.lv||'').toLowerCase().indexOf('parah') > -1; }).length,
+        g.filter(function(a){ return a.ep === 'Ya'; }).length,
+        g.filter(function(a){ return a.tr === 'Ya'; }).length];
+    }),
+    theme: 'grid',
+    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
+    bodyStyles: { fontSize: 8.5 },
+    margin: { left: M, right: M },
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // Daftar anak kondisi kritis
+  var kritisList = list.filter(function(a){ return a.sa !== null && a.sa !== undefined && a.sa <= 3; });
+  if (kritisList.length) {
+    if (y > H - 50) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.text('Anak dengan Skor Kondisi Kritis (≤3) — Perlu Perhatian', M, y); y += 4;
+    doc.autoTable({
+      startY: y,
+      head: [['Nama Anak', 'CBR Worker', 'Desa', 'Skor Anak']],
+      body: kritisList.map(function(a){ return [a.na, a.cb || '-', a.d || '-', a.sa]; }),
+      theme: 'striped',
+      headStyles: { fillColor: [220,38,38], fontSize: 8.5 },
+      bodyStyles: { fontSize: 8.5 },
+      margin: { left: M, right: M },
+    });
+  }
+
+  anakPdfFooter(doc, W, H, M);
+  var now = new Date();
+  doc.save('Ringkasan-Profil-Anak-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.pdf');
+}
+
+function exportOnePDF(nama) {
+  if (!nama) { alert('Tidak ada anak yang dipilih.'); return; }
+  var a = DATA_AWAL.find(function(d){ return (d.na||'').trim() === nama.trim(); });
+  if (!a) { alert('Data anak tidak ditemukan.'); return; }
+  var obsData = getObsAnak(nama).slice().sort(function(x,y){ return (y.tgl||'').localeCompare(x.tgl||''); });
+
+  var jsPDFlib = window.jspdf.jsPDF;
+  var doc = new jsPDFlib({ unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+  var M = 14;
+  var y = 36;
+
+  anakPdfHeader(doc, 'Profil Anak Benefisiari', a.na + ' · ' + (a.cb || '-'), W, M);
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Data Diri', M, y); y += 6;
+  doc.autoTable({
+    startY: y,
+    body: [
+      ['Nama Anak', a.na || '-'],
+      ['Nama Pengasuh', a.np || '-'],
+      ['Usia', a.u !== null && a.u !== undefined ? a.u + ' tahun' : '-'],
+      ['Jenis Kelamin', a.j || '-'],
+      ['Kecamatan', a.k || '-'],
+      ['Desa', a.d || '-'],
+      ['Ragam Disabilitas', a.rg || '-'],
+      ['Level Disabilitas', a.lv || '-'],
+      ['CBR Worker', a.cb || '-'],
+      ['Epilepsi', a.ep || '-'],
+      ['Pengobatan Aktif', a.ob || '-'],
+      ['Pernah Terapi', a.tr || '-'],
+      ['Skor Anak', a.sa !== null && a.sa !== undefined ? a.sa : '-'],
+      ['Skor Pengasuh', a.sp !== null && a.sp !== undefined ? a.sp : '-'],
+    ],
+    theme: 'plain',
+    bodyStyles: { fontSize: 9.5 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
+    margin: { left: M, right: M },
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  if (y > H - 50) { doc.addPage(); y = 20; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Ringkasan Riwayat Observasi (' + obsData.length + ' kunjungan)', M, y); y += 4;
+  if (obsData.length) {
+    doc.autoTable({
+      startY: y,
+      head: [['Tanggal', 'CBR Worker', 'Catatan Utama']],
+      body: obsData.slice(0, 15).map(function(o){
+        var catatan = [o.st, o.kg, o.pf, o.lg].filter(function(s){ return s && s.trim(); })[0] || '-';
+        if (catatan.length > 90) catatan = catatan.slice(0, 90) + '…';
+        return [formatTgl(o.tgl), o.cb || '-', catatan];
+      }),
+      theme: 'grid',
+      headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
+      bodyStyles: { fontSize: 8.5 },
+      columnStyles: { 2: { cellWidth: 90 } },
+      margin: { left: M, right: M },
+    });
+    if (obsData.length > 15) {
+      y = doc.lastAutoTable.finalY + 4;
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(8);
+      doc.text('Menampilkan 15 dari ' + obsData.length + ' kunjungan terbaru. Gunakan Export Excel untuk riwayat lengkap.', M, y);
+    }
+  } else {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+    doc.text('Belum ada data observasi untuk anak ini.', M, y);
+  }
+
+  anakPdfFooter(doc, W, H, M);
+  var safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
+  doc.save('Profil-' + safeName + '-' + new Date().toISOString().slice(0,10) + '.pdf');
+}
 </script>
 </body>
 </html>

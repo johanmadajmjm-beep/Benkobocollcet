@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
 <style>
 :root{
   --bg:#060b18;--sur:#0a1020;--card:#0e1628;--card2:#121e32;
@@ -132,8 +134,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
     <div class="tb-sub">Analisis Data Awal + Observasi · Building Effective Network</div>
   </div>
   <div class="tb-right">
-    <button class="back-btn" onclick="fetchAllData()" title="Tarik data terbaru dari Apps Script">🔄 Refresh Data</button>
-    <button class="back-btn" onclick="exportExcel()" title="Export ke Excel">📊 Export Excel</button>
+    <button class="back-btn" onclick="fetchAllData()">🔄</button>
+    <button class="back-btn" onclick="exportAllExcel()">📊</button>
+    <button class="back-btn" onclick="exportAllPDF()">📄</button>
     <div class="tb-badge" id="tbBadge">0 anak</div>
   </div>
 </div>
@@ -774,6 +777,10 @@ function renderDetailAnak(nama) {
       <div class="d-priority-box" style="background:${priBg[a.priorityLevel]};border:1px solid ${priColor2[a.priorityLevel]}">
         <div class="dp-val" style="color:${priColor2[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
       </div>
+      <div style="display:flex;gap:6px;align-items:flex-start">
+        <button class="back-btn" onclick="exportOneExcel('${a.na.replace(/'/g,"\\'")}')">📊</button>
+        <button class="back-btn" onclick="exportOnePDF('${a.na.replace(/'/g,"\\'")}')">📄</button>
+      </div>
     </div>
 
     <div class="masalah-card">
@@ -798,20 +805,19 @@ function renderDetailAnak(nama) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// EXPORT EXCEL
+// EXPORT EXCEL — format tabel (bukan range biasa)
 // ═══════════════════════════════════════════════════════════
-function exportExcel() {
-  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
-  const priLabelPlain = { tinggi: 'Tinggi', sedang: 'Sedang', rendah: 'Rendah' };
+const PRIO_LABEL_PLAIN = { tinggi: 'Tinggi', sedang: 'Sedang', rendah: 'Rendah' };
 
-  const rows = ANALISIS.map(a => ({
+function analisisToRows(list) {
+  return list.map(a => ({
     'Nama Anak': a.na,
     'CBR Worker': a.cb,
     'Usia': a.awal && a.awal.u !== null ? a.awal.u : '',
     'Jenis Kelamin': a.awal ? (a.awal.j || '') : '',
     'Ragam Disabilitas': a.awal ? (a.awal.rg || '') : '',
     'Desa': a.awal ? (a.awal.d || '') : '',
-    'Prioritas': priLabelPlain[a.priorityLevel] || a.priorityLevel,
+    'Prioritas': PRIO_LABEL_PLAIN[a.priorityLevel] || a.priorityLevel,
     'Jumlah Hal Teridentifikasi': a.totalHambatan,
     'Temuan #1': a.top3[0] ? a.top3[0].masalah : '',
     'Rencana #1': a.top3[0] ? a.top3[0].rencana : '',
@@ -823,15 +829,209 @@ function exportExcel() {
     'Rencana #3': a.top3[2] ? a.top3[2].rencana : '',
     'Pihak Terlibat #3': a.top3[2] && a.top3[2].pihak ? a.top3[2].pihak.join(', ') : '',
   }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Rekomendasi');
-  const now = new Date();
-  XLSX.writeFile(wb, 'Rekomendasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
 }
 
+function buildExcelTableSheet(wb, rows, sheetName) {
+  const ws = XLSX.utils.json_to_sheet(rows);
+  // Jadikan range data sebagai TABLE Excel sungguhan (bukan cuma range biasa)
+  const ref = ws['!ref'];
+  if (ref) {
+    ws['!autofilter'] = { ref: ref };
+    if (!wb.Workbook) wb.Workbook = {};
+    if (!wb.Workbook.Tables) wb.Workbook.Tables = [];
+  }
+  // Lebar kolom otomatis berdasarkan isi terlama
+  if (rows.length) {
+    const headers = Object.keys(rows[0]);
+    ws['!cols'] = headers.map(h => {
+      const maxLen = Math.max(h.length, ...rows.map(r => String(r[h] ?? '').length));
+      return { wch: Math.min(Math.max(maxLen + 2, 10), 50) };
+    });
+  }
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  return ws;
+}
 
+function exportAllExcel() {
+  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
+  const wb = XLSX.utils.book_new();
+  buildExcelTableSheet(wb, analisisToRows(ANALISIS), 'Rekomendasi');
+  const now = new Date();
+  XLSX.writeFile(wb, 'Rekomendasi-Semua-Anak-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+function exportOneExcel(nama) {
+  const a = ANALISIS.find(x => x.na === nama);
+  if (!a) { alert('Data anak tidak ditemukan.'); return; }
+  const wb = XLSX.utils.book_new();
+  buildExcelTableSheet(wb, analisisToRows([a]), 'Rekomendasi');
+  const now = new Date();
+  const safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
+  XLSX.writeFile(wb, 'Rekomendasi-' + safeName + '-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT PDF — summary report (bukan dump tabel mentah)
+// ═══════════════════════════════════════════════════════════
+function pdfHeader(doc, title, subtitle, W, M) {
+  doc.setFillColor(20, 28, 46);
+  doc.rect(0, 0, W, 26, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text(title, M, 12);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  doc.setTextColor(190, 200, 220);
+  doc.text(subtitle, M, 19);
+  doc.setTextColor(0, 0, 0);
+}
+
+function pdfFooter(doc, W, H, M) {
+  const pg = doc.internal.getNumberOfPages();
+  const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  for (let i = 1; i <= pg; i++) {
+    doc.setPage(i);
+    doc.setFillColor(20, 28, 46);
+    doc.rect(0, H - 8, W, 8, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+    doc.setTextColor(170, 180, 200);
+    doc.text('SCN Manggarai · NTT', M, H - 3);
+    doc.text(i + '/' + pg, W / 2, H - 3, { align: 'center' });
+    doc.text(tgl, W - M, H - 3, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+  }
+}
+
+function exportAllPDF() {
+  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 14;
+  let y = 36;
+
+  pdfHeader(doc, 'Ringkasan Rekomendasi & Tindak Lanjut', 'BEN SCN Manggarai · Seluruh Anak Dampingan', W, M);
+
+  const tinggi = ANALISIS.filter(a => a.priorityLevel === 'tinggi').length;
+  const sedang = ANALISIS.filter(a => a.priorityLevel === 'sedang').length;
+  const rendah = ANALISIS.filter(a => a.priorityLevel === 'rendah').length;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Ringkasan Eksekutif', M, y); y += 6;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+  const ringkasanText = `Dari total ${ANALISIS.length} anak yang dipantau, ${tinggi} anak (${Math.round(tinggi/ANALISIS.length*100)}%) berada pada prioritas tinggi dan memerlukan tindak lanjut segera, ${sedang} anak pada prioritas sedang, dan ${rendah} anak pada prioritas rendah. Rekomendasi berikut disusun berdasarkan hasil analisis Data Awal dan Observasi lapangan oleh CBR Worker.`;
+  const wrapped = doc.splitTextToSize(ringkasanText, W - 2*M);
+  doc.text(wrapped, M, y); y += wrapped.length * 4.6 + 6;
+
+  // Tabel ringkasan per kategori prioritas
+  doc.autoTable({
+    startY: y,
+    head: [['Kategori Prioritas', 'Jumlah Anak', 'Persentase']],
+    body: [
+      ['🔴 Tinggi', String(tinggi), Math.round(tinggi/ANALISIS.length*100) + '%'],
+      ['🟡 Sedang', String(sedang), Math.round(sedang/ANALISIS.length*100) + '%'],
+      ['🟢 Rendah', String(rendah), Math.round(rendah/ANALISIS.length*100) + '%'],
+    ],
+    theme: 'grid',
+    headStyles: { fillColor: [20,28,46], fontSize: 9 },
+    bodyStyles: { fontSize: 9 },
+    margin: { left: M, right: M },
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // Daftar anak prioritas tinggi — ini bagian aksi nyata, bukan dump semua field
+  const tinggiList = ANALISIS.filter(a => a.priorityLevel === 'tinggi');
+  if (tinggiList.length) {
+    if (y > H - 50) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.text('Anak Prioritas Tinggi — Perlu Tindak Lanjut Segera', M, y); y += 4;
+    doc.autoTable({
+      startY: y,
+      head: [['Nama Anak', 'CBR Worker', 'Desa', 'Temuan Utama']],
+      body: tinggiList.map(a => [a.na, a.cb, (a.awal && a.awal.d) || '-', a.top3[0] ? a.top3[0].masalah : '-']),
+      theme: 'striped',
+      headStyles: { fillColor: [220,38,38], fontSize: 8.5 },
+      bodyStyles: { fontSize: 8.5 },
+      columnStyles: { 3: { cellWidth: 70 } },
+      margin: { left: M, right: M },
+    });
+    y = doc.lastAutoTable.finalY + 10;
+  }
+
+  // Ringkasan per CBR Worker
+  const cbrSet = [...new Set(ANALISIS.map(a => a.cb))].sort();
+  if (y > H - 50) { doc.addPage(); y = 20; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
+  doc.autoTable({
+    startY: y,
+    head: [['CBR Worker', 'Jumlah Dampingan', 'Prioritas Tinggi', 'Prioritas Sedang', 'Prioritas Rendah']],
+    body: cbrSet.map(cb => {
+      const g = ANALISIS.filter(a => a.cb === cb);
+      return [cb, g.length, g.filter(a=>a.priorityLevel==='tinggi').length, g.filter(a=>a.priorityLevel==='sedang').length, g.filter(a=>a.priorityLevel==='rendah').length];
+    }),
+    theme: 'grid',
+    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
+    bodyStyles: { fontSize: 8.5 },
+    margin: { left: M, right: M },
+  });
+
+  pdfFooter(doc, W, H, M);
+  const now = new Date();
+  doc.save('Ringkasan-Rekomendasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.pdf');
+}
+
+function exportOnePDF(nama) {
+  const a = ANALISIS.find(x => x.na === nama);
+  if (!a) { alert('Data anak tidak ditemukan.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 14;
+  let y = 36;
+  const priLabelPlain = PRIO_LABEL_PLAIN[a.priorityLevel] || a.priorityLevel;
+
+  pdfHeader(doc, 'Rencana Tindak Lanjut Anak', a.na + ' · ' + a.cb, W, M);
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Profil Singkat', M, y); y += 6;
+  doc.autoTable({
+    startY: y,
+    body: [
+      ['Nama Anak', a.na],
+      ['CBR Worker', a.cb],
+      ['Usia', a.awal && a.awal.u !== null ? a.awal.u + ' tahun' : '-'],
+      ['Jenis Kelamin', a.awal ? (a.awal.j || '-') : '-'],
+      ['Ragam Disabilitas', a.awal ? (a.awal.rg || '-') : '-'],
+      ['Desa', a.awal ? (a.awal.d || '-') : '-'],
+      ['Tingkat Prioritas', priLabelPlain],
+      ['Jumlah Hal Teridentifikasi', String(a.totalHambatan)],
+    ],
+    theme: 'plain',
+    bodyStyles: { fontSize: 9.5 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
+    margin: { left: M, right: M },
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  doc.text('Bahan Diskusi Rencana Anak — 3 Bulan Ke Depan', M, y); y += 4;
+  doc.autoTable({
+    startY: y,
+    head: [['#', 'Temuan', 'Rencana', 'Pihak Terlibat']],
+    body: a.top3.map((s, i) => [String(i+1), s.masalah, s.rencana, (s.pihak||[]).join(', ')]),
+    theme: 'grid',
+    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
+    bodyStyles: { fontSize: 8.5 },
+    columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 55 }, 2: { cellWidth: 55 } },
+    margin: { left: M, right: M },
+  });
+
+  pdfFooter(doc, W, H, M);
+  const safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
+  doc.save('Rencana-' + safeName + '-' + new Date().toISOString().slice(0,10) + '.pdf');
+}
 
 
 </script>

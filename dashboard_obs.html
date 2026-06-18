@@ -6,8 +6,6 @@
 <title>Dashboard Observasi – SCN Manggarai</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
 <style>
 :root{
   --bg:#07090f;--sur:#0f1421;--card:#141c2e;--bdr:#1e2d47;
@@ -117,13 +115,9 @@ main{max-width:1380px;margin:0 auto;padding:18px}
     <button onclick="switchTab('lingkungan',this)">🏘️ Lingkungan</button>
   </nav>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="fetchObsFromAppsScript()" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.4);color:#06b6d4">
-        🔄 Refresh Data
-      </button>
-      <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none">📤 Upload Data</button>
-    <button class="hbtn hbtn-pdf" onclick="exportPDF()">📄 Export PDF</button>
-    <button class="hbtn hbtn-pdf" onclick="exportExcel()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e">📊 Export Excel</button>
-    <button class="hbtn hbtn-clear" onclick="openClear()">🧹 Bersihkan Cache Dashboard</button>
+    <button class="hbtn" onclick="fetchObsFromAppsScript()" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.4);color:#06b6d4">🔄</button>
+    <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none">📤</button>
+    <button class="hbtn hbtn-clear" onclick="openClear()">🧹</button>
   </div>
 </header>
 
@@ -1410,132 +1404,6 @@ function rebuildAll(parsed){
     personal: parsed.filter(r=>r.pf&&r.pf.trim()).map(r=>({na:r.na,cb:r.cb,text:r.pf})),
     lingkungan:parsed.filter(r=>r.lg&&r.lg.trim()).map(r=>({na:r.na,cb:r.cb,text:r.lg})),
   };
-}
-
-// ════ EXPORT PDF ════
-function exportPDF(){
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const W=210,M=15,CW=180;
-  const now=new Date();
-  const tgl=now.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  const jam=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-  const proj='Laporan Observasi Langsung & Tidak Langsung – SCN Manggarai';
-  let y=M;
-  const fill=(x,yy,w,h,r,g,b,rad=0)=>{doc.setFillColor(r,g,b);rad>0?doc.roundedRect(x,yy,w,h,rad,rad,'F'):doc.rect(x,yy,w,h,'F');};
-  const setF=(bold,size,r,g,b)=>{doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(size);doc.setTextColor(r,g,b);};
-  const hdr=(title)=>{fill(0,0,W,11,20,28,46);fill(0,0,W,2,6,182,212);setF(true,8,255,255,255);doc.text(proj,M,7.5);setF(false,7.5,107,122,150);doc.text(tgl+' · '+jam,W-M,7.5,{align:'right'});fill(0,11,W,5.5,14,20,34);setF(false,7,107,122,150);doc.text('Jabatan: MEL SCN Manggarai',M,15);doc.text('Sumber: '+FILENAME_OBS,W-M,15,{align:'right'});y=22;if(title){fill(M,y,CW,8,20,28,46,2);fill(M,y,3,8,6,182,212);setF(true,10,232,237,245);doc.text(title,M+6,y+5.8);y+=13;}};
-  const need=(n=20)=>{if(y+n>283){doc.addPage();fill(0,0,W,297,7,9,15);hdr('');}};
-  const hbar=(lbl,val,mx,r,g,b)=>{need(9);fill(M,y,CW,7.5,20,28,46,1.5);const bw=mx>0&&val>0?Math.max(Math.round(CW*0.5*val/mx),2):0;if(bw>0)fill(M+CW*0.45,y+1,bw,5.5,r,g,b,1);setF(false,8.5,232,237,245);doc.text(lbl,M+3,y+5.2);setF(true,8.5,r,g,b);doc.text(String(val),W-M-4,y+5.2,{align:'right'});y+=9;};
-  const tbl=(head,body)=>{need(30);doc.autoTable({startY:y,margin:{left:M,right:M},head:[head],body,styles:{fillColor:[20,28,46],textColor:[232,237,245],fontSize:8.5,cellPadding:2.8},headStyles:{fillColor:[14,20,34],textColor:[107,122,150],fontStyle:'bold',fontSize:8},alternateRowStyles:{fillColor:[7,9,15]}});y=doc.lastAutoTable.finalY+6;};
-
-  // Cover
-  fill(0,0,W,297,7,9,15);fill(0,0,W,3,6,182,212);
-  setF(true,20,255,255,255);doc.text('Laporan Observasi Kunjungan',M,30);
-  setF(true,20,6,182,212);doc.text('Langsung & Tidak Langsung',M,42);
-  setF(false,10,107,122,150);doc.text(proj,M,53);
-  [{l:'Tanggal Export',v:tgl},{l:'Diekspor oleh',v:'MEL SCN Manggarai'},{l:'Sumber Data',v:FILENAME_OBS},{l:'Project',v:'BEN – SCN Manggarai'}].forEach((m,i)=>{
-    const mx=M+(i%2)*(CW/2+3),my=70+(Math.floor(i/2)*24);
-    fill(mx,my,CW/2,20,20,28,46,2);fill(mx,my,3,20,6,182,212);
-    setF(false,7.5,107,122,150);doc.text(m.l,mx+6,my+8);
-    setF(true,9,232,237,245);doc.text(String(m.v).substring(0,38),mx+6,my+15);
-  });
-  [{v:OBS.length,l:'Total Kunjungan',c:[6,182,212]},{v:(function(){var s={};OBS.forEach(function(r){if(r.na)s[r.na]=1;});return Object.keys(s).length;}()),l:'Anak Terpantau',c:[34,197,94]}].forEach((s,i)=>{
-    const sx=M+i*62,sy=126;
-    fill(sx,sy,58,22,20,28,46,2);fill(sx,sy,58,2.5,...s.c,2);
-    setF(true,14,...s.c);doc.text(String(s.v),sx+4,sy+14);
-    setF(false,7,107,122,150);doc.text(s.l,sx+4,sy+19.5);
-  });
-
-  // Hal 2: Ringkasan
-  doc.addPage();fill(0,0,W,297,7,9,15);hdr('1. RINGKASAN KUNJUNGAN');
-  CBR_LABELS.forEach((cb,i)=>hbar(cb+' ('+CBR_VALUES[i]+' kunjungan)',CBR_VALUES[i],Math.max(...CBR_VALUES),6,182,212));
-  y+=4;
-  TGL_LABELS.forEach((t,i)=>hbar(t,TGL_VALUES[i],Math.max(...TGL_VALUES),167,139,250));
-
-  // Hal 3-6: 4 Domain — pakai data ICF_ANALYSIS hasil analisis LIVE dari OBS (bukan seed lama)
-  if (!ICF_ANALYSIS || !ICF_ANALYSIS.struktur) { ICF_ANALYSIS = analyzeThemes(OBS); }
-  const DL={struktur:'2. STRUKTUR & FUNGSI TUBUH',kegiatan:'3. KEGIATAN & PARTISIPASI',personal:'4. FAKTOR PERSONAL',lingkungan:'5. FAKTOR LINGKUNGAN'};
-  const DC2={struktur:[6,182,212],kegiatan:[34,197,94],personal:[167,139,250],lingkungan:[245,158,11]};
-  Object.entries(ICF_ANALYSIS).forEach(([key,themes])=>{
-    doc.addPage();fill(0,0,W,297,7,9,15);hdr(DL[key]);
-    const isPersonal = key === 'personal';
-    const counts = themes.map(t => isPersonal ? t.count_tema : (t.count_pos + t.count_neg));
-    const mx=Math.max(...counts,1);
-    themes.forEach((item,i)=>hbar(item.label,counts[i],mx,...DC2[key]));
-    y+=6;
-    // Ambil hingga 6 kutipan nyata dari baris observasi (rows_pos/rows_neg/rows_tema) milik tema-tema domain ini
-    const allRows = [];
-    themes.forEach(t => {
-      (t.rows_pos||[]).forEach(r=>allRows.push(r));
-      (t.rows_neg||[]).forEach(r=>allRows.push(r));
-      (t.rows_tema||[]).forEach(r=>allRows.push(r));
-    });
-    allRows.slice(0,6).forEach(q=>{
-      need(20);fill(M,y,CW,18,20,28,46,2);fill(M,y,3,18,...DC2[key]);
-      setF(true,8.5,232,237,245);doc.text(q.na||'—',M+6,y+6);
-      setF(false,7.5,107,122,150);doc.text(q.cb||'—',M+6,y+11);
-      const lines=doc.splitTextToSize((q.kutipan||'').substring(0,120),CW-12);
-      setF(false,8,200,210,225);doc.text(lines[0]||'',M+6,y+16);
-      y+=20;
-    });
-  });
-
-  // Hal terakhir: Data
-  doc.addPage();fill(0,0,W,297,7,9,15);hdr('6. DATA LENGKAP KUNJUNGAN');
-  tbl(['#','Nama Anak','CBR Worker','Tanggal'],OBS.map((r,i)=>[i+1,r.na||'—',r.cb||'—',r.tgl||'—']));
-
-  const pg=doc.internal.getNumberOfPages();
-  for(let i=2;i<=pg;i++){doc.setPage(i);fill(0,289,W,8,20,28,46);setF(false,7,107,122,150);doc.text('SCN Manggarai · NTT',M,294);doc.text(i+'/'+pg,W/2,294,{align:'center'});doc.text(tgl,W-M,294,{align:'right'});}
-  doc.save('Observasi-SCN-'+now.toISOString().slice(0,10)+'.pdf');
-}
-
-// ════ EXPORT EXCEL ════
-function exportExcel(){
-  if (!OBS.length) { alert('Belum ada data observasi untuk diekspor.'); return; }
-  if (!ICF_ANALYSIS || !ICF_ANALYSIS.struktur) { ICF_ANALYSIS = analyzeThemes(OBS); }
-
-  const wb = XLSX.utils.book_new();
-
-  // Sheet 1: Data Lengkap Kunjungan (mentah, satu baris = satu kunjungan, tanpa dedup)
-  const dataRows = OBS.map(r => ({
-    'Nama Anak': r.na || '',
-    'CBR Worker': r.cb || '',
-    'Tanggal Kunjungan': r.tgl || '',
-    'Struktur & Fungsi Tubuh': r.st || '',
-    'Kegiatan & Partisipasi': r.kg || '',
-    'Faktor Personal': r.pf || '',
-    'Faktor Lingkungan': r.lg || '',
-    'Latitude': r.lat ?? '',
-    'Longitude': r.lon ?? '',
-  }));
-  const ws1 = XLSX.utils.json_to_sheet(dataRows);
-  XLSX.utils.book_append_sheet(wb, ws1, 'Data Lengkap');
-
-  // Sheet 2: Ringkasan per CBR Worker & Tanggal
-  rebuildChartVars();
-  const ringkasanRows = CBR_LABELS.map((cb,i) => ({
-    'CBR Worker': CBR_NAMES[i] || cb,
-    'Jumlah Kunjungan': CBR_VALUES[i],
-  }));
-  const ws2 = XLSX.utils.json_to_sheet(ringkasanRows);
-  XLSX.utils.book_append_sheet(wb, ws2, 'Ringkasan CBR');
-
-  // Sheet 3-6: satu sheet per domain ICF, baris = sub-kategori dengan jumlah
-  const domainLabel = {struktur:'Struktur Tubuh', kegiatan:'Kegiatan & Partisipasi', personal:'Faktor Personal', lingkungan:'Faktor Lingkungan'};
-  Object.keys(ICF_ANALYSIS).forEach(key => {
-    const themes = ICF_ANALYSIS[key] || [];
-    const isPersonal = key === 'personal';
-    const rows = themes.map(t => isPersonal
-      ? { 'Sub-Kategori': t.label, 'Jumlah Anak': t.count_tema }
-      : { 'Sub-Kategori': t.label, [t.label_pos || 'Baik/Mampu']: t.count_pos, [t.label_neg || 'Terganggu/Terbatas']: t.count_neg }
-    );
-    const ws = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, domainLabel[key] || key);
-  });
-
-  const now = new Date();
-  XLSX.writeFile(wb, 'Observasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
 }
 
 // ════ TAB ════
