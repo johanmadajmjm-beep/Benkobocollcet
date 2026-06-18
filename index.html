@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCN Manggarai – Data Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050810;
+  --sur:#0a0f1e;
+  --card:#0e1628;
+  --card2:#131d35;
+  --bdr:#1c2a45;
+  --bdr2:#243558;
+  --txt:#f0f4ff;
+  --mut:#5a6a8a;
+  --mut2:#7a8faf;
+  --faint:#111c35;
+
+  --ben:#f97316;
+  --ben2:#fb923c;
+  --ben-bg:rgba(249,115,22,.08);
+  --ben-bdr:rgba(249,115,22,.25);
+
+  --obs:#06b6d4;
+  --obs2:#22d3ee;
+  --obs-bg:rgba(6,182,212,.08);
+  --obs-bdr:rgba(6,182,212,.25);
+
+  --grn:#22c55e;
+  --red:#ef4444;
+  --pur:#a78bfa;
+
+  --sb:220px;
+  --rnd:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;display:flex}
+
+/* ══ SIDEBAR ══ */
+.sb{width:var(--sb);flex-shrink:0;height:100vh;background:var(--sur);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:relative;z-index:100}
+
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--bdr)}
+.sb-logo-mark{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff;letter-spacing:-.5px;margin-bottom:10px;position:relative;overflow:hidden;background:var(--ben)}
+.sb-logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent)}
+.sb-org{font-size:13px;font-weight:800;color:var(--txt);line-height:1.2;font-family:'Manrope',sans-serif}
+.sb-sub{font-size:10px;color:var(--mut2);margin-top:2px;font-weight:500}
+
+.sb-section{padding:14px 12px 6px;font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--mut)}
+
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .18s;border:1px solid transparent;position:relative}
+.sb-item:hover{background:var(--faint);color:var(--txt)}
+.sb-item.act-ben{background:var(--ben-bg);border-color:var(--ben-bdr);color:var(--ben)}
+.sb-item.act-obs{background:var(--obs-bg);border-color:var(--obs-bdr);color:var(--obs)}
+.sb-item.act-home{background:var(--faint);border-color:var(--bdr2);color:var(--txt)}
+
+.sb-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .18s}
+.sb-item.act-ben .sb-icon{background:rgba(249,115,22,.15)}
+.sb-item.act-obs .sb-icon{background:rgba(6,182,212,.15)}
+.sb-item.act-home .sb-icon{background:rgba(255,255,255,.06)}
+.sb-item:not(.act-ben):not(.act-obs):not(.act-home) .sb-icon{background:rgba(255,255,255,.04)}
+
+.sb-label{font-size:12px;font-weight:700;flex:1;line-height:1.2}
+.sb-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.sb-item.act-ben .sb-badge{background:rgba(249,115,22,.15);color:var(--ben)}
+.sb-item.act-obs .sb-badge{background:rgba(6,182,212,.15);color:var(--obs)}
+.sb-item:not(.act-ben):not(.act-obs) .sb-badge{background:var(--faint);color:var(--mut2)}
+
+.sb-indicator{position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;border-radius:0 3px 3px 0}
+.sb-item.act-ben .sb-indicator{background:var(--ben)}
+.sb-item.act-obs .sb-indicator{background:var(--obs)}
+
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--bdr);font-size:10px;color:var(--mut);line-height:1.7}
+.sb-status{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:blink 2.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ══ MAIN AREA ══ */
+.main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ══ HOME VIEW ══ */
+.view{display:none;flex:1;overflow:hidden}
+.view.act{display:flex;flex-direction:column}
+
+.home-view{overflow-y:auto;padding:32px 24px}
+.home-center{width:100%;max-width:100%}
+
+.home-greeting{margin-bottom:40px}
+.home-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ben);margin-bottom:10px}
+.home-title{font-family:'Manrope',sans-serif;font-size:36px;font-weight:800;line-height:1.15;letter-spacing:-1px;color:var(--txt);margin-bottom:10px}
+.home-title em{font-style:normal;color:var(--ben)}
+.home-desc{font-size:14px;color:var(--mut2);line-height:1.8;max-width:500px}
+
+.home-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:stretch;width:100%}
+@media(max-width:680px){.home-cards{grid-template-columns:1fr}}
+
+/* ── PORTAL CARD ── */
+.portal-card{border-radius:var(--rnd);padding:0;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;border:1px solid var(--bdr);display:flex;flex-direction:column}
+.portal-card:hover{transform:translateY(-3px)}
+
+.pc-glow{position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;opacity:.12;pointer-events:none}
+.portal-card.ben-card .pc-glow{background:var(--ben)}
+.portal-card.obs-card .pc-glow{background:var(--obs)}
+
+.portal-card.ben-card{background:linear-gradient(145deg,#12100a,#0e1628);border-color:var(--ben-bdr)}
+.portal-card.ben-card:hover{border-color:var(--ben);box-shadow:0 0 30px rgba(249,115,22,.15)}
+.portal-card.obs-card{background:linear-gradient(145deg,#080f18,#0e1628);border-color:var(--obs-bdr)}
+.portal-card.obs-card:hover{border-color:var(--obs);box-shadow:0 0 30px rgba(6,182,212,.15)}
+
+.pc-top-bar{height:3px;width:100%}
+.ben-card .pc-top-bar{background:linear-gradient(90deg,var(--ben),var(--ben2),transparent)}
+.obs-card .pc-top-bar{background:linear-gradient(90deg,var(--obs),var(--obs2),transparent)}
+
+.pc-body{padding:22px 22px 20px;display:flex;flex-direction:column;flex:1}
+
+.pc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pc-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ben-card .pc-icon{background:rgba(249,115,22,.12)}
+.obs-card .pc-icon{background:rgba(6,182,212,.12)}
+.pc-tag{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.ben-card .pc-tag{background:rgba(249,115,22,.12);color:var(--ben);border:1px solid var(--ben-bdr)}
+.obs-card .pc-tag{background:rgba(6,182,212,.12);color:var(--obs);border:1px solid var(--obs-bdr)}
+
+.pc-name{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;line-height:1.2;margin-bottom:6px}
+.ben-card .pc-name{color:var(--ben)}
+.obs-card .pc-name{color:var(--obs)}
+.pc-desc{font-size:12px;color:var(--mut2);line-height:1.7;margin-bottom:16px;flex:1}
+
+.pc-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.pc-pill{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--mut2)}
+
+.pc-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.pc-meta-item{font-size:11px;color:var(--mut);font-weight:500}
+.pc-meta-item b{font-weight:700}
+.ben-card .pc-meta-item b{color:var(--ben)}
+.obs-card .pc-meta-item b{color:var(--obs)}
+
+.pc-btn{width:100%;padding:11px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.2px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.ben-card .pc-btn{background:var(--ben);color:#fff}
+.ben-card .pc-btn:hover{background:var(--ben2)}
+.obs-card .pc-btn{background:var(--obs);color:#000}
+.obs-card .pc-btn:hover{background:var(--obs2)}
+
+/* ══ IFRAME VIEWS ══ */
+.iframe-view{flex:1;overflow:hidden;position:relative}
+.iframe-view iframe{width:100%;height:100%;border:none;display:block}
+.iframe-overlay{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
+.iframe-overlay.hidden{opacity:0;pointer-events:none}
+.loader-ring{width:36px;height:36px;border:2px solid var(--bdr2);border-top-color:var(--ben);border-radius:50%;animation:spin .7s linear infinite}
+.loader-ring.obs-ring{border-top-color:var(--obs)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:12px;color:var(--mut2);font-weight:600}
+
+.sb{transition:width .25s ease, opacity .25s ease, transform .25s ease}
+.sb.hidden{width:0;opacity:0;overflow:hidden;pointer-events:none;transform:translateX(-10px)}
+
+.dash-card.anak{--dc-color:var(--pur)}
+.dash-card.anak .dc-icon{background:rgba(167,139,250,.12);color:var(--pur)}
+.dash-card.anak .dc-badge{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:var(--pur)}
+.dash-card.anak .dc-title{color:var(--pur)}
+.dash-card.anak .dc-arrow{background:rgba(167,139,250,.1);color:var(--pur)}
+.dash-card.anak .dc-open-btn{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:var(--pur)}
+.dash-card.anak .dc-open-btn:hover{background:rgba(167,139,250,.2)}
+
+.sb-item.act-anak{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:#a78bfa}
+.sb-item.act-anak .sb-icon{background:rgba(167,139,250,.12)}
+.sb-item.act-anak .sb-indicator{background:#a78bfa}
+.sb-item.act-anak .sb-badge{background:rgba(167,139,250,.12);color:#a78bfa}
+.sb-item.act-galeri{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.25);color:#06b6d4}
+.sb-item.act-galeri .sb-icon{background:rgba(6,182,212,.12)}
+.sb-item.act-galeri .sb-indicator{background:#06b6d4}
+.sb-item.act-galeri .sb-badge{background:rgba(6,182,212,.12);color:#06b6d4}
+.sb-item.act-reko{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.25);color:#f59e0b}
+.sb-item.act-reko .sb-icon{background:rgba(245,158,11,.12)}
+.sb-item.act-reko .sb-indicator{background:#f59e0b}
+.sb-item.act-reko .sb-badge{background:rgba(245,158,11,.12);color:#f59e0b}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sb hidden">
+  <div class="sb-logo">
+    <div class="sb-logo-mark" style="width:54px;height:54px;font-size:20px;border-radius:13px;letter-spacing:-1px">BEN</div>
+    <div class="sb-org">Data Portal</div>
+    <div class="sb-sub">SCN Manggarai · NTT</div>
+  </div>
+
+  <div class="sb-section">Menu</div>
+
+  <div class="sb-item act-home" id="nav-home" onclick="goHome()">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">🏠</div>
+    <div class="sb-label">Beranda</div>
+  </div>
+
+  <div class="sb-section">Dashboard</div>
+
+  <div class="sb-item" id="nav-ben" onclick="openDash('ben')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">📋</div>
+    <div class="sb-label">Data Awal</div>
+    <div class="sb-badge">BEN</div>
+  </div>
+
+  <div class="sb-item" id="nav-obs" onclick="openDash('obs')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">📊</div>
+    <div class="sb-label">Observasi</div>
+    <div class="sb-badge">OBS</div>
+  </div>
+
+
+  <div class="sb-item" id="nav-anak" onclick="openDash('anak')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">👶</div>
+    <div class="sb-label">Profil Anak</div>
+    <div class="sb-badge">ANAK</div>
+  </div>
+
+  <div class="sb-item" id="nav-galeri" onclick="openDash('galeri')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">🖼️</div>
+    <div class="sb-label">Galeri Foto</div>
+    <div class="sb-badge">FOTO</div>
+  </div>
+
+  <div class="sb-item" id="nav-reko" onclick="openDash('reko')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon">🎯</div>
+    <div class="sb-label">Rekomendasi</div>
+    <div class="sb-badge">REKO</div>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-status"><div class="dot-live"></div><span style="color:var(--grn);font-weight:700">Online</span></div>
+    <div>BEN v10 · OBS v3 · 2026</div>
+    <div style="margin-top:2px">Manggarai Raya, NTT</div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- HOME -->
+  <div class="view act" id="view-home">
+    <div class="home-view">
+      <div class="home-center" style="width:100%;padding:0 24px">
+        <div class="home-greeting">
+          <div class="home-eyebrow">Building Effective Network</div>
+          <div class="home-title">Selamat datang di<br><em>Portal Data SCN</em></div>
+          <div class="home-desc">Pilih dashboard di bawah atau gunakan menu sidebar untuk mengakses data program BEN Manggarai.</div>
+        </div>
+        <div class="home-cards">
+
+          <!-- DATA AWAL -->
+          <div class="portal-card ben-card" onclick="openDash('ben')">
+            <div class="pc-glow"></div>
+            <div class="pc-top-bar"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon">📋</div>
+                <div class="pc-tag">BEN · v10</div>
+              </div>
+              <div class="pc-name">Data Awal</div>
+              <div class="pc-desc">Monitoring data benefisiari anak, skor perkembangan, profil pengasuh, dan peta sebaran lokasi.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">👶 Ringkasan Anak</span>
+                <span class="pc-pill">📊 Skor</span>
+                <span class="pc-pill">🧑 Pengasuh</span>
+                <span class="pc-pill">👥 CBR Worker</span>
+                <span class="pc-pill">🗺️ Peta</span>
+                <span class="pc-pill">📋 Data Lengkap</span>
+              </div><button class="pc-btn">Buka Data Awal →</button>
+            </div>
+          </div>
+
+          <!-- OBSERVASI -->
+          <div class="portal-card obs-card" onclick="openDash('obs')">
+            <div class="pc-glow"></div>
+            <div class="pc-top-bar"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon">📊</div>
+                <div class="pc-tag">OBS · v3</div>
+              </div>
+              <div class="pc-name">Observasi</div>
+              <div class="pc-desc">Laporan observasi langsung & tidak langsung. Monitoring perkembangan anak dari kunjungan CBR Worker di lapangan.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">📊 Ringkasan</span>
+                <span class="pc-pill">🦴 Struktur Tubuh</span>
+                <span class="pc-pill">🏃 Kegiatan</span>
+                <span class="pc-pill">💭 Personal</span>
+                <span class="pc-pill">🏘️ Lingkungan</span>
+              </div><button class="pc-btn">Buka Observasi →</button>
+            </div>
+          </div>
+
+          <!-- KARTU PROFIL ANAK -->
+          <div class="portal-card" onclick="openDash('anak')" style="background:linear-gradient(145deg,#100a18,#0e1628);border-color:rgba(167,139,250,.25)">
+            <div class="pc-glow" style="background:#a78bfa"></div>
+            <div class="pc-top-bar" style="background:linear-gradient(90deg,#a78bfa,#c4b5fd,transparent)"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon" style="background:rgba(167,139,250,.12);color:#a78bfa">👶</div>
+                <div class="pc-tag" style="background:rgba(167,139,250,.12);color:#a78bfa;border-color:rgba(167,139,250,.3)">ANAK · v1</div>
+              </div>
+              <div class="pc-name" style="color:#a78bfa">Profil Anak</div>
+              <div class="pc-desc">Profil lengkap setiap anak benefisiari — data dari Data Awal dan laporan observasi lapangan dalam satu halaman.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">👶 Daftar Anak</span>
+                <span class="pc-pill">📋 Data Awal</span>
+                <span class="pc-pill">📊 Observasi</span>
+                <span class="pc-pill">⭐ Skor</span>
+                <span class="pc-pill">📍 GPS</span>
+              </div>
+              <button class="pc-btn" style="background:#a78bfa;color:#fff" onclick="openDash('anak')">Buka Profil Anak →</button>
+            </div>
+          </div>
+
+          <!-- KARTU GALERI -->
+          <div class="portal-card" onclick="openDash('galeri')" style="background:linear-gradient(145deg,#06141c,#081a22);border-color:rgba(6,182,212,.25)">
+            <div class="pc-glow" style="background:#06b6d4"></div>
+            <div class="pc-top-bar" style="background:linear-gradient(90deg,#06b6d4,#22d3ee,transparent)"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon" style="background:rgba(6,182,212,.12);color:#06b6d4">🖼️</div>
+                <div class="pc-tag" style="background:rgba(6,182,212,.12);color:#06b6d4;border-color:rgba(6,182,212,.3)">FOTO · v1</div>
+              </div>
+              <div class="pc-name" style="color:#06b6d4">Galeri Foto</div>
+              <div class="pc-desc">Dokumentasi foto kunjungan observasi CBR Worker, terorganisir per anak dan tanggal kunjungan.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">🖼️ Galeri</span>
+                <span class="pc-pill">📅 Per Tanggal</span>
+                <span class="pc-pill">👶 Per Anak</span>
+              </div>
+              <button class="pc-btn" style="background:#06b6d4;color:#fff" onclick="openDash('galeri')">Buka Galeri Foto →</button>
+            </div>
+          </div>
+
+          <!-- KARTU REKOMENDASI -->
+          <div class="portal-card" onclick="openDash('reko')" style="background:linear-gradient(145deg,#1a1006,#1e1408);border-color:rgba(245,158,11,.25)">
+            <div class="pc-glow" style="background:#f59e0b"></div>
+            <div class="pc-top-bar" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,transparent)"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon" style="background:rgba(245,158,11,.12);color:#f59e0b">🎯</div>
+                <div class="pc-tag" style="background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.3)">REKO · v1</div>
+              </div>
+              <div class="pc-name" style="color:#f59e0b">Rekomendasi</div>
+              <div class="pc-desc">Analisis tindak lanjut per anak berbasis Data Awal & Observasi, lengkap dengan pemangku kepentingan yang perlu dilibatkan.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">🎯 Tindak Lanjut</span>
+                <span class="pc-pill">📊 Prioritas</span>
+                <span class="pc-pill">🤝 Pemangku Kepentingan</span>
+                <span class="pc-pill">📈 Manajemen</span>
+              </div>
+              <button class="pc-btn" style="background:#f59e0b;color:#fff" onclick="openDash('reko')">Buka Rekomendasi →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA AWAL (BEN) -->
+  <div class="view" id="view-ben">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-ben">
+        <div class="loader-ring"></div>
+        <div class="loader-text">Memuat Data Awal...</div>
+      </div>
+      <iframe id="iframe-ben" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- PROFIL ANAK -->
+  <div class="view" id="view-anak">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-anak">
+        <div class="loader-ring" style="border-top-color:#a78bfa"></div>
+        <div class="loader-text">Memuat Profil Anak...</div>
+      </div>
+      <iframe id="iframe-anak" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- GALERI FOTO -->
+  <div class="view" id="view-galeri">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-galeri">
+        <div class="loader-ring" style="border-top-color:#06b6d4"></div>
+        <div class="loader-text">Memuat Galeri Foto...</div>
+      </div>
+      <iframe id="iframe-galeri" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- REKOMENDASI -->
+  <div class="view" id="view-reko">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-reko">
+        <div class="loader-ring" style="border-top-color:#f59e0b"></div>
+        <div class="loader-text">Memuat Rekomendasi...</div>
+      </div>
+      <iframe id="iframe-reko" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- OBSERVASI (OBS) -->
+  <div class="view" id="view-obs">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-obs">
+        <div class="loader-ring obs-ring"></div>
+        <div class="loader-text">Memuat Dashboard Observasi...</div>
+      </div>
+      <iframe id="iframe-obs" src=""></iframe>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+
+<script>
+const FILES = { ben: 'dashboard_ben.html', obs: 'dashboard_obs.html', anak: 'dashboard_anak.html', galeri: 'dashboard_galeri.html', reko: 'dashboard_rekomendasi.html' };
+const loaded = { ben: false, obs: false, anak: false, galeri: false, reko: false };
+
+function goHome() {
+  showView('home');
+  setNav('home');
+  document.querySelector('.sb').classList.add('hidden');
+}
+
+function openDash(id) {
+  showView(id);
+  setNav(id);
+  document.querySelector('.sb').classList.remove('hidden');
+  if (!loaded[id]) {
+    loaded[id] = true;
+    const iframe = document.getElementById('iframe-' + id);
+    iframe.addEventListener('load', function() { hideOverlay(id); }, { once: true });
+    iframe.src = FILES[id];
+  }
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('act'));
+  document.getElementById('view-' + id).classList.add('act');
+  try { sessionStorage.setItem('scn_view', id); } catch(e) {}
+}
+
+function setNav(id) {
+  document.querySelectorAll('.sb-item').forEach(b => {
+    b.classList.remove('act-home','act-ben','act-obs','act-peta','act-anak','act-galeri','act-reko','act');
+  });
+  const el = document.getElementById('nav-' + id);
+  if (el) el.classList.add('act-' + id);
+}
+
+
+// Handle postMessage dari dashboard anak (goHome)
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.action === 'goHome') goHome();
+});
+
+function hideOverlay(id) {
+  document.getElementById('overlay-' + id).classList.add('hidden');
+}
+
+// Restore last view on refresh
+(function() {
+  try {
+    const last = sessionStorage.getItem('scn_view');
+    if (last && ['ben','obs','anak','galeri','reko'].includes(last)) {
+      openDash(last);
+    }
+  } catch(e) {}
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === '1') goHome();
+  if (e.key === '2') openDash('ben');
+  if (e.key === '3') openDash('obs');
+  if (e.key === '4') openDash('anak');
+  if (e.key === '5') openDash('galeri');
+  if (e.key === '6') openDash('reko');
+});
+</script>
+</body>
+</html>

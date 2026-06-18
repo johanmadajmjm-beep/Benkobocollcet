@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galeri Foto – BEN SCN Manggarai</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#050810;--sur:#0a0f1e;--card:#0e1628;--card2:#131d35;
+  --bdr:#1c2a45;--bdr2:#243558;--txt:#f0f4ff;--mut:#5a6a8a;--mut2:#7a8faf;
+  --acc:#f59e0b;--acc2:#fbbf24;--acc-bg:rgba(245,158,11,.08);--acc-bdr:rgba(245,158,11,.25);
+  --grn:#22c55e;--red:#ef4444;--rnd:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.hdr-logo{font-weight:900;font-size:13px;background:var(--acc);color:#000;padding:4px 9px;border-radius:7px;letter-spacing:-.3px}
+.hdr-title{font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;color:var(--txt)}
+.hdr-sub{font-size:11px;color:var(--mut);margin-left:4px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hbtn{padding:6px 14px;border-radius:8px;border:1px solid var(--bdr2);background:var(--card);color:var(--txt);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px}
+.hbtn:hover{border-color:var(--acc);color:var(--acc)}
+.hbtn.danger{border-color:rgba(239,68,68,.3);color:var(--red)}
+.hbtn.danger:hover{background:rgba(239,68,68,.1)}
+.hbtn.primary{background:var(--acc);color:#000;border-color:var(--acc)}
+.hbtn.primary:hover{background:var(--acc2)}
+
+/* ── STATUS BAR ── */
+.status-bar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:8px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.stat-chip{font-size:11px;color:var(--mut2);font-weight:600;display:flex;align-items:center;gap:5px}
+.stat-chip b{color:var(--acc);font-weight:800}
+#syncStatus{font-size:11px;color:var(--mut);margin-left:auto}
+#syncStatus.ok{color:var(--grn)}
+#syncStatus.err{color:var(--red)}
+#syncStatus.loading{color:var(--acc)}
+
+/* ── FILTER BAR ── */
+.filter-bar{padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--bdr)}
+.filter-bar select,.filter-bar input{background:var(--card);border:1px solid var(--bdr2);color:var(--txt);padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.filter-bar input{width:220px}
+.filter-bar input::placeholder{color:var(--mut)}
+.view-toggle{display:flex;gap:4px;margin-left:auto}
+.vtbtn{padding:7px 10px;border-radius:7px;border:1px solid var(--bdr2);background:var(--card);color:var(--mut);cursor:pointer;font-size:14px;transition:all .15s}
+.vtbtn.act{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc)}
+
+/* ── GRID VIEWS ── */
+.galeri-wrap{padding:20px;overflow-y:auto;height:calc(100vh - 52px - 44px - 56px)}
+
+/* Grid besar */
+.grid-besar{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+/* Grid sedang */
+.grid-sedang{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+/* Grid kecil */
+.grid-kecil{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+/* List */
+.grid-list{display:flex;flex-direction:column;gap:8px}
+
+/* ── FOTO CARD ── */
+.foto-card{border-radius:var(--rnd);overflow:hidden;border:1px solid var(--bdr);background:var(--card);cursor:pointer;transition:all .18s;position:relative}
+.foto-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.12)}
+.foto-card.selected{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.foto-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--sur);display:block}
+.foto-thumb.loading{background:linear-gradient(110deg,var(--sur) 30%,var(--card2) 50%,var(--sur) 70%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.foto-info{padding:8px 10px}
+.foto-nama{font-size:11px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foto-meta{font-size:10px;color:var(--mut);margin-top:2px}
+.foto-cb{font-size:10px;color:var(--mut2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foto-check{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--acc);display:none;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.foto-card.selected .foto-check{display:flex}
+
+/* List view card */
+.foto-card.list-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px}
+.foto-card.list-item .foto-thumb{width:60px;height:45px;border-radius:6px;flex-shrink:0;aspect-ratio:unset}
+.foto-card.list-item .foto-info{padding:0;flex:1}
+.foto-card.list-item .foto-nama{font-size:13px}
+
+/* ── LIGHTBOX ── */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+.lightbox.open{display:flex}
+.lb-inner{background:var(--card);border-radius:16px;border:1px solid var(--bdr2);max-width:900px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+.lb-header{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px}
+.lb-title{font-weight:800;font-size:14px;flex:1}
+.lb-meta{font-size:11px;color:var(--mut)}
+.lb-close{padding:6px 12px;border-radius:7px;border:1px solid var(--bdr2);background:var(--card2);color:var(--mut2);cursor:pointer;font-size:12px;font-weight:700;font-family:inherit}
+.lb-img-wrap{flex:1;overflow:hidden;background:var(--sur);display:flex;align-items:center;justify-content:center;min-height:300px}
+.lb-img{max-width:100%;max-height:60vh;object-fit:contain;display:block}
+.lb-footer{padding:12px 18px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.lb-nav{padding:7px 14px;border-radius:8px;border:1px solid var(--bdr2);background:var(--card2);color:var(--txt);cursor:pointer;font-size:12px;font-weight:700;font-family:inherit}
+.lb-nav:disabled{opacity:.3;cursor:default}
+.lb-idx{font-size:12px;color:var(--mut);flex:1;text-align:center}
+
+/* ── EMPTY / LOADING ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 20px;color:var(--mut)}
+.empty-icon{font-size:48px;opacity:.4}
+.empty-title{font-size:16px;font-weight:700;color:var(--mut2)}
+.empty-desc{font-size:12px;text-align:center;max-width:300px;line-height:1.7}
+
+/* ── SELECTION BAR ── */
+.sel-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--acc-bdr);border-radius:40px;padding:10px 20px;display:flex;align-items:center;gap:12px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.4);display:none}
+.sel-bar.show{display:flex}
+.sel-count{font-size:13px;font-weight:800;color:var(--acc)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--bdr2);border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;color:var(--txt);z-index:500;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">GALERI</div>
+  <div class="hdr-title">Foto Kunjungan <span class="hdr-sub">BEN SCN Manggarai</span></div>
+  <div class="hdr-right">
+    <button class="hbtn" onclick="refreshData()">🔄 Refresh</button>
+    <button class="hbtn primary" onclick="downloadSelected()" id="btnDlSel" style="display:none">⬇️ Unduh Dipilih</button>
+    <button class="hbtn primary" onclick="downloadAll()">⬇️ Unduh Semua</button>
+    <button class="hbtn" onclick="exportExcel()">📊 Export Excel</button>
+    <!-- Hapus Dipilih / Hapus Semua disembunyikan: endpoint deleteFoto di Apps Script belum
+         memiliki proteksi login/token/admin, sehingga aksi hapus permanen ke Drive ini
+         tidak aman untuk ditampilkan ke semua pengguna dashboard. -->
+    <button class="hbtn danger" onclick="deleteSelected()" id="btnDelSel" style="display:none">🗑️ Hapus Dipilih</button>
+    <button class="hbtn danger" onclick="deleteAll()" id="btnDelAll" style="display:none">🗑️ Hapus Semua</button>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="stat-chip">Total: <b id="statTotal">–</b> foto</div>
+  <div class="stat-chip">Anak: <b id="statAnak">–</b></div>
+  <div class="stat-chip">CBR Worker: <b id="statCBR">–</b></div>
+  <div id="syncStatus">Memuat...</div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Cari nama anak..." oninput="applyFilter()">
+  <select id="filterCBR" onchange="applyFilter()">
+    <option value="">Semua CBR Worker</option>
+  </select>
+  <select id="filterBulan" onchange="applyFilter()">
+    <option value="">Semua Bulan</option>
+  </select>
+  <div class="view-toggle">
+    <button class="vtbtn act" title="Grid Besar" onclick="setView('besar',this)">⊞</button>
+    <button class="vtbtn" title="Grid Sedang" onclick="setView('sedang',this)">⊟</button>
+    <button class="vtbtn" title="Grid Kecil" onclick="setView('kecil',this)">⊠</button>
+    <button class="vtbtn" title="List" onclick="setView('list',this)">☰</button>
+  </div>
+</div>
+
+<!-- GALERI WRAP -->
+<div class="galeri-wrap" id="galeriWrap">
+  <div class="empty">
+    <div class="empty-icon">🖼️</div>
+    <div class="empty-title">Memuat foto...</div>
+    <div class="empty-desc">Mengambil data dari server</div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLB(event)">
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <div class="lb-header">
+      <div>
+        <div class="lb-title" id="lbNama">–</div>
+        <div class="lb-meta" id="lbMeta">–</div>
+      </div>
+      <button class="lb-close" onclick="closeLightbox()">✕ Tutup</button>
+    </div>
+    <div class="lb-img-wrap">
+      <img class="lb-img" id="lbImg" src="" alt="">
+    </div>
+    <div class="lb-footer">
+      <button class="lb-nav" id="lbPrev" onclick="lbNav(-1)">← Sebelumnya</button>
+      <div class="lb-idx" id="lbIdx"></div>
+      <button class="lb-nav" id="lbNext" onclick="lbNav(1)">Berikutnya →</button>
+      <button class="hbtn primary" onclick="downloadCurrent()">⬇️ Unduh</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELECTION BAR -->
+<div class="sel-bar" id="selBar">
+  <span class="sel-count" id="selCount">0 dipilih</span>
+  <button class="hbtn" onclick="clearSelection()">Batal</button>
+  <button class="hbtn primary" onclick="downloadSelected()">⬇️ Unduh</button>
+  <!-- Tombol Hapus disembunyikan: lihat catatan keamanan di header -->
+  <button class="hbtn danger" onclick="deleteSelected()" id="selBarDelBtn" style="display:none">🗑️ Hapus</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// KONFIGURASI APPS SCRIPT WEB APP — SATU TEMPAT UNTUK SEMUA ENDPOINT
+// Ganti URL di sini saja jika Apps Script di-deploy ulang.
+// ═══════════════════════════════════════════════════════
+const CONFIG = {
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxSE2RBgBb7v-hWeYYa_1olFwQDPFktPJIMyiSPlY-vLwSG5Oe2LS5xiSdyDXbPllLiGg/exec',
+};
+const APPS_SCRIPT_URL = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode di bawah
+
+let ALL_FOTO = [];
+let FILTERED = [];
+let SELECTED = new Set();
+let CURRENT_VIEW = 'besar';
+let LB_IDX = 0;
+
+// ── FETCH DATA ────────────────────────────────────────────────
+async function refreshData() {
+  setSyncStatus('⏳ Memuat...', 'loading');
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL + '?sheet=FotoObs');
+    const json = await resp.json();
+    if (json.error) throw new Error(json.error);
+    ALL_FOTO = (json.data || []).filter(r => r.na && r.thumb_url);
+    setSyncStatus('✅ ' + ALL_FOTO.length + ' foto · ' + formatTime(json.lastSync), 'ok');
+    populateFilters();
+    applyFilter();
+  } catch(err) {
+    setSyncStatus('❌ Gagal: ' + err.message, 'err');
+    showEmpty('Gagal memuat foto', err.message);
+  }
+}
+
+function setSyncStatus(msg, type) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = msg;
+  el.className = type || '';
+}
+
+function formatTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) { return iso; }
+}
+
+// ── FILTER ────────────────────────────────────────────────────
+function populateFilters() {
+  const cbrs = [...new Set(ALL_FOTO.map(r => r.cb).filter(Boolean))].sort();
+  const sel = document.getElementById('filterCBR');
+  sel.innerHTML = '<option value="">Semua CBR Worker</option>';
+  cbrs.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+
+  const bulans = [...new Set(ALL_FOTO.map(r => (r.tgl||'').substring(0,7)).filter(Boolean))].sort().reverse();
+  const selB = document.getElementById('filterBulan');
+  selB.innerHTML = '<option value="">Semua Bulan</option>';
+  bulans.forEach(b => {
+    const o = document.createElement('option'); o.value = b;
+    const [y,m] = b.split('-');
+    const names = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+    o.textContent = names[parseInt(m)] + ' ' + y;
+    selB.appendChild(o);
+  });
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cbr = document.getElementById('filterCBR').value;
+  const bln = document.getElementById('filterBulan').value;
+
+  FILTERED = ALL_FOTO.filter(r => {
+    if (q && !(r.na||'').toLowerCase().includes(q)) return false;
+    if (cbr && r.cb !== cbr) return false;
+    if (bln && !(r.tgl||'').startsWith(bln)) return false;
+    return true;
+  });
+
+  // Update stats
+  document.getElementById('statTotal').textContent = FILTERED.length;
+  document.getElementById('statAnak').textContent = new Set(FILTERED.map(r=>r.na)).size;
+  document.getElementById('statCBR').textContent = new Set(FILTERED.map(r=>r.cb)).size;
+
+  renderGaleri();
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function setView(v, btn) {
+  CURRENT_VIEW = v;
+  document.querySelectorAll('.vtbtn').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  renderGaleri();
+}
+
+function renderGaleri() {
+  const wrap = document.getElementById('galeriWrap');
+  if (!FILTERED.length) { showEmpty('Tidak ada foto', 'Coba ubah filter pencarian'); return; }
+
+  const gridClass = {
+    besar: 'grid-besar', sedang: 'grid-sedang',
+    kecil: 'grid-kecil', list: 'grid-list'
+  }[CURRENT_VIEW];
+
+  const isList = CURRENT_VIEW === 'list';
+  wrap.innerHTML = '<div class="' + gridClass + '" id="fotoGrid"></div>';
+  const grid = document.getElementById('fotoGrid');
+
+  FILTERED.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'foto-card' + (isList ? ' list-item' : '') + (SELECTED.has(r.drive_id) ? ' selected' : '');
+    card.dataset.idx = i;
+    card.onclick = (e) => { if (e.ctrlKey || e.metaKey || e.shiftKey) toggleSelect(r.drive_id, card); else openLightbox(i); };
+    card.oncontextmenu = (e) => { e.preventDefault(); toggleSelect(r.drive_id, card); };
+
+    const thumb = new Image();
+    thumb.className = 'foto-thumb loading';
+    thumb.alt = r.na;
+    thumb.onload = () => thumb.classList.remove('loading');
+    thumb.onerror = () => { thumb.src = ''; thumb.style.background = 'var(--card2)'; };
+    // Lazy load
+    thumb.dataset.src = r.thumb_url;
+
+    const info = document.createElement('div');
+    info.className = 'foto-info';
+    info.innerHTML = '<div class="foto-nama">' + (r.na||'–') + '</div>'
+      + '<div class="foto-meta">' + (r.tgl||'') + '</div>'
+      + '<div class="foto-cb">' + (r.cb||'') + '</div>';
+
+    const check = document.createElement('div');
+    check.className = 'foto-check';
+    check.textContent = '✓';
+
+    card.appendChild(thumb);
+    card.appendChild(info);
+    if (!isList) card.appendChild(check);
+    grid.appendChild(card);
+  });
+
+  // Lazy load dengan IntersectionObserver
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
+        obs.unobserve(img);
+      }
+    });
+  }, { rootMargin: '200px' });
+
+  document.querySelectorAll('.foto-thumb[data-src]').forEach(img => obs.observe(img));
+}
+
+function showEmpty(title, desc) {
+  document.getElementById('galeriWrap').innerHTML =
+    '<div class="empty"><div class="empty-icon">🖼️</div>'
+    + '<div class="empty-title">' + title + '</div>'
+    + '<div class="empty-desc">' + desc + '</div></div>';
+}
+
+// ── SELECTION ─────────────────────────────────────────────────
+function toggleSelect(id, card) {
+  if (SELECTED.has(id)) { SELECTED.delete(id); card.classList.remove('selected'); }
+  else { SELECTED.add(id); card.classList.add('selected'); }
+  updateSelBar();
+}
+
+function clearSelection() {
+  SELECTED.clear();
+  document.querySelectorAll('.foto-card.selected').forEach(c => c.classList.remove('selected'));
+  updateSelBar();
+}
+
+function updateSelBar() {
+  const n = SELECTED.size;
+  document.getElementById('selBar').className = 'sel-bar' + (n > 0 ? ' show' : '');
+  document.getElementById('selCount').textContent = n + ' dipilih';
+  document.getElementById('btnDlSel').style.display = n > 0 ? '' : 'none';
+  // btnDelSel / selBarDelBtn tetap disembunyikan (lihat catatan keamanan deleteFotos)
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────
+function openLightbox(idx) {
+  LB_IDX = idx;
+  showLB();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function showLB() {
+  const r = FILTERED[LB_IDX];
+  if (!r) return;
+  document.getElementById('lbNama').textContent = r.na || '–';
+  document.getElementById('lbMeta').textContent = (r.cb||'') + ' · ' + (r.tgl||'');
+  document.getElementById('lbIdx').textContent = (LB_IDX+1) + ' / ' + FILTERED.length;
+  document.getElementById('lbPrev').disabled = LB_IDX === 0;
+  document.getElementById('lbNext').disabled = LB_IDX === FILTERED.length-1;
+  const img = document.getElementById('lbImg');
+  img.src = '';
+  img.src = r.thumb_url;
+}
+
+function lbNav(dir) { LB_IDX += dir; showLB(); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+function closeLB(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); }
+
+// ── DOWNLOAD ──────────────────────────────────────────────────
+function downloadCurrent() {
+  const r = FILTERED[LB_IDX];
+  if (!r) return;
+  triggerDownload(r.drive_url, r.filename || r.na + '.jpg');
+}
+
+function downloadSelected() {
+  const sel = FILTERED.filter(r => SELECTED.has(r.drive_id));
+  if (!sel.length) { showToast('Pilih foto dulu'); return; }
+  sel.forEach((r, i) => setTimeout(() => triggerDownload(r.drive_url, r.filename || r.na + '.jpg'), i * 300));
+  showToast('Mengunduh ' + sel.length + ' foto...');
+}
+
+function downloadAll() {
+  if (!FILTERED.length) { showToast('Tidak ada foto'); return; }
+  if (!confirm('Unduh semua ' + FILTERED.length + ' foto yang tampil?')) return;
+  FILTERED.forEach((r, i) => setTimeout(() => triggerDownload(r.drive_url, r.filename || r.na + '.jpg'), i * 400));
+  showToast('Mengunduh ' + FILTERED.length + ' foto...');
+}
+
+function triggerDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ── EXPORT EXCEL ──────────────────────────────────────────────
+function exportExcel() {
+  if (!FILTERED.length) { showToast('Tidak ada data untuk diekspor'); return; }
+  const rows = FILTERED.map(r => ({
+    'Nama Anak': r.na || '',
+    'CBR Worker': r.cb || '',
+    'Tanggal Kunjungan': r.tgl || '',
+    'Nama File': r.filename || '',
+    'Link Foto': r.drive_url || '',
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Galeri Foto');
+  const now = new Date();
+  XLSX.writeFile(wb, 'Galeri-Foto-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+// ── DELETE ────────────────────────────────────────────────────
+// CATATAN KEAMANAN: Apps Script untuk action=deleteFoto belum memiliki proteksi
+// login/token/admin. Tombol pemicunya disembunyikan di UI (lihat header & sel-bar).
+// Fungsi di bawah tetap dijaga dengan konfirmasi ganda sebagai lapisan pertahanan kedua
+// seandainya dipanggil langsung dari console, namun TIDAK dianjurkan diaktifkan kembali
+// di UI sebelum Apps Script memiliki autentikasi yang layak.
+async function deleteSelected() {
+  if (!confirm('Fitur hapus foto belum diamankan dengan login/token admin di Apps Script.\nLanjutkan tetap menghapus dari Drive?')) return;
+  const sel = FILTERED.filter(r => SELECTED.has(r.drive_id));
+  if (!sel.length) { showToast('Pilih foto dulu'); return; }
+  if (!confirm('Hapus ' + sel.length + ' foto dari Drive?')) return;
+  await deleteFotos(sel);
+}
+
+async function deleteAll() {
+  if (!confirm('Fitur hapus foto belum diamankan dengan login/token admin di Apps Script.\nLanjutkan tetap menghapus dari Drive?')) return;
+  if (!FILTERED.length) return;
+  if (!confirm('Hapus SEMUA ' + FILTERED.length + ' foto yang tampil dari Drive?\nTindakan ini tidak bisa dibatalkan.')) return;
+  await deleteFotos(FILTERED);
+}
+
+async function deleteFotos(list) {
+  showToast('Menghapus ' + list.length + ' foto...');
+  let ok = 0;
+  for (const r of list) {
+    try {
+      await fetch(APPS_SCRIPT_URL + '?action=deleteFoto&driveId=' + encodeURIComponent(r.drive_id));
+      ok++;
+    } catch(e) {}
+  }
+  showToast(ok + ' foto dihapus');
+  clearSelection();
+  await refreshData();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowLeft') lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+    if (e.key === 'Escape') closeLightbox();
+  }
+  if (e.key === 'Escape') clearSelection();
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+refreshData();
+</script>
+</body>
+</html>

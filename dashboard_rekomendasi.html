@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rekomendasi & Tindak Lanjut – BEN SCN Manggarai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#060b18;--sur:#0a1020;--card:#0e1628;--card2:#121e32;
+  --bdr:#1a2a44;--bdr2:#243654;
+  --acc:#4f8ef7;--grn:#22c55e;--amb:#f59e0b;--red:#ef4444;
+  --pur:#a78bfa;--cyn:#06b6d4;--orn:#f97316;
+  --txt:#e8f0ff;--mut:#5a7096;--mut2:#7a90b0;--faint:#111e38;--rnd:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{height:52px;flex-shrink:0;background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 20px;display:flex;align-items:center;gap:12px}
+.tb-title{font-size:15px;font-weight:800;color:var(--txt)}
+.tb-sub{font-size:11px;color:var(--mut2);margin-top:1px}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tb-badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:99px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--amb)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr);color:var(--mut2);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
+.back-btn:hover{color:var(--txt);border-color:var(--bdr2);background:var(--card2)}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+.view{display:none}.view.act{display:block}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:12px 15px;position:relative;overflow:hidden;cursor:pointer;transition:all .15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.kpi.active{border-width:2px}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--kc,var(--acc))}
+.kpi .v{font-size:26px;font-weight:800;line-height:1;color:var(--kc,var(--acc))}
+.kpi .l{font-size:10px;color:var(--mut);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:8px 12px 8px 34px;font-size:12px;outline:none;font-family:inherit;transition:border-color .15s}
+.search-wrap input:focus{border-color:var(--amb)}
+.search-wrap .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:13px;pointer-events:none}
+.fsel{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:12px;outline:none;cursor:pointer;font-family:inherit}
+.fsel:focus{border-color:var(--amb)}
+.filter-count{font-size:11px;font-weight:700;color:var(--mut2);padding:4px 10px;background:var(--card2);border-radius:6px;border:1px solid var(--bdr)}
+
+/* ── LIST ANAK ── */
+.reco-list{display:flex;flex-direction:column;gap:8px}
+.reco-item{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:13px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
+.reco-item:hover{border-color:var(--bdr2);background:var(--card2)}
+.reco-item .ri-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.reco-item .ri-body{flex:1;min-width:0}
+.reco-item .ri-name{font-size:13px;font-weight:700;color:var(--txt)}
+.reco-item .ri-sub{font-size:11px;color:var(--mut2);margin-top:1px}
+.reco-item .ri-priority{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;flex-shrink:0;white-space:nowrap}
+.pr-tinggi{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.pr-sedang{background:rgba(245,158,11,.12);color:var(--amb);border:1px solid rgba(245,158,11,.3)}
+.pr-rendah{background:rgba(34,197,94,.12);color:var(--grn);border:1px solid rgba(34,197,94,.3)}
+.ri-arrow{color:var(--mut);font-size:13px;flex-shrink:0}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:12px;color:var(--mut);text-align:center}
+.empty .ico{font-size:44px;opacity:.3}
+.empty h2{font-size:17px;font-weight:700;color:var(--txt)}
+.empty p{font-size:13px;line-height:1.7;max-width:360px}
+
+/* ── DETAIL PANEL ── */
+.detail-hdr{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.05));border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:22px;margin-bottom:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.d-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex-shrink:0}
+.d-name{font-size:20px;font-weight:900;letter-spacing:-.4px;margin-bottom:3px}
+.d-cbr{font-size:12px;color:var(--mut2);margin-bottom:10px}
+.d-meta{display:flex;flex-wrap:wrap;gap:6px}
+.dm{font-size:11px;color:var(--mut2);background:rgba(255,255,255,.04);border:1px solid var(--bdr);padding:3px 9px;border-radius:99px}
+.dm span{color:var(--txt);font-weight:700}
+.d-priority-box{margin-left:auto;text-align:center;border-radius:10px;padding:12px 18px;flex-shrink:0;min-width:110px}
+.dp-val{font-size:15px;font-weight:900;line-height:1.2}
+.dp-lbl{font-size:9px;color:var(--mut2);margin-top:4px;text-transform:uppercase;letter-spacing:.6px}
+
+/* 3 Masalah Utama */
+.masalah-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:16px;margin-bottom:14px}
+.masalah-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--mut2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.masalah-hd .dot{width:6px;height:6px;border-radius:50%;background:var(--amb)}
+.masalah-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--faint)}
+.masalah-item:last-child{border-bottom:none;padding-bottom:0}
+.masalah-num{width:26px;height:26px;border-radius:50%;background:rgba(245,158,11,.12);color:var(--amb);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.masalah-body{flex:1}
+.masalah-text{font-size:13px;color:var(--txt);line-height:1.7;margin-bottom:8px}
+.masalah-pihak{display:flex;flex-wrap:wrap;gap:5px}
+.pihak-tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(79,142,247,.1);color:var(--acc);border:1px solid rgba(79,142,247,.25)}
+
+
+/* Panel anak kiri (mirip dashboard_anak) */
+.panel-wrap{display:flex;flex:1;overflow:hidden}
+.nama-panel{width:220px;flex-shrink:0;background:var(--sur);border-right:1px solid var(--bdr);overflow-y:auto;display:none;flex-direction:column}
+.nama-panel.open{display:flex}
+.np-header{padding:12px 14px 8px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.np-search{padding:8px 10px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.np-search input{width:100%;background:var(--faint);border:1px solid var(--bdr);color:var(--txt);border-radius:6px;padding:5px 9px;font-size:11px;outline:none;font-family:inherit}
+.np-search input:focus{border-color:var(--amb)}
+.np-list{flex:1;overflow-y:auto;padding:4px 0}
+.np-item{padding:8px 14px;cursor:pointer;transition:background .12s;font-size:12px;font-weight:600;color:var(--mut2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:7px;border-left:3px solid transparent}
+.np-item:hover{background:var(--faint);color:var(--txt)}
+.np-item.act{background:rgba(245,158,11,.1);color:var(--amb);border-left-color:var(--amb)}
+.np-pri-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.np-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.main-content{flex:1;overflow-y:auto;padding:16px 20px}
+
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:14px;color:var(--mut)}
+.spin{width:32px;height:32px;border:3px solid var(--bdr);border-top-color:var(--amb);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <div class="tb-title">Rekomendasi &amp; Tindak Lanjut</div>
+    <div class="tb-sub">Analisis Data Awal + Observasi · Building Effective Network</div>
+  </div>
+  <div class="tb-right">
+    <button class="back-btn" onclick="fetchAllData()" title="Tarik data terbaru dari Apps Script">🔄 Refresh Data</button>
+    <button class="back-btn" onclick="exportExcel()" title="Export ke Excel">📊 Export Excel</button>
+    <div class="tb-badge" id="tbBadge">0 anak</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="panel-wrap">
+
+  <!-- PANEL NAMA (kiri, muncul saat detail anak dibuka) -->
+  <div class="nama-panel" id="namaPanel">
+    <div class="np-header">Daftar Anak</div>
+    <div class="np-search"><input id="npSearch" type="text" placeholder="Cari nama..." oninput="filterNamaPanel()"></div>
+    <div class="np-search" style="padding-top:0">
+      <select class="fsel" id="npFilterCBR" onchange="filterNamaPanel()" style="width:100%;font-size:11px;padding:5px 9px">
+        <option value="">Semua CBR Worker</option>
+      </select>
+    </div>
+    <div class="np-list" id="npList"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+
+    <!-- VIEW: CBR (list + detail) -->
+    <div class="view act" id="view-cbr">
+
+      <!-- LIST MODE -->
+      <div id="cbr-list-mode">
+        <div class="kpi-row" id="kpiRow"></div>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="si">🔍</span>
+            <input id="searchInput" type="text" placeholder="Cari nama anak, CBR Worker..." oninput="filterReko()">
+          </div>
+          <select class="fsel" id="filterCBR" onchange="filterReko()"><option value="">Semua CBR Worker</option></select>
+          <select class="fsel" id="filterPriority" onchange="filterReko()">
+            <option value="">Semua Prioritas</option>
+            <option value="tinggi">🔴 Prioritas Tinggi</option>
+            <option value="sedang">🟡 Prioritas Sedang</option>
+            <option value="rendah">🟢 Prioritas Rendah</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:11px;color:var(--mut2)">Menampilkan:</span>
+          <span class="filter-count" id="filterCount">0 anak</span>
+        </div>
+
+        <div class="reco-list" id="recoList"></div>
+        <div class="empty" id="emptyState" style="display:none">
+          <div class="ico">🔍</div>
+          <h2>Tidak ada hasil</h2>
+          <p>Coba ubah kata pencarian atau filter yang digunakan.</p>
+        </div>
+      </div>
+
+      <!-- DETAIL MODE -->
+      <div id="cbr-detail-mode" style="display:none"></div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-state" id="loadingState">
+      <div class="spin"></div>
+      <div>Memuat data dari Apps Script...</div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+<script>
+// ═══════════════════════════════════════════════════════
+// KONFIGURASI APPS SCRIPT WEB APP — SATU TEMPAT UNTUK SEMUA ENDPOINT
+// Ganti URL di sini saja jika Apps Script di-deploy ulang.
+// ═══════════════════════════════════════════════════════
+const CONFIG = {
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxSE2RBgBb7v-hWeYYa_1olFwQDPFktPJIMyiSPlY-vLwSG5Oe2LS5xiSdyDXbPllLiGg/exec',
+};
+const APPS_SCRIPT_URL = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode di bawah
+
+var DATA_AWAL = [];
+var DATA_OBS  = [];
+var SEMUA_ANAK = [];
+var ANALISIS = []; // hasil analisis lengkap per anak
+var activeAnak = null;
+var filteredReko = [];
+
+// ── FETCH DATA ─────────────────────────────────────────────
+// localStorage di sini HANYA dipakai sebagai cache fallback bila fetch Apps Script gagal
+// (misalnya koneksi putus). Setiap kali fetch berhasil, cache langsung ditimpa dengan
+// data terbaru — refresh browser tidak akan pernah mengembalikan ke data lama/basi
+// selama Apps Script bisa diakses.
+async function fetchAllData() {
+  try {
+    const [r1, r2, r3] = await Promise.all([
+      fetch(APPS_SCRIPT_URL + '?sheet=DataAwal'),
+      fetch(APPS_SCRIPT_URL + '?sheet=DataObs'),
+      fetch(APPS_SCRIPT_URL + '?sheet=SemuaAnak'),
+    ]);
+    const [j1, j2, j3] = await Promise.all([r1.json(), r2.json(), r3.json()]);
+
+    DATA_AWAL = (j1.data || []).map(r => ({
+      na: r.na||'', np: r.np||'',
+      u: r.u !== null ? Number(r.u) : null,
+      j: r.j||'', k: r.k||'', d: r.d||'',
+      rg: r.rg||'', lv: r.lv||'', gu: r.gu||'', cb: r.cb||'',
+      ep: r.ep||'Tidak', ob: r.ob||'Tidak', tr: r.tr||'Tidak',
+      sp: r.sp !== null && r.sp !== '' ? Number(r.sp) : null,
+      sa: r.sa !== null && r.sa !== '' ? Number(r.sa) : null,
+      nkp: r.nkp||'', tkp: r.tkp||'', nka: r.nka||'', tka: r.tka||'',
+      lat: r.lat !== null ? Number(r.lat) : null,
+      lon: r.lon !== null ? Number(r.lon) : null,
+    })).filter(r => r.na);
+
+    DATA_OBS = (j2.data || []).map(r => ({
+      na: r.na||'', cb: r.cb||'', tgl: r.tgl||'',
+      st: r.st||'', kg: r.kg||'', pf: r.pf||'', lg: r.lg||'',
+    })).filter(r => r.na);
+
+    SEMUA_ANAK = j3.data || [];
+
+    try {
+      localStorage.setItem('reko_data_awal', JSON.stringify(DATA_AWAL));
+      localStorage.setItem('reko_data_obs', JSON.stringify(DATA_OBS));
+      localStorage.setItem('reko_semua_anak', JSON.stringify(SEMUA_ANAK));
+      localStorage.setItem('reko_last_sync', new Date().toISOString());
+    } catch(e) {}
+
+    runAnalysis();
+    document.getElementById('loadingState').style.display = 'none';
+    initView();
+  } catch (err) {
+    console.error('fetchAllData error:', err);
+    // Fallback ke cache lokal bila ada
+    try {
+      const cAwal = localStorage.getItem('reko_data_awal');
+      const cObs  = localStorage.getItem('reko_data_obs');
+      const cAnak = localStorage.getItem('reko_semua_anak');
+      if (cAwal && cObs && cAnak) {
+        DATA_AWAL = JSON.parse(cAwal);
+        DATA_OBS  = JSON.parse(cObs);
+        SEMUA_ANAK = JSON.parse(cAnak);
+        runAnalysis();
+        document.getElementById('loadingState').style.display = 'none';
+        initView();
+        return;
+      }
+    } catch(e2) {}
+    document.getElementById('loadingState').innerHTML =
+      '<div style="color:var(--red)">⚠️ Gagal memuat data. Periksa koneksi atau Apps Script.</div>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', fetchAllData);
+
+// ═══════════════════════════════════════════════════════════
+// ENGINE ANALISIS — sama dengan sistem ICF di dashboard Observasi
+// ═══════════════════════════════════════════════════════════
+const THEMES_ICF = {
+  struktur: [
+    { label:'Fungsi Mental & Saraf', domain:'Struktur Tubuh',
+      pos:['mental baik','daya ingat baik','intelektual baik','memori baik','tidur teratur','paham instruksi','mengerti perintah','kognitif baik','aktif berpikir'],
+      neg:['mental rendah','intelektual rendah','memori rendah','gangguan mental','tidur terganggu','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','tidak paham','tidak mengerti','kognitif terganggu','cp ','gangguan belajar','kesulitan belajar','tidak fokus','hiperaktif'],
+      rencana:'Jadwalkan pemeriksaan ke Puskesmas untuk asesmen lebih lanjut, dan diskusikan dengan keluarga latihan stimulasi sederhana yang bisa dilakukan di rumah.',
+      pihak:['Puskesmas'] },
+    { label:'Fungsi Indra (Penglihatan)', domain:'Struktur Tubuh',
+      pos:['penglihatan baik','melihat dengan baik','mata baik','melihat normal','bisa melihat','penglihatan bekerja','melihat jelas'],
+      neg:['gangguan penglihatan','tidak bisa melihat','buta','tunanetra','netra','low vision','penglihatan terbatas','juling','rabun','sisa penglihatan'],
+      rencana:'Rujuk untuk pemeriksaan mata, dan jika belum punya alat bantu (kacamata/tongkat), ajukan melalui Puskesmas.',
+      pihak:['Puskesmas'] },
+    { label:'Fungsi Indra (Pendengaran)', domain:'Struktur Tubuh',
+      pos:['pendengaran baik','mendengar dengan baik','telinga baik','bisa mendengar','pendengaran normal','mendengar normal'],
+      neg:['gangguan pendengaran','tidak bisa mendengar','tuli','tunarungu','rungu','tidak mendengar','kurang dengar'],
+      rencana:'Rujuk untuk pemeriksaan THT, dan cek kemungkinan kebutuhan alat bantu dengar.',
+      pihak:['Puskesmas'] },
+    { label:'Fungsi Suara & Komunikasi', domain:'Struktur Tubuh',
+      pos:['bicara lancar','bicara jelas','komunikasi baik','suara baik','bisa berbicara','bicara baik','berbicara lancar','ucapan jelas'],
+      neg:['tidak bisa bicara','bicara tidak jelas','bicara kurang jelas','gangguan bicara','tidak lancar','bisu','wicara','belum bisa bicara','cadel','pelo'],
+      rencana:'Latih komunikasi sederhana bersama keluarga di rumah (gestur, kartu gambar, atau kata kunci), dan pertimbangkan rujukan terapi wicara jika tidak ada kemajuan dalam 3 bulan.',
+      pihak:null },
+    { label:'Fungsi Gerak & Motorik', domain:'Struktur Tubuh',
+      pos:['bisa berjalan','berjalan normal','gerak baik','motorik baik','bergerak bebas','bisa bergerak','bisa berdiri','berjalan sendiri','aktif bergerak'],
+      neg:['tidak bisa berjalan','lumpuh','kelumpuhan','kaku','otot kaku','tidak bisa berdiri','merangkak','kursi roda','motorik terganggu','pincang','bengkok','deformitas','tidak dapat berjalan'],
+      rencana:'Cek kebutuhan alat bantu gerak (kursi roda/tongkat) dan ajukan ke Dinas Sosial jika belum tersedia.',
+      pihak:['Dinas Sosial'] },
+    { label:'Fungsi Jantung & Pernafasan', domain:'Struktur Tubuh',
+      pos:['jantung baik','jantung sehat','pernafasan baik','napas normal','tidak ada masalah jantung','berfungsi dengan baik','tidak ada gangguan'],
+      neg:['jantung bermasalah','gangguan jantung','jantung lemah','pernafasan terganggu','epilepsi','kejang','sesak','asma','gangguan napas'],
+      rencana:'Jadwalkan pemeriksaan medis lanjutan ke Puskesmas dalam waktu dekat.',
+      pihak:['Puskesmas'] },
+    { label:'Fungsi Pencernaan & Nutrisi', domain:'Struktur Tubuh',
+      pos:['pencernaan baik','bab lancar','bak lancar','makan dengan baik','nafsu makan baik','gizi baik','makan normal','makan sendiri'],
+      neg:['gangguan pencernaan','stunting','tidak bisa menelan','tidak bisa mengunyah','masalah makan','sulit makan','tidak mau makan','disuapi','makan dibantu'],
+      rencana:'Konsultasikan pola makan dan tumbuh kembang anak ke Posyandu/Puskesmas terdekat.',
+      pihak:['Puskesmas'] },
+  ],
+  kegiatan: [
+    { label:'Pendidikan & Belajar', domain:'Kegiatan & Partisipasi',
+      pos:['bersekolah','sekolah','belajar','kelas','sd','smp','sma','paud','slb','lulus','ikut sekolah'],
+      neg:['tidak sekolah','belum sekolah','putus sekolah','tidak pernah sekolah','tidak bisa sekolah','keluar sekolah','drop out'],
+      rencana:'Diskusikan bersama keluarga kemungkinan akses sekolah inklusif atau SLB terdekat, dan jadikan ini target konkret 3 bulan ke depan.',
+      pihak:['Sekolah/SLB','Dinas Pendidikan'] },
+    { label:'Mobilitas & Perpindahan', domain:'Kegiatan & Partisipasi',
+      pos:['bisa berjalan','berjalan mandiri','bergerak mandiri','mobilitas baik','bisa bergerak sendiri','bisa berdiri','bisa berlari'],
+      neg:['tidak bisa berjalan','membutuhkan bantuan berjalan','kursi roda','merangkak','mobilitas terbatas','digendong','didorong kursi'],
+      rencana:'Cek kebutuhan alat bantu mobilitas dan kondisi akses rumah (jalan masuk, kamar mandi).',
+      pihak:['Dinas Sosial'] },
+    { label:'Perawatan Diri', domain:'Kegiatan & Partisipasi',
+      pos:['mandiri mandi','bisa mandi sendiri','bisa berpakaian','bisa makan sendiri','mengurus diri','mandi sendiri','makan sendiri','berpakaian sendiri'],
+      neg:['semua dibantu','bantuan total','tidak bisa mandi','tidak bisa berpakaian','tidak bisa makan sendiri','disuapi','diurus orang tua','belum mandiri','dimandikan','dipakaikan'],
+      rencana:'Susun latihan kemandirian bertahap bersama pengasuh (misal: mulai dari memegang sendok sendiri), sesuaikan dengan kemampuan anak saat ini.',
+      pihak:null },
+    { label:'Komunikasi & Interaksi', domain:'Kegiatan & Partisipasi',
+      pos:['komunikasi baik','interaksi baik','mengerti perintah','memahami instruksi','bisa berkomunikasi','bergaul dengan baik','aktif berinteraksi','merespons'],
+      neg:['komunikasi terbatas','tidak bisa berkomunikasi','tidak mengerti perintah','tidak memahami','interaksi terbatas','tidak merespons'],
+      rencana:'Latih instruksi sederhana secara konsisten di rumah, dan pantau perkembangan setiap kunjungan.',
+      pihak:null },
+    { label:'Pekerjaan Rumah Tangga', domain:'Kegiatan & Partisipasi',
+      pos:['membantu pekerjaan','menyapu','mencuci piring','membantu orang tua','pekerjaan rumah','bersih-bersih','memasak','mengepel','kerja rumah'],
+      neg:['tidak bisa membantu','semua dibantu orang lain','tidak bisa melakukan pekerjaan','hanya berbaring','tidak bisa kerja rumah'],
+      rencana:'Sesuaikan ekspektasi dengan kapasitas anak; jika memungkinkan, libatkan dalam tugas rumah sederhana secara bertahap.',
+      pihak:null },
+    { label:'Interaksi Sosial & Bermain', domain:'Kegiatan & Partisipasi',
+      pos:['bermain bersama','punya teman','berkumpul bersama','aktif bermain','banyak teman','bergaul','suka bermain','teman sebaya'],
+      neg:['tidak punya teman','jarang bermain','tidak bisa bermain','menarik diri','isolasi sosial','tidak mau bermain','tidak ada teman'],
+      rencana:'Dorong keterlibatan anak dalam kegiatan bermain dengan anak sebaya di lingkungan sekitar secara bertahap.',
+      pihak:null },
+    { label:'Partisipasi Komunitas', domain:'Kegiatan & Partisipasi',
+      pos:['ikut kegiatan','aktif di komunitas','kegiatan gereja','omk','kegiatan masyarakat','terlibat kegiatan','kegiatan desa','kegiatan kampung','doa giliran','berkumpul dengan','ikut doa','aktif di lingkungan','ikut serta','posyandu','pertemuan'],
+      neg:['tidak ikut kegiatan','tidak berpartisipasi','tidak terlibat','jarang berkumpul','tidak keluar rumah','tidak ada aktivitas komunitas','tidak pernah ikut','lebih banyak di rumah'],
+      rencana:'Ajak anak ikut serta dalam kegiatan komunitas/keagamaan yang sudah berjalan di lingkungan, mulai dari skala kecil.',
+      pihak:null },
+  ],
+  personal: [
+    { label:'Hambatan Emosional', domain:'Faktor Personal',
+      kw:['pemalu','minder','cepat marah','sering menangis','sedih','takut','cemas','tidak percaya diri','menarik diri','mudah tersinggung','agresif','tantrum'],
+      rencana:'Bicarakan dengan keluarga apa yang memicu kondisi emosional ini, dan susun pendekatan yang konsisten untuk membantu anak merasa lebih aman.',
+      pihak:null },
+    { label:'Kepercayaan Diri Rendah', domain:'Faktor Personal',
+      kw:['tidak percaya diri','minder','malu','tidak berani','ragu-ragu'],
+      rencana:'Berikan kesempatan kecil bagi anak untuk berhasil melakukan sesuatu sendiri, lalu apresiasi setiap pencapaiannya.',
+      pihak:null },
+  ],
+  lingkungan: [
+    { label:'Kondisi Ekonomi', domain:'Faktor Lingkungan',
+      pos:['ekonomi baik','penghasilan cukup','ekonomi cukup','cukup mampu','ekonomi stabil','pendapatan cukup'],
+      neg:['pas-pasan','penghasilan rendah','keluarga miskin','prasejahtera','ekonomi lemah','tidak mampu','penghasilan tidak tetap','kondisi ekonomi memprihatinkan','penghasilan kecil','ekonomi sulit','ekonomi rendah','kekurangan','petani miskin','buruh','tidak punya penghasilan'],
+      rencana:'Cek status penerima bantuan sosial keluarga; jika belum terdaftar, dampingi proses pengajuan ke Pemerintah Desa.',
+      pihak:['Pemerintah Desa'] },
+    { label:'Kondisi Rumah', domain:'Faktor Lingkungan',
+      pos:['rumah permanen','rumah tembok','rumah layak','aksesibel','kondisi rumah baik','lantai keramik','bangunan permanen'],
+      neg:['semi permanen','rumah papan','rumah bambu','gubuk','lantai tanah','tidak aksesibel','rumah tidak layak','rumah darurat','rumah rusak'],
+      rencana:'Laporkan kondisi rumah ke Pemerintah Desa untuk dipertimbangkan dalam program rehabilitasi rumah tidak layak huni.',
+      pihak:['Pemerintah Desa'] },
+    { label:'Akses Layanan Kesehatan', domain:'Faktor Lingkungan',
+      pos:['puskesmas dekat','bpjs aktif','akses layanan mudah','fasilitas kesehatan dekat','mendapat layanan kesehatan','ada puskesmas','ada dokter','posyandu','punya bpjs','memiliki bpjs','layanan kesehatan','dapat layanan','akses ke puskesmas','rumah sakit dekat'],
+      neg:['tidak punya bpjs','tidak memiliki bpjs','jauh dari puskesmas','tidak ada dokter','akses sulit','layanan jauh','tidak ada layanan','belum punya bpjs','tidak ada puskesmas'],
+      rencana:'Bantu keluarga mendaftarkan BPJS/KIS jika belum punya, agar akses layanan kesehatan ke depan lebih mudah.',
+      pihak:['Pemerintah Desa'] },
+    { label:'Dukungan Keluarga', domain:'Faktor Lingkungan',
+      pos:['keluarga mendukung','keluarga sayang','dukungan keluarga','orang tua mendukung','pengasuh baik','diasuh dengan baik','orang tua peduli','keluarga peduli','ibu mendukung','ayah mendukung','mendukung anak'],
+      neg:['tidak mendukung','tidak bertanggung jawab','tidak ada dukungan','diabaikan','kurang perhatian','orang tua abai','tidak peduli'],
+      rencana:'Bicarakan langsung dengan keluarga tentang kondisi ini secara terbuka, dan cari penyebab utama kurangnya keterlibatan untuk dicari solusinya bersama.',
+      pihak:null },
+    { label:'Sikap Masyarakat', domain:'Faktor Lingkungan',
+      pos:['diterima masyarakat','tidak ada stigma','lingkungan mendukung','diterima dengan baik','inklusif','diterima tetangga'],
+      neg:['stigma','digosipi','dikucilkan','tidak diterima','diskriminasi','bully','diejek','direndahkan','memandang sebelah'],
+      rencana:'Diskusikan dengan keluarga apakah perlu pendekatan ke tokoh masyarakat/tetangga sekitar untuk mengurangi stigma terhadap anak.',
+      pihak:['Tokoh Masyarakat/Adat'] },
+    { label:'Bantuan Pemerintah', domain:'Faktor Lingkungan',
+      pos:['pkh','kip','bantuan pemerintah','bpjs','penerima bantuan','mendapat bantuan','bantuan sosial','dapat bantuan'],
+      neg:['tidak punya bpjs','tidak menerima bantuan','tidak ada bantuan','belum dapat bantuan','tidak punya kip','belum mendapat bantuan'],
+      rencana:'Cek kelayakan keluarga untuk program bantuan sosial pemerintah, dan dampingi proses pendaftaran jika memenuhi syarat.',
+      pihak:['Pemerintah Desa'] },
+    { label:'Alat Bantu & Teknologi', domain:'Faktor Lingkungan',
+      pos:['kursi roda','alat bantu','hearing aid','tongkat','kruk','alat bantu komunikasi','menggunakan alat bantu','punya alat bantu'],
+      neg:['tidak punya alat bantu','tidak ada alat bantu','tidak memiliki alat bantu','tidak ada fasilitas','belum punya alat bantu'],
+      rencana:'Identifikasi alat bantu yang paling dibutuhkan anak, lalu ajukan melalui Dinas Sosial.',
+      pihak:['Dinas Sosial'] },
+  ],
+};
+function detectCondition(text, theme) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  if (theme.kw) {
+    return theme.kw.some(k => lower.includes(k)) ? 'detected' : null;
+  }
+  const isNeg = (theme.neg||[]).some(k => lower.includes(k));
+  const isPos = (theme.pos||[]).some(k => lower.includes(k));
+  if (isNeg) return 'neg';
+  if (isPos) return 'pos';
+  return null;
+}
+
+function ladderLabel(score) {
+  if (score === null || score === undefined) return { label:'Tidak ada data', color:'var(--mut)' };
+  if (score <= 3) return { label:'Sangat Rendah', color:'var(--red)' };
+  if (score <= 5) return { label:'Rendah', color:'var(--amb)' };
+  if (score <= 7) return { label:'Sedang', color:'#4f8ef7' };
+  if (score <= 8) return { label:'Baik', color:'var(--grn)' };
+  return { label:'Sangat Baik', color:'var(--grn)' };
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANALISIS UTAMA: hasilkan 3 masalah + rekomendasi tindak lanjut per anak
+// ═══════════════════════════════════════════════════════════
+function runAnalysis() {
+  ANALISIS = [];
+
+  const awalByName = {};
+  DATA_AWAL.forEach(r => { awalByName[r.na.toLowerCase().trim()] = r; });
+  const obsByName = {};
+  DATA_OBS.forEach(r => {
+    const key = r.na.toLowerCase().trim();
+    if (!obsByName[key]) obsByName[key] = r;
+  });
+
+  const allNames = new Set();
+  SEMUA_ANAK.forEach(a => allNames.add(a.na));
+  DATA_AWAL.forEach(a => allNames.add(a.na));
+
+  allNames.forEach(nama => {
+    const key = nama.toLowerCase().trim();
+    const awal = awalByName[key];
+    const obs = obsByName[key];
+    const masterEntry = SEMUA_ANAK.find(a => a.na.toLowerCase().trim() === key);
+    const cb = (awal && awal.cb) || (obs && obs.cb) || (masterEntry && masterEntry.cb) || '—';
+
+    if (!awal && !obs) return;
+
+    // ── Kumpulkan sinyal: setiap sinyal = {priority, masalah, rencana, pihak (boleh null)} ──
+    const sinyal = [];
+
+    // 1. Skor tangga pengasuh rendah
+    if (awal && awal.sp !== null && awal.sp <= 5) {
+      const lbl = ladderLabel(awal.sp);
+      sinyal.push({
+        priority: 100 - awal.sp,
+        masalah: `Kualitas hidup pengasuh tergolong ${lbl.label.toLowerCase()} (skor ${awal.sp}/10)${awal.tkp ? ', karena: ' + awal.tkp : ''}.`,
+        rencana: 'Diskusikan bersama pengasuh apa yang paling bisa membantu meringankan beban saat ini, dan susun langkah kecil yang realistis untuk 3 bulan ke depan.',
+        pihak: null,
+      });
+    }
+
+    // 2. Skor tangga anak rendah
+    if (awal && awal.sa !== null && awal.sa <= 5) {
+      const lbl = ladderLabel(awal.sa);
+      sinyal.push({
+        priority: 99 - awal.sa,
+        masalah: `Kualitas hidup anak tergolong ${lbl.label.toLowerCase()} (skor ${awal.sa}/10)${awal.tka ? ', karena: ' + awal.tka : ''}.`,
+        rencana: 'Bicarakan bersama anak dan keluarga tentang hal yang membuat hidupnya membaik, lalu jadikan itu fokus utama pendampingan 3 bulan ke depan.',
+        pihak: null,
+      });
+    }
+
+    // 3. Epilepsi/kejang dari Data Awal
+    if (awal && awal.ep === 'Ya') {
+      sinyal.push({
+        priority: 85,
+        masalah: 'Anak memiliki riwayat epilepsi/kejang.',
+        rencana: 'Pastikan ketersediaan obat rutin tidak putus, dan jadwalkan kontrol ke layanan kesehatan jika belum dilakukan dalam 3 bulan terakhir.',
+        pihak: ['Puskesmas'],
+      });
+    }
+
+    // 4. Analisis domain ICF dari Observasi
+    const domainHasil = { struktur:[], kegiatan:[], personal:[], lingkungan:[] };
+    if (obs) {
+      Object.keys(THEMES_ICF).forEach(domain => {
+        const fieldMap = { struktur:'st', kegiatan:'kg', personal:'pf', lingkungan:'lg' };
+        const text = obs[fieldMap[domain]] || '';
+        THEMES_ICF[domain].forEach(theme => {
+          const cond = detectCondition(text, theme);
+          if (cond) {
+            domainHasil[domain].push({ label: theme.label, cond });
+            if (cond === 'neg' || cond === 'detected') {
+              const condLabel = domain === 'lingkungan' ? 'menjadi hambatan bagi anak'
+                : domain === 'kegiatan' ? 'masih terbatas'
+                : domain === 'struktur' ? 'mengalami gangguan'
+                : 'menjadi perhatian';
+              sinyal.push({
+                priority: domain === 'lingkungan' ? 70 : domain === 'struktur' ? 75 : 65,
+                masalah: `${theme.label} ${condLabel}, berdasarkan hasil observasi lapangan.`,
+                rencana: theme.rencana || theme.aksi || 'Diskusikan langkah penanganan bersama keluarga.',
+                pihak: theme.pihak && theme.pihak.length ? theme.pihak : null,
+              });
+            }
+          }
+        });
+      });
+    }
+
+    // Urutkan berdasarkan priority, ambil 3 teratas
+    sinyal.sort((a, b) => b.priority - a.priority);
+    let top3 = sinyal.slice(0, 3);
+
+    // Kalau kurang dari 3, isi dengan capaian positif (bukan kalimat generik berulang)
+    if (top3.length < 3 && obs) {
+      const positifPool = [];
+      Object.keys(domainHasil).forEach(domain => {
+        domainHasil[domain].forEach(d => {
+          if (d.cond === 'pos') {
+            positifPool.push({
+              priority: 0,
+              masalah: `${d.label} menunjukkan kondisi baik.`,
+              rencana: 'Pertahankan kondisi ini dengan rutinitas dan dukungan yang sudah berjalan baik saat ini.',
+              pihak: null,
+            });
+          }
+        });
+      });
+      top3 = top3.concat(positifPool.slice(0, 3 - top3.length));
+    }
+    if (top3.length === 0) {
+      top3.push({
+        priority: 0,
+        masalah: 'Belum ada cukup data untuk menyimpulkan kondisi anak secara spesifik.',
+        rencana: 'Lakukan observasi lanjutan agar rencana 3 bulan dapat disusun lebih tepat.',
+        pihak: null,
+      });
+    }
+    top3 = top3.slice(0, 3);
+
+    // ── Level prioritas keseluruhan anak ──
+    const totalHambatan = sinyal.filter(s => s.priority > 0).length;
+    const skorRendah = (awal && awal.sp !== null && awal.sp <= 4) || (awal && awal.sa !== null && awal.sa <= 4);
+    let priorityLevel = 'rendah';
+    if (totalHambatan >= 4 || skorRendah) priorityLevel = 'tinggi';
+    else if (totalHambatan >= 2) priorityLevel = 'sedang';
+
+    ANALISIS.push({ na: nama, cb, awal, obs, top3, priorityLevel, totalHambatan });
+  });
+
+  const prioOrder = { tinggi:0, sedang:1, rendah:2 };
+  ANALISIS.sort((a, b) => prioOrder[a.priorityLevel] - prioOrder[b.priorityLevel] || a.na.localeCompare(b.na, 'id'));
+}
+
+function truncate(text, len) {
+  if (!text) return '';
+  return text.length > len ? text.slice(0, len) + '...' : text;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT VIEW
+// ═══════════════════════════════════════════════════════════
+function initView() {
+  document.getElementById('view-cbr').classList.add('act');
+  showList();
+  renderKPI();
+  populateFilters();
+  filterReko();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODE CBR — LIST VIEW
+// ═══════════════════════════════════════════════════════════
+function renderKPI() {
+  const total = ANALISIS.length;
+  const tinggi = ANALISIS.filter(a => a.priorityLevel === 'tinggi').length;
+  const sedang = ANALISIS.filter(a => a.priorityLevel === 'sedang').length;
+  const rendah = ANALISIS.filter(a => a.priorityLevel === 'rendah').length;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi all active" style="--kc:#4f8ef7" onclick="setKpiFilter('',this)">
+      <div class="v">${total}</div><div class="l">Total Anak Dianalisis</div>
+    </div>
+    <div class="kpi" style="--kc:var(--red)" onclick="setKpiFilter('tinggi',this)">
+      <div class="v">${tinggi}</div><div class="l">🔴 Prioritas Tinggi</div>
+    </div>
+    <div class="kpi" style="--kc:var(--amb)" onclick="setKpiFilter('sedang',this)">
+      <div class="v">${sedang}</div><div class="l">🟡 Prioritas Sedang</div>
+    </div>
+    <div class="kpi" style="--kc:var(--grn)" onclick="setKpiFilter('rendah',this)">
+      <div class="v">${rendah}</div><div class="l">🟢 Prioritas Rendah</div>
+    </div>
+  `;
+  document.getElementById('tbBadge').textContent = total + ' anak';
+}
+
+function setKpiFilter(level, el) {
+  document.querySelectorAll('#kpiRow .kpi').forEach(k => k.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('filterPriority').value = level;
+  filterReko();
+}
+
+function populateFilters() {
+  const sel = document.getElementById('filterCBR');
+  const cbrs = Array.from(new Set(ANALISIS.map(a => a.cb))).sort((a,b) => a.localeCompare(b,'id'));
+  sel.innerHTML = '<option value="">Semua CBR Worker</option>' +
+    cbrs.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function filterReko() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  const cbr = document.getElementById('filterCBR').value;
+  const pri = document.getElementById('filterPriority').value;
+
+  filteredReko = ANALISIS.filter(a => {
+    const mq = !q || a.na.toLowerCase().includes(q) || a.cb.toLowerCase().includes(q);
+    const mc = !cbr || a.cb === cbr;
+    const mp = !pri || a.priorityLevel === pri;
+    return mq && mc && mp;
+  });
+
+  renderRecoList();
+  document.getElementById('filterCount').textContent = filteredReko.length + ' anak';
+}
+
+function avatarColor(name) {
+  const colors = ['#4f8ef7','#22c55e','#f59e0b','#a78bfa','#ef4444','#06b6d4','#f97316','#84cc16'];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return colors[hash % colors.length];
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]||'')[0] || '') + ((parts[1]||'')[0] || '');
+}
+
+function renderRecoList() {
+  const el = document.getElementById('recoList');
+  const empty = document.getElementById('emptyState');
+
+  if (!filteredReko.length) {
+    el.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const priLabel = { tinggi:'🔴 Tinggi', sedang:'🟡 Sedang', rendah:'🟢 Rendah' };
+  const priClass = { tinggi:'pr-tinggi', sedang:'pr-sedang', rendah:'pr-rendah' };
+
+  el.innerHTML = filteredReko.map(a => {
+    const color = avatarColor(a.na);
+    return `<div class="reco-item" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
+      <div class="ri-avatar" style="background:${color}22;color:${color}">${initials(a.na)}</div>
+      <div class="ri-body">
+        <div class="ri-name">${a.na}</div>
+        <div class="ri-sub">${a.cb} · ${a.totalHambatan} hal teridentifikasi</div>
+      </div>
+      <div class="ri-priority ${priClass[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
+      <div class="ri-arrow">→</div>
+    </div>`;
+  }).join('');
+}
+
+function showList() {
+  document.getElementById('cbr-list-mode').style.display = '';
+  document.getElementById('cbr-detail-mode').style.display = 'none';
+  document.getElementById('namaPanel').classList.remove('open');
+  activeAnak = null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DETAIL ANAK
+// ═══════════════════════════════════════════════════════════
+function openDetail(nama) {
+  activeAnak = nama;
+  document.getElementById('cbr-list-mode').style.display = 'none';
+  document.getElementById('cbr-detail-mode').style.display = '';
+  document.getElementById('namaPanel').classList.add('open');
+  populateNamaPanelCBR();
+  renderNamaPanel();
+  renderDetailAnak(nama);
+}
+
+function populateNamaPanelCBR() {
+  const sel = document.getElementById('npFilterCBR');
+  if (sel.options.length > 1) return; // sudah diisi sebelumnya
+  const cbrs = Array.from(new Set(ANALISIS.map(a => a.cb))).sort((a,b) => a.localeCompare(b,'id'));
+  sel.innerHTML = '<option value="">Semua CBR Worker</option>' +
+    cbrs.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function getNamaPanelData() {
+  const q = (document.getElementById('npSearch').value || '').toLowerCase().trim();
+  const cbr = document.getElementById('npFilterCBR').value;
+  const base = filteredReko.length ? filteredReko : ANALISIS;
+  return base.filter(a => {
+    const mq = !q || a.na.toLowerCase().includes(q);
+    const mc = !cbr || a.cb === cbr;
+    return mq && mc;
+  });
+}
+
+function renderNamaPanelList(data) {
+  const listEl = document.getElementById('npList');
+  const priColor = { tinggi:'var(--red)', sedang:'var(--amb)', rendah:'var(--grn)' };
+
+  if (!data.length) {
+    listEl.innerHTML = '<div style="padding:14px;font-size:11px;color:var(--mut);text-align:center">Tidak ada anak ditemukan</div>';
+    return;
+  }
+
+  listEl.innerHTML = data.map(a => {
+    const isActive = a.na === activeAnak;
+    return `<div class="np-item ${isActive ? 'act' : ''}" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
+      <span class="np-pri-dot" style="background:${priColor[a.priorityLevel]}"></span>
+      <span class="np-name">${a.na}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderNamaPanel() {
+  renderNamaPanelList(getNamaPanelData());
+}
+
+function filterNamaPanel() {
+  renderNamaPanelList(getNamaPanelData());
+}
+
+function renderDetailAnak(nama) {
+  const a = ANALISIS.find(x => x.na === nama);
+  const el = document.getElementById('cbr-detail-mode');
+  if (!a) { el.innerHTML = '<div class="empty"><div class="ico">❓</div><h2>Data tidak ditemukan</h2></div>'; return; }
+
+  const color = avatarColor(a.na);
+  const priLabel = { tinggi:'🔴 Prioritas Tinggi', sedang:'🟡 Prioritas Sedang', rendah:'🟢 Prioritas Rendah' };
+  const priBg = { tinggi:'rgba(239,68,68,.12)', sedang:'rgba(245,158,11,.12)', rendah:'rgba(34,197,94,.12)' };
+  const priColor2 = { tinggi:'var(--red)', sedang:'var(--amb)', rendah:'var(--grn)' };
+  const awal = a.awal;
+
+  let html = `
+    <div class="detail-hdr">
+      <div class="d-avatar" style="background:${color}22;color:${color}">${initials(a.na)}</div>
+      <div style="flex:1;min-width:200px">
+        <div class="d-name">${a.na}</div>
+        <div class="d-cbr">${a.cb} · CBR Worker</div>
+        <div class="d-meta">
+          ${awal && awal.u !== null ? `<span class="dm">Usia: <span>${awal.u} th</span></span>` : ''}
+          ${awal && awal.j ? `<span class="dm">Jenis Kelamin: <span>${awal.j}</span></span>` : ''}
+          ${awal && awal.rg ? `<span class="dm">Ragam: <span>${awal.rg}</span></span>` : ''}
+          ${awal && awal.d ? `<span class="dm">Desa: <span>${awal.d}</span></span>` : ''}
+        </div>
+      </div>
+      <div class="d-priority-box" style="background:${priBg[a.priorityLevel]};border:1px solid ${priColor2[a.priorityLevel]}">
+        <div class="dp-val" style="color:${priColor2[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
+      </div>
+    </div>
+
+    <div class="masalah-card">
+      <div class="masalah-hd"><div class="dot"></div>Bahan Diskusi Rencana Anak — 3 Bulan Ke Depan</div>
+      ${a.top3.map((s, i) => `
+        <div class="masalah-item">
+          <div class="masalah-num">${i+1}</div>
+          <div class="masalah-body">
+            <div class="masalah-text"><strong>Temuan:</strong> ${s.masalah}</div>
+            <div class="masalah-text" style="margin-top:6px"><strong>Rencana:</strong> ${s.rencana}</div>
+            ${s.pihak && s.pihak.length ? `<div class="masalah-pihak">
+              <span style="font-size:10px;color:var(--mut);margin-right:4px">Perlu melibatkan:</span>
+              ${s.pihak.map(p => `<span class="pihak-tag">${p}</span>`).join('')}
+            </div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT EXCEL
+// ═══════════════════════════════════════════════════════════
+function exportExcel() {
+  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
+  const priLabelPlain = { tinggi: 'Tinggi', sedang: 'Sedang', rendah: 'Rendah' };
+
+  const rows = ANALISIS.map(a => ({
+    'Nama Anak': a.na,
+    'CBR Worker': a.cb,
+    'Usia': a.awal && a.awal.u !== null ? a.awal.u : '',
+    'Jenis Kelamin': a.awal ? (a.awal.j || '') : '',
+    'Ragam Disabilitas': a.awal ? (a.awal.rg || '') : '',
+    'Desa': a.awal ? (a.awal.d || '') : '',
+    'Prioritas': priLabelPlain[a.priorityLevel] || a.priorityLevel,
+    'Jumlah Hal Teridentifikasi': a.totalHambatan,
+    'Temuan #1': a.top3[0] ? a.top3[0].masalah : '',
+    'Rencana #1': a.top3[0] ? a.top3[0].rencana : '',
+    'Pihak Terlibat #1': a.top3[0] && a.top3[0].pihak ? a.top3[0].pihak.join(', ') : '',
+    'Temuan #2': a.top3[1] ? a.top3[1].masalah : '',
+    'Rencana #2': a.top3[1] ? a.top3[1].rencana : '',
+    'Pihak Terlibat #2': a.top3[1] && a.top3[1].pihak ? a.top3[1].pihak.join(', ') : '',
+    'Temuan #3': a.top3[2] ? a.top3[2].masalah : '',
+    'Rencana #3': a.top3[2] ? a.top3[2].rencana : '',
+    'Pihak Terlibat #3': a.top3[2] && a.top3[2].pihak ? a.top3[2].pihak.join(', ') : '',
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekomendasi');
+  const now = new Date();
+  XLSX.writeFile(wb, 'Rekomendasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
+}
+
+
+
+
+</script>
+</body>
+</html>
