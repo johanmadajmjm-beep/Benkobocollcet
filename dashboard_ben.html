@@ -80,7 +80,9 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 .pill{font-size:12px;color:var(--mut)}.pill span{color:var(--txt);font-weight:600}
 
 /* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi-row{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:12px 15px;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--kc,var(--acc))}
 .kpi .v{font-size:26px;font-weight:800;line-height:1;color:var(--kc,var(--acc))}
@@ -420,6 +422,7 @@ tr:hover td{background:rgba(79,142,247,.03)}
       </select>
       <label>CBR:</label><select id="mapCbr" onchange="updateMap()"><option value="all">Semua</option></select>
       <span id="mapCount" style="margin-left:auto;color:var(--acc);font-weight:700;font-size:12px"></span>
+      <button onclick="resetMapView()" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:var(--acc);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Reset View</button>
     </div>
     <div id="leafletMap"></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
@@ -477,6 +480,18 @@ let QUAL = {naik_pengasuh:[],turun_pengasuh:[],naik_anak:[],turun_anak:[]};
 let KOBO_LAST_SYNC = null;
 let KOBO_LOADING = false;
 
+function normRg(v){
+  v=String(v||'').trim();
+  if(!v) return '';
+  const l=v.toLowerCase();
+  if(l.includes('fisik')) return 'Fisik';
+  if(l.includes('intelek')) return 'Intelektual';
+  if(l.includes('pendengaran')||l.includes('bicara')) return 'Sensorik (pendengaran dan bicara)';
+  if(l.includes('penglihatan')||l.includes('lihat')) return 'Sensorik (penglihatan)';
+  if(l.includes('ganda')||l.includes('multiple')) return 'Ganda';
+  if(l.includes('lain')) return 'Lainnya';
+  return v;
+}
 async function fetchFromAppsScript() {
   if (KOBO_LOADING) return;
   KOBO_LOADING = true;
@@ -493,13 +508,13 @@ async function fetchFromAppsScript() {
       na: r.na||'', np: r.np||'',
       u:  r.u  !== null && r.u  !== '' ? Number(r.u)  : null,
       j:  r.j||'', k: r.k||'', d: r.d||'',
-      rg: r.rg||'', lv: r.lv||'', gu: r.gu||'', cb: r.cb||'',
+      rg: normRg(r.rg||''), lv: r.lv||'', gu: r.gu||'', cb: r.cb||'',
       ep: r.ep||'Tidak', ob: r.ob||'Tidak', tr: r.tr||'Tidak',
       sp: r.sp !== null && r.sp !== '' ? Number(r.sp) : null,
       sa: r.sa !== null && r.sa !== '' ? Number(r.sa) : null,
       nkp: r.nkp||'', tkp: r.tkp||'', nka: r.nka||'', tka: r.tka||'',
-      lat: r.lat !== null && r.lat !== '' ? Number(r.lat) : null,
-      lon: r.lon !== null && r.lon !== '' ? Number(r.lon) : null,
+      lat: (r.lat !== null && r.lat !== '' && r.lat !== 0 && r.lat !== '0') ? Number(r.lat) : null,
+      lon: (r.lon !== null && r.lon !== '' && r.lon !== 0 && r.lon !== '0') ? Number(r.lon) : null,
     })).filter(r => r.na && r.na.trim());
     KOBO_LAST_SYNC = json.lastSync;
     rebuildQual(D);
@@ -963,7 +978,7 @@ function renderWorker(){
 let leafletMap=null, markerLayer=null;
 function initMap(){
   if(leafletMap) return;
-  leafletMap=L.map('leafletMap',{center:[-8.61,120.43],zoom:10,preferCanvas:true});
+  leafletMap=L.map('leafletMap',{center:[-8.57,120.45],zoom:9,preferCanvas:true});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(leafletMap);
   const statCtrl=L.control({position:'topright'});
   statCtrl.onAdd=function(){const d=L.DomUtil.create('div','stat-ctrl leaflet-bar');d.id='mapStatBox';L.DomEvent.disableClickPropagation(d);return d;};
@@ -977,9 +992,16 @@ function updateMap(){
   const rF=document.getElementById('mapRagam')?.value||'all';
   const lF=document.getElementById('mapLevel')?.value||'all';
   const cF=document.getElementById('mapCbr')?.value||'all';
-  const pts=d.filter(r=>r.lat&&r.lon&&(rF==='all'||r.rg===rF)&&(lF==='all'||r.lv===lF)&&(cF==='all'||r.cb===cF));
+  const hasGPS=r=>r.lat!=null&&r.lon!=null&&!isNaN(r.lat)&&!isNaN(r.lon)&&!(r.lat===0&&r.lon===0);
+  // Diagnostik GPS
+  const withGPS=d.filter(hasGPS);
+  const noGPS=d.filter(r=>!hasGPS(r));
+  console.log(`[PETA] Total: ${d.length} | Punya GPS: ${withGPS.length} | Tanpa GPS: ${noGPS.length}`);
+  if(noGPS.length>0) console.log('[PETA] Tanpa GPS (5 pertama):', noGPS.slice(0,5).map(r=>({na:r.na,lat:r.lat,lon:r.lon})));
+  const pts=d.filter(r=>hasGPS(r)&&(rF==='all'||r.rg===rF)&&(lF==='all'||r.lv===lF)&&(cF==='all'||r.cb===cF));
+  const totalGPS=withGPS.length;
 
-  const cntEl=document.getElementById('mapCount'); if(cntEl)cntEl.textContent=pts.length+' titik';
+  const cntEl=document.getElementById('mapCount'); if(cntEl)cntEl.textContent=pts.length+' titik'+(totalGPS!==pts.length?' (dari '+totalGPS+' punya GPS)':'');
   const sb=document.getElementById('mapStatBox');
   if(sb){
     const avSA=avg(pts.map(r=>parseFloat(r.sa)).filter(v=>!isNaN(v)));
@@ -1012,7 +1034,17 @@ function updateMap(){
     m.on('click',()=>showMapDetail(r));
     m.addTo(markerLayer); lls.push([r.lat,r.lon]);
   });
-  if(lls.length>0) setTimeout(()=>leafletMap.fitBounds(L.latLngBounds(lls),{padding:[30,30],maxZoom:13}),50);
+  if(lls.length>0){
+    const bounds=L.latLngBounds(lls);
+    setTimeout(()=>{ leafletMap.invalidateSize(); leafletMap.fitBounds(bounds,{padding:[40,40],maxZoom:12,minZoom:8}); },50);
+    setTimeout(()=>{ leafletMap.invalidateSize(); leafletMap.fitBounds(bounds,{padding:[40,40],maxZoom:12,minZoom:8}); },500);
+  }
+}
+function resetMapView(){
+  if(!leafletMap) return;
+  // Manggarai Raya bounds: meliputi Manggarai Barat, Tengah, Timur
+  leafletMap.invalidateSize();
+  leafletMap.fitBounds([[-8.95,119.8],[-8.2,121.1]],{padding:[20,20]});
 }
 function showMapDetail(r){
   document.getElementById('mapDetTitle').textContent=`${r.na||'—'} · ${r.d||'—'}`;
@@ -1238,7 +1270,8 @@ function switchTab(id,btn){
   btn.classList.add('act');
   if(id==='peta') {
     if(!leafletMap){
-      setTimeout(()=>{ initMap(); leafletMap.invalidateSize(); updateMap(); },200);
+      setTimeout(()=>{ initMap(); }, 200);
+      setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); },300); },400);
     } else {
       setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); },100);
     }
