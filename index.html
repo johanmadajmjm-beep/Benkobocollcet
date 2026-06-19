@@ -59,6 +59,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 .sb-item.act-home{background:var(--faint);border-color:var(--bdr2);color:var(--txt)}
 
 .sb-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .18s}
+.sb-icon svg{width:17px;height:17px}
 .sb-item.act-ben .sb-icon{background:rgba(249,115,22,.15)}
 .sb-item.act-obs .sb-icon{background:rgba(6,182,212,.15)}
 .sb-item.act-home .sb-icon{background:rgba(255,255,255,.06)}
@@ -194,7 +195,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 
   <div class="sb-item act-home" id="nav-home" onclick="goHome()">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">🏠</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V10"/></svg></div>
     <div class="sb-label">Beranda</div>
   </div>
 
@@ -202,14 +203,14 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 
   <div class="sb-item" id="nav-ben" onclick="openDash('ben')">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">📋</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg></div>
     <div class="sb-label">Data Awal</div>
     <div class="sb-badge">BEN</div>
   </div>
 
   <div class="sb-item" id="nav-obs" onclick="openDash('obs')">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">📊</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg></div>
     <div class="sb-label">Observasi</div>
     <div class="sb-badge">OBS</div>
   </div>
@@ -217,21 +218,21 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 
   <div class="sb-item" id="nav-anak" onclick="openDash('anak')">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">👶</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
     <div class="sb-label">Profil Anak</div>
     <div class="sb-badge">ANAK</div>
   </div>
 
   <div class="sb-item" id="nav-galeri" onclick="openDash('galeri')">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">🖼️</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M5 19l5-5a2 2 0 0 1 3 0l1 1M14 14l1-1a2 2 0 0 1 3 0l1 1"/></svg></div>
     <div class="sb-label">Galeri Foto</div>
     <div class="sb-badge">FOTO</div>
   </div>
 
   <div class="sb-item" id="nav-reko" onclick="openDash('reko')">
     <div class="sb-indicator"></div>
-    <div class="sb-icon">🎯</div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg></div>
     <div class="sb-label">Rekomendasi</div>
     <div class="sb-badge">REKO</div>
   </div>
@@ -263,18 +264,18 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             <div class="pc-top-bar"></div>
             <div class="pc-body">
               <div class="pc-head">
-                <div class="pc-icon">📋</div>
+                <div class="pc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg></div>
                 <div class="pc-tag">BEN · v10</div>
               </div>
               <div class="pc-name">Data Awal</div>
               <div class="pc-desc">Monitoring data benefisiari anak, skor perkembangan, profil pengasuh, dan peta sebaran lokasi.</div>
               <div class="pc-pills">
-                <span class="pc-pill">👶 Ringkasan Anak</span>
-                <span class="pc-pill">📊 Skor</span>
-                <span class="pc-pill">🧑 Pengasuh</span>
-                <span class="pc-pill">👥 CBR Worker</span>
-                <span class="pc-pill">🗺️ Peta</span>
-                <span class="pc-pill">📋 Data Lengkap</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>Ringkasan Anak</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Skor</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>Pengasuh</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>CBR Worker</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Peta</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>Data Lengkap</span>
               </div><button class="pc-btn">Buka Data Awal →</button>
             </div>
           </div>
@@ -285,17 +286,17 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             <div class="pc-top-bar"></div>
             <div class="pc-body">
               <div class="pc-head">
-                <div class="pc-icon">📊</div>
+                <div class="pc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg></div>
                 <div class="pc-tag">OBS · v3</div>
               </div>
               <div class="pc-name">Observasi</div>
               <div class="pc-desc">Laporan observasi langsung & tidak langsung. Monitoring perkembangan anak dari kunjungan CBR Worker di lapangan.</div>
               <div class="pc-pills">
-                <span class="pc-pill">📊 Ringkasan</span>
-                <span class="pc-pill">🦴 Struktur Tubuh</span>
-                <span class="pc-pill">🏃 Kegiatan</span>
-                <span class="pc-pill">💭 Personal</span>
-                <span class="pc-pill">🏘️ Lingkungan</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Ringkasan</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>Struktur Tubuh</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="13" cy="4" r="1.5" fill="currentColor"/><path d="M5 21l3-6 3 1 3-4 4 1M9 16l2-7-3-2 1-3 4 1 2 4h3"/></svg>Kegiatan</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2l-3 3v-3z"/></svg>Personal</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M3 21V10l9-7 9 7v11"/><path d="M9 21v-6h6v6"/></svg>Lingkungan</span>
               </div><button class="pc-btn">Buka Observasi →</button>
             </div>
           </div>
@@ -306,17 +307,17 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             <div class="pc-top-bar" style="background:linear-gradient(90deg,#a78bfa,#c4b5fd,transparent)"></div>
             <div class="pc-body">
               <div class="pc-head">
-                <div class="pc-icon" style="background:rgba(167,139,250,.12);color:#a78bfa">👶</div>
+                <div class="pc-icon" style="background:rgba(167,139,250,.12);color:#a78bfa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#a78bfa"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
                 <div class="pc-tag" style="background:rgba(167,139,250,.12);color:#a78bfa;border-color:rgba(167,139,250,.3)">ANAK · v1</div>
               </div>
               <div class="pc-name" style="color:#a78bfa">Profil Anak</div>
               <div class="pc-desc">Profil lengkap setiap anak benefisiari — data dari Data Awal dan laporan observasi lapangan dalam satu halaman.</div>
               <div class="pc-pills">
-                <span class="pc-pill">👶 Daftar Anak</span>
-                <span class="pc-pill">📋 Data Awal</span>
-                <span class="pc-pill">📊 Observasi</span>
-                <span class="pc-pill">⭐ Skor</span>
-                <span class="pc-pill">📍 GPS</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>Daftar Anak</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>Data Awal</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Observasi</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Skor</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M12 21s-7-6.5-7-11a7 7 0 1 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>GPS</span>
               </div>
               <button class="pc-btn" style="background:#a78bfa;color:#fff" onclick="openDash('anak')">Buka Profil Anak →</button>
             </div>
@@ -328,15 +329,15 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             <div class="pc-top-bar" style="background:linear-gradient(90deg,#06b6d4,#22d3ee,transparent)"></div>
             <div class="pc-body">
               <div class="pc-head">
-                <div class="pc-icon" style="background:rgba(6,182,212,.12);color:#06b6d4">🖼️</div>
+                <div class="pc-icon" style="background:rgba(6,182,212,.12);color:#06b6d4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#06b6d4"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M5 19l5-5a2 2 0 0 1 3 0l1 1M14 14l1-1a2 2 0 0 1 3 0l1 1"/></svg></div>
                 <div class="pc-tag" style="background:rgba(6,182,212,.12);color:#06b6d4;border-color:rgba(6,182,212,.3)">FOTO · v1</div>
               </div>
               <div class="pc-name" style="color:#06b6d4">Galeri Foto</div>
               <div class="pc-desc">Dokumentasi foto kunjungan observasi CBR Worker, terorganisir per anak dan tanggal kunjungan.</div>
               <div class="pc-pills">
-                <span class="pc-pill">🖼️ Galeri</span>
-                <span class="pc-pill">📅 Per Tanggal</span>
-                <span class="pc-pill">👶 Per Anak</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M5 19l5-5a2 2 0 0 1 3 0l1 1M14 14l1-1a2 2 0 0 1 3 0l1 1"/></svg>Galeri</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>Per Tanggal</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>Per Anak</span>
               </div>
               <button class="pc-btn" style="background:#06b6d4;color:#fff" onclick="openDash('galeri')">Buka Galeri Foto →</button>
             </div>
@@ -348,16 +349,16 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             <div class="pc-top-bar" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,transparent)"></div>
             <div class="pc-body">
               <div class="pc-head">
-                <div class="pc-icon" style="background:rgba(245,158,11,.12);color:#f59e0b">🎯</div>
+                <div class="pc-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#f59e0b"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg></div>
                 <div class="pc-tag" style="background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.3)">REKO · v1</div>
               </div>
               <div class="pc-name" style="color:#f59e0b">Rekomendasi</div>
               <div class="pc-desc">Analisis tindak lanjut per anak berbasis Data Awal & Observasi, lengkap dengan pemangku kepentingan yang perlu dilibatkan.</div>
               <div class="pc-pills">
-                <span class="pc-pill">🎯 Tindak Lanjut</span>
-                <span class="pc-pill">📊 Prioritas</span>
-                <span class="pc-pill">🤝 Pemangku Kepentingan</span>
-                <span class="pc-pill">📈 Manajemen</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Tindak Lanjut</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Prioritas</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M4 12c0 1 .4 2 1 2.7l4.7 4.7a2 2 0 0 0 2.8 0L17 15c.7-.7 1-1.7 1-2.7V7l-3-3-5 3H4z"/><path d="M9 12l2 2 4-4"/></svg>Pemangku Kepentingan</span>
+                <span class="pc-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>Manajemen</span>
               </div>
               <button class="pc-btn" style="background:#f59e0b;color:#fff" onclick="openDash('reko')">Buka Rekomendasi →</button>
             </div>

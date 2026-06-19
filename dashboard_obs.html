@@ -108,27 +108,27 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 <header>
   <div class="logo">OBS<small>Laporan Observasi Langsung &amp; Tidak Langsung · SCN Manggarai</small></div>
   <nav class="nav">
-    <button class="act" onclick="switchTab('ringkasan',this)">📊 Ringkasan</button>
-    <button onclick="switchTab('struktur',this)">🦴 Struktur Tubuh</button>
-    <button onclick="switchTab('kegiatan',this)">🏃 Kegiatan</button>
-    <button onclick="switchTab('personal',this)">💭 Personal</button>
-    <button onclick="switchTab('lingkungan',this)">🏘️ Lingkungan</button>
+    <button class="act" onclick="switchTab('ringkasan',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Ringkasan</button>
+    <button onclick="switchTab('struktur',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>Struktur Tubuh</button>
+    <button onclick="switchTab('kegiatan',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><circle cx="13" cy="4" r="1.5" fill="currentColor"/><path d="M5 21l3-6 3 1 3-4 4 1M9 16l2-7-3-2 1-3 4 1 2 4h3"/></svg>Kegiatan</button>
+    <button onclick="switchTab('personal',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2l-3 3v-3z"/></svg>Personal</button>
+    <button onclick="switchTab('lingkungan',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M3 21V10l9-7 9 7v11"/><path d="M9 21v-6h6v6"/></svg>Lingkungan</button>
   </nav>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="fetchObsFromAppsScript()" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.4);color:#06b6d4">🔄</button>
-    <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none">📤</button>
-    <button class="hbtn hbtn-clear" onclick="openClear()">🧹</button>
+    <button class="hbtn" onclick="fetchObsFromAppsScript()" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.4);color:#06b6d4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg></button>
+    <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 9l5-5 5 5M12 4v12"/></svg></button>
+    <button class="hbtn hbtn-clear" onclick="openClear()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg></button>
   </div>
 </header>
 
 <!-- Upload Modal -->
 <div class="modal-bg" id="uploadModal" onclick="if(event.target===this)closeUpload()">
   <div class="modal">
-    <button class="modal-close" onclick="closeUpload()">✕</button>
-    <h2>📤 Upload Data Observasi</h2>
+    <button class="modal-close" onclick="closeUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 9l5-5 5 5M12 4v12"/></svg>Upload Data Observasi</h2>
     <p>Upload file Excel (.xlsx) laporan observasi. Data embed akan digantikan data baru.</p>
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <div style="font-size:28px;margin-bottom:6px">📂</div>
+      <div style="margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px"><path d="M3 7a2 2 0 0 1 2-2h3.5l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
       <p style="color:var(--mut);font-size:13px"><strong style="color:var(--acc)">Klik untuk pilih file</strong> atau drag &amp; drop</p>
     </div>
     <input type="file" id="fileInput" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0])">
@@ -140,8 +140,8 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 <!-- Clear Modal -->
 <div class="modal-bg" id="clearModal" onclick="if(event.target===this)closeClear()">
   <div class="modal">
-    <button class="modal-close" onclick="closeClear()">✕</button>
-    <h2>🧹 Bersihkan Cache Dashboard?</h2>
+    <button class="modal-close" onclick="closeClear()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>Bersihkan Cache Dashboard?</h2>
     <p>Ini hanya menghapus cache yang tersimpan di browser ini (localStorage). Tidak ada data yang dihapus dari Google Sheet atau Drive. Setelah dibersihkan, dashboard akan langsung menarik ulang data terbaru dari Apps Script.</p>
     <div class="confirm-btns">
       <button class="btn-cancel" onclick="closeClear()">Batal</button>
@@ -154,7 +154,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 <!-- RINGKASAN -->
 <div class="page act" id="pg-ringkasan">
   <div class="hero">
-    <div class="data-badge" id="dataBadge">📁 — kunjungan aktif</div>
+    <div class="data-badge" id="dataBadge">— kunjungan aktif</div>
     <div class="hero-title">Laporan Observasi Langsung &amp; Tidak Langsung</div>
     <div class="hero-sub">Building Effective Network · SCN Manggarai · Monitoring Perkembangan Anak</div>
     <div class="hero-pills">
@@ -192,7 +192,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 
 <!-- STRUKTUR -->
 <div class="page" id="pg-struktur">
-  <div class="sec" style="border-color:#06b6d4">🦴 Struktur & Fungsi Tubuh</div>
+  <div class="sec" style="border-color:#06b6d4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>Struktur & Fungsi Tubuh</div>
   <div class="narr" id="narr-struktur"></div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd" style="color:#06b6d4">Temuan per Sub-Kategori
@@ -208,7 +208,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
     <div class="card-hd" style="color:#06b6d4">
       <span id="tabel-title-struktur">Detail Anak</span>
       <span class="q-count" id="count-struktur" style="margin-left:8px"></span>
-      <button onclick="closeTabel('struktur')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px">✕ Tutup</button>
+      <button onclick="closeTabel('struktur')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>Tutup</button>
     </div>
     <div class="search-row">
       <input id="search-struktur" type="text" placeholder="Cari nama anak..." oninput="filterTabel('struktur')">
@@ -219,7 +219,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 
 <!-- KEGIATAN -->
 <div class="page" id="pg-kegiatan">
-  <div class="sec" style="border-color:#22c55e">🏃 Kegiatan & Partisipasi</div>
+  <div class="sec" style="border-color:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"><circle cx="13" cy="4" r="1.5" fill="currentColor"/><path d="M5 21l3-6 3 1 3-4 4 1M9 16l2-7-3-2 1-3 4 1 2 4h3"/></svg>Kegiatan & Partisipasi</div>
   <div class="narr" id="narr-kegiatan"></div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd" style="color:#22c55e">Temuan per Sub-Kategori
@@ -235,7 +235,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
     <div class="card-hd" style="color:#22c55e">
       <span id="tabel-title-kegiatan">Detail Anak</span>
       <span class="q-count" id="count-kegiatan" style="margin-left:8px"></span>
-      <button onclick="closeTabel('kegiatan')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px">✕ Tutup</button>
+      <button onclick="closeTabel('kegiatan')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>Tutup</button>
     </div>
     <div class="search-row">
       <input id="search-kegiatan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('kegiatan')">
@@ -246,7 +246,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 
 <!-- PERSONAL -->
 <div class="page" id="pg-personal">
-  <div class="sec" style="border-color:#a78bfa">💭 Faktor Personal</div>
+  <div class="sec" style="border-color:#a78bfa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2l-3 3v-3z"/></svg>Faktor Personal</div>
   <div class="narr" id="narr-personal"></div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd" style="color:#a78bfa">Frekuensi Tema Personal
@@ -261,7 +261,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
     <div class="card-hd" style="color:#a78bfa">
       <span id="tabel-title-personal">Detail Anak</span>
       <span class="q-count" id="count-personal" style="margin-left:8px"></span>
-      <button onclick="closeTabel('personal')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px">✕ Tutup</button>
+      <button onclick="closeTabel('personal')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>Tutup</button>
     </div>
     <div class="search-row">
       <input id="search-personal" type="text" placeholder="Cari nama anak..." oninput="filterTabel('personal')">
@@ -272,7 +272,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 
 <!-- LINGKUNGAN -->
 <div class="page" id="pg-lingkungan">
-  <div class="sec" style="border-color:#f59e0b">🏘️ Faktor Lingkungan</div>
+  <div class="sec" style="border-color:#f59e0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"><path d="M3 21V10l9-7 9 7v11"/><path d="M9 21v-6h6v6"/></svg>Faktor Lingkungan</div>
   <div class="narr" id="narr-lingkungan"></div>
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd" style="color:#f59e0b">Dukungan vs Hambatan per Sub-Kategori
@@ -288,7 +288,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
     <div class="card-hd" style="color:#f59e0b">
       <span id="tabel-title-lingkungan">Detail Anak</span>
       <span class="q-count" id="count-lingkungan" style="margin-left:8px"></span>
-      <button onclick="closeTabel('lingkungan')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px">✕ Tutup</button>
+      <button onclick="closeTabel('lingkungan')" style="float:right;background:none;border:none;color:var(--mut);cursor:pointer;font-size:13px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px;margin-right:2px"><path d="M18 6L6 18M6 6l12 12"/></svg>Tutup</button>
     </div>
     <div class="search-row">
       <input id="search-lingkungan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('lingkungan')">
@@ -343,7 +343,7 @@ async function fetchObsFromAppsScript() {
 
     if (json.error) throw new Error(json.error);
     if (!json.data || !json.data.length) {
-      showObsStatus('⚠️ Belum ada data observasi. Jalankan syncAll() dulu.', 'warn');
+      showObsStatus('Belum ada data observasi. Jalankan syncAll() dulu.', 'warn');
       OBS_LOADING = false;
       return;
     }
@@ -380,7 +380,7 @@ async function fetchObsFromAppsScript() {
     CHARTS = {};
     renderRingkasan();
 
-    showObsStatus('✅ ' + OBS.length + ' kunjungan · Sync: ' + formatObsSyncTime(OBS_LAST_SYNC), 'ok');
+    showObsStatus(OBS.length + ' kunjungan · Sync: ' + formatObsSyncTime(OBS_LAST_SYNC), 'ok');
 
   } catch(err) {
     console.error('fetchObs error:', err);
@@ -394,12 +394,12 @@ async function fetchObsFromAppsScript() {
         Object.keys(CHARTS).forEach(k=>{ try{CHARTS[k].destroy();}catch(e){} });
         CHARTS = {};
         renderRingkasan();
-        showObsStatus('⚠️ Gagal koneksi — menampilkan cache · ' + formatObsSyncTime(OBS_LAST_SYNC), 'warn');
+        showObsStatus('Gagal koneksi — menampilkan cache · ' + formatObsSyncTime(OBS_LAST_SYNC), 'warn');
       } else {
-        showObsStatus('❌ Gagal memuat: ' + err.message, 'err');
+        showObsStatus('Gagal memuat: ' + err.message, 'err');
       }
     } catch(e2) {
-      showObsStatus('❌ Gagal memuat: ' + err.message, 'err');
+      showObsStatus('Gagal memuat: ' + err.message, 'err');
     }
   }
   OBS_LOADING = false;
@@ -549,7 +549,7 @@ function updateKPI() {
   var eKunj=document.getElementById('kpi-total-kunjungan'); if(eKunj) eKunj.textContent=OBS.length||'—';
   var e2=document.getElementById('kpi-unik'); if(e2) e2.textContent=unik||'—';
   var e3=document.getElementById('dataBadge');
-  if(e3) e3.textContent = OBS.length ? ('📁 '+OBS.length+' kunjungan aktif') : 'Belum ada data diunggah';
+  if(e3) e3.textContent = OBS.length ? (OBS.length+' kunjungan aktif') : 'Belum ada data diunggah';
 }
 
 const MASTER_CBR_COUNT = {"Elfrida Suryati": 8, "Jack Roka": 24, "Laurensius Herbianto": 41, "Leonardus M. Mawardi": 26, "Magdalena Sabe": 30, "Maria Diana Banut": 20, "Miseldis Halmida": 28, "Stanis J. Ngalu": 23};
@@ -619,14 +619,22 @@ function renderTemuanUtama() {
   const totalMaster = 200;
   const belumObs = totalMaster - unik;
 
+  const ICON_PEOPLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>';
+  const ICON_WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M12 9v4M12 17h.01"/><path d="M10.4 3.6L2.3 18a1.9 1.9 0 0 0 1.7 2.9h16a1.9 1.9 0 0 0 1.7-2.9L13.6 3.6a1.9 1.9 0 0 0-3.2 0z"/></svg>';
+  const ICON_SCHOOL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M3 9.5L12 4l9 5.5-9 5.5z"/><path d="M6 11.5v5.5c0 1 2.7 2 6 2s6-1 6-2v-5.5"/></svg>';
+  const ICON_BONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>';
+  const ICON_HOOD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M3 21V10l9-7 9 7v11"/><path d="M9 21v-6h6v6"/></svg>';
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>';
+  const ICON_THOUGHT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H7a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2l-3 3v-3z"/></svg>';
+
   const items = [
-    { icon: '👥', label: 'Anak Terpantau', val: unik + ' dari ' + totalMaster + ' anak', color: '#22c55e' },
-    { icon: '⚠️', label: 'Belum Diobservasi', val: belumObs + ' anak', color: belumObs > 0 ? '#ef4444' : '#22c55e' },
-    { icon: '🏫', label: 'Tidak/Belum Sekolah', val: belumSekolah + ' anak', color: belumSekolah > 10 ? '#f59e0b' : '#22c55e' },
-    topSt ? { icon: '🦴', label: 'Gangguan Tubuh Terbanyak', val: topSt.label + ' (' + topSt.count_neg + ' anak)', color: '#06b6d4' } : null,
-    topHambatan ? { icon: '🏘️', label: 'Hambatan Lingkungan Terbesar', val: topHambatan.label + ' (' + topHambatan.count_neg + ' kasus)', color: '#f59e0b' } : null,
-    topFasil ? { icon: '✅', label: 'Faktor Pendukung Terkuat', val: topFasil.label + ' (' + topFasil.count_pos + ' kasus)', color: '#22c55e' } : null,
-    topPf ? { icon: '💭', label: 'Tema Personal Dominan', val: topPf.label + ' (' + topPf.count_tema + ' anak)', color: '#a78bfa' } : null,
+    { icon: ICON_PEOPLE, label: 'Anak Terpantau', val: unik + ' dari ' + totalMaster + ' anak', color: '#22c55e' },
+    { icon: ICON_WARN, label: 'Belum Diobservasi', val: belumObs + ' anak', color: belumObs > 0 ? '#ef4444' : '#22c55e' },
+    { icon: ICON_SCHOOL, label: 'Tidak/Belum Sekolah', val: belumSekolah + ' anak', color: belumSekolah > 10 ? '#f59e0b' : '#22c55e' },
+    topSt ? { icon: ICON_BONE, label: 'Gangguan Tubuh Terbanyak', val: topSt.label + ' (' + topSt.count_neg + ' anak)', color: '#06b6d4' } : null,
+    topHambatan ? { icon: ICON_HOOD, label: 'Hambatan Lingkungan Terbesar', val: topHambatan.label + ' (' + topHambatan.count_neg + ' kasus)', color: '#f59e0b' } : null,
+    topFasil ? { icon: ICON_CHECK, label: 'Faktor Pendukung Terkuat', val: topFasil.label + ' (' + topFasil.count_pos + ' kasus)', color: '#22c55e' } : null,
+    topPf ? { icon: ICON_THOUGHT, label: 'Tema Personal Dominan', val: topPf.label + ' (' + topPf.count_tema + ' anak)', color: '#a78bfa' } : null,
   ].filter(Boolean);
 
   el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">' +
@@ -1216,11 +1224,11 @@ function renderTabel(key, rows, type, theme) {
     if (type === 'pos') {
       const cls = key === 'lingkungan' ? 'kondisi-fasil' : 'kondisi-baik';
       const label = theme?.label_pos || (key === 'struktur' ? 'Baik' : key === 'lingkungan' ? 'Dukungan' : 'Mampu');
-      kondisiCell = `<td class="${cls}">✅ ${label}</td>`;
+      kondisiCell = `<td class="${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>${label}</td>`;
     } else if (type === 'neg') {
       const cls = key === 'lingkungan' ? 'kondisi-hambat' : 'kondisi-buruk';
       const label = theme?.label_neg || (key === 'struktur' ? 'Terganggu' : key === 'lingkungan' ? 'Hambatan' : 'Terbatas');
-      kondisiCell = `<td class="${cls}">⚠️ ${label}</td>`;
+      kondisiCell = `<td class="${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 9v4M12 17h.01"/><path d="M10.4 3.6L2.3 18a1.9 1.9 0 0 0 1.7 2.9h16a1.9 1.9 0 0 0 1.7-2.9L13.6 3.6a1.9 1.9 0 0 0-3.2 0z"/></svg>${label}</td>`;
     } else {
       kondisiCell = `<td class="tema">${r.kutipan ? col3Label : '—'}</td>`;
     }
@@ -1308,7 +1316,7 @@ function handleFile(file){
       const headers = rows[0];
       const parsed = parseOBS(headers, rows.slice(1));
       if(!parsed.length){ 
-        setStatus('❌ Tidak ada data valid. Pastikan kolom: Nama Anak, CBR Worker, Tanggal ada di Excel.','err'); 
+        setStatus('Tidak ada data valid. Pastikan kolom: Nama Anak, CBR Worker, Tanggal ada di Excel.','err'); 
         return; 
       }
       OBS = parsed; rebuildAll(OBS); rebuildChartVars(); resetICFAnalysis();
@@ -1316,7 +1324,7 @@ function handleFile(file){
       Object.keys(CHARTS).forEach(k=>{try{CHARTS[k].destroy();}catch(e){}});
       CHARTS = {};
       renderRingkasan();
-      setStatus('✅ '+parsed.length+' kunjungan berhasil dimuat','ok');
+      setStatus(parsed.length+' kunjungan berhasil dimuat','ok');
       closeUpload();
     }catch(err){ setStatus('Error: '+err.message,'err'); }
   };

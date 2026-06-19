@@ -134,9 +134,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
     <div class="tb-sub">Analisis Data Awal + Observasi · Building Effective Network</div>
   </div>
   <div class="tb-right">
-    <button class="back-btn" onclick="fetchAllData()">🔄</button>
-    <button class="back-btn" onclick="exportAllExcel()">📊</button>
-    <button class="back-btn" onclick="exportAllPDF()">📄</button>
+    <button class="back-btn" onclick="fetchAllData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg></button>
+    <button class="back-btn" onclick="exportAllExcel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg></button>
+    <button class="back-btn" onclick="exportAllPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
     <div class="tb-badge" id="tbBadge">0 anak</div>
   </div>
 </div>
@@ -168,15 +168,15 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 
         <div class="toolbar">
           <div class="search-wrap">
-            <span class="si">🔍</span>
+            <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
             <input id="searchInput" type="text" placeholder="Cari nama anak, CBR Worker..." oninput="filterReko()">
           </div>
           <select class="fsel" id="filterCBR" onchange="filterReko()"><option value="">Semua CBR Worker</option></select>
           <select class="fsel" id="filterPriority" onchange="filterReko()">
             <option value="">Semua Prioritas</option>
-            <option value="tinggi">🔴 Prioritas Tinggi</option>
-            <option value="sedang">🟡 Prioritas Sedang</option>
-            <option value="rendah">🟢 Prioritas Rendah</option>
+            <option value="tinggi">● Prioritas Tinggi</option>
+            <option value="sedang">● Prioritas Sedang</option>
+            <option value="rendah">● Prioritas Rendah</option>
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
@@ -186,7 +186,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 
         <div class="reco-list" id="recoList"></div>
         <div class="empty" id="emptyState" style="display:none">
-          <div class="ico">🔍</div>
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
           <h2>Tidak ada hasil</h2>
           <p>Coba ubah kata pencarian atau filter yang digunakan.</p>
         </div>
@@ -285,7 +285,7 @@ async function fetchAllData() {
       }
     } catch(e2) {}
     document.getElementById('loadingState').innerHTML =
-      '<div style="color:var(--red)">⚠️ Gagal memuat data. Periksa koneksi atau Apps Script.</div>';
+      '<div style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"><path d="M12 9v4M12 17h.01"/><path d="M10.4 3.6L2.3 18a1.9 1.9 0 0 0 1.7 2.9h16a1.9 1.9 0 0 0 1.7-2.9L13.6 3.6a1.9 1.9 0 0 0-3.2 0z"/></svg>Gagal memuat data. Periksa koneksi atau Apps Script.</div>';
   }
 }
 
@@ -603,13 +603,13 @@ function renderKPI() {
       <div class="v">${total}</div><div class="l">Total Anak Dianalisis</div>
     </div>
     <div class="kpi" style="--kc:var(--red)" onclick="setKpiFilter('tinggi',this)">
-      <div class="v">${tinggi}</div><div class="l">🔴 Prioritas Tinggi</div>
+      <div class="v">${tinggi}</div><div class="l"><svg viewBox="0 0 24 24" fill="currentColor" style="width:9px;height:9px;color:var(--red);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>Prioritas Tinggi</div>
     </div>
     <div class="kpi" style="--kc:var(--amb)" onclick="setKpiFilter('sedang',this)">
-      <div class="v">${sedang}</div><div class="l">🟡 Prioritas Sedang</div>
+      <div class="v">${sedang}</div><div class="l"><svg viewBox="0 0 24 24" fill="currentColor" style="width:9px;height:9px;color:var(--amb);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>Prioritas Sedang</div>
     </div>
     <div class="kpi" style="--kc:var(--grn)" onclick="setKpiFilter('rendah',this)">
-      <div class="v">${rendah}</div><div class="l">🟢 Prioritas Rendah</div>
+      <div class="v">${rendah}</div><div class="l"><svg viewBox="0 0 24 24" fill="currentColor" style="width:9px;height:9px;color:var(--grn);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>Prioritas Rendah</div>
     </div>
   `;
   document.getElementById('tbBadge').textContent = total + ' anak';
@@ -668,7 +668,10 @@ function renderRecoList() {
   }
   empty.style.display = 'none';
 
-  const priLabel = { tinggi:'🔴 Tinggi', sedang:'🟡 Sedang', rendah:'🟢 Rendah' };
+  const DOT_RED = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--red);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_AMB = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--amb);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_GRN = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--grn);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const priLabel = { tinggi:DOT_RED+'Tinggi', sedang:DOT_AMB+'Sedang', rendah:DOT_GRN+'Rendah' };
   const priClass = { tinggi:'pr-tinggi', sedang:'pr-sedang', rendah:'pr-rendah' };
 
   el.innerHTML = filteredReko.map(a => {
@@ -680,7 +683,7 @@ function renderRecoList() {
         <div class="ri-sub">${a.cb} · ${a.totalHambatan} hal teridentifikasi</div>
       </div>
       <div class="ri-priority ${priClass[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
-      <div class="ri-arrow">→</div>
+      <div class="ri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M9 18l6-6-6-6"/></svg></div>
     </div>`;
   }).join('');
 }
@@ -753,10 +756,13 @@ function filterNamaPanel() {
 function renderDetailAnak(nama) {
   const a = ANALISIS.find(x => x.na === nama);
   const el = document.getElementById('cbr-detail-mode');
-  if (!a) { el.innerHTML = '<div class="empty"><div class="ico">❓</div><h2>Data tidak ditemukan</h2></div>'; return; }
+  if (!a) { el.innerHTML = '<div class="empty"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"/><path d="M12 17h.01"/></svg></div><h2>Data tidak ditemukan</h2></div>'; return; }
 
   const color = avatarColor(a.na);
-  const priLabel = { tinggi:'🔴 Prioritas Tinggi', sedang:'🟡 Prioritas Sedang', rendah:'🟢 Prioritas Rendah' };
+  const DOT_RED = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--red);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_AMB = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--amb);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_GRN = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--grn);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
+  const priLabel = { tinggi:DOT_RED+'Prioritas Tinggi', sedang:DOT_AMB+'Prioritas Sedang', rendah:DOT_GRN+'Prioritas Rendah' };
   const priBg = { tinggi:'rgba(239,68,68,.12)', sedang:'rgba(245,158,11,.12)', rendah:'rgba(34,197,94,.12)' };
   const priColor2 = { tinggi:'var(--red)', sedang:'var(--amb)', rendah:'var(--grn)' };
   const awal = a.awal;
@@ -778,8 +784,8 @@ function renderDetailAnak(nama) {
         <div class="dp-val" style="color:${priColor2[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:flex-start">
-        <button class="back-btn" onclick="exportOneExcel('${a.na.replace(/'/g,"\\'")}')">📊</button>
-        <button class="back-btn" onclick="exportOnePDF('${a.na.replace(/'/g,"\\'")}')">📄</button>
+        <button class="back-btn" onclick="exportOneExcel('${a.na.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg></button>
+        <button class="back-btn" onclick="exportOnePDF('${a.na.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
       </div>
     </div>
 
@@ -928,9 +934,9 @@ function exportAllPDF() {
     startY: y,
     head: [['Kategori Prioritas', 'Jumlah Anak', 'Persentase']],
     body: [
-      ['🔴 Tinggi', String(tinggi), Math.round(tinggi/ANALISIS.length*100) + '%'],
-      ['🟡 Sedang', String(sedang), Math.round(sedang/ANALISIS.length*100) + '%'],
-      ['🟢 Rendah', String(rendah), Math.round(rendah/ANALISIS.length*100) + '%'],
+      ['Tinggi', String(tinggi), Math.round(tinggi/ANALISIS.length*100) + '%'],
+      ['Sedang', String(sedang), Math.round(sedang/ANALISIS.length*100) + '%'],
+      ['Rendah', String(rendah), Math.round(rendah/ANALISIS.length*100) + '%'],
     ],
     theme: 'grid',
     headStyles: { fillColor: [20,28,46], fontSize: 9 },

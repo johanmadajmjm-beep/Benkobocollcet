@@ -224,30 +224,30 @@ tr:hover td{background:rgba(79,142,247,.03)}
 <header>
   <div class="logo">BEN<small>SCN Manggarai · Monitoring Benefisiari</small></div>
   <nav class="nav">
-    <button class="act" onclick="switchTab('anak',this)">👶 Ringkasan Anak</button>
-    <button onclick="switchTab('skor',this)">📊 Skor Anak</button>
-    <button onclick="switchTab('pengasuh',this)">🧑 Pengasuh</button>
-    <button onclick="switchTab('worker',this)">👥 CBR Worker</button>
-    <button onclick="switchTab('peta',this)">🗺️ Peta</button>
-    <button onclick="switchTab('data',this)">📋 Data Lengkap</button>
+    <button class="act" onclick="switchTab('anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>Ringkasan Anak</button>
+    <button onclick="switchTab('skor',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Skor Anak</button>
+    <button onclick="switchTab('pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>Pengasuh</button>
+    <button onclick="switchTab('worker',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 7-6 1.5 0 2.9.4 4 1"/><path d="M13 15c1-.6 2.5-1 4-1 4.3 0 7 2.7 7 6"/></svg>CBR Worker</button>
+    <button onclick="switchTab('peta',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>Peta</button>
+    <button onclick="switchTab('data',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>Data Lengkap</button>
   </nav>
   <div class="hdr-btns">
-    <button class="hbtn" onclick="fetchFromAppsScript()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e">🔄</button>
+    <button class="hbtn" onclick="fetchFromAppsScript()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg></button>
     <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </button>
-    <button class="hbtn hbtn-clear" onclick="openClearConfirm()">🧹</button>
+    <button class="hbtn hbtn-clear" onclick="openClearConfirm()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg></button>
   </div>
 </header>
 
 <!-- Upload Modal -->
 <div class="modal-bg" id="uploadModal" onclick="if(event.target===this)closeUpload()">
   <div class="modal">
-    <button class="modal-close" onclick="closeUpload()">✕</button>
-    <h2>📤 Upload Data Benefisiari</h2>
+    <button class="modal-close" onclick="closeUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 9l5-5 5 5M12 4v12"/></svg>Upload Data Benefisiari</h2>
     <p>Upload file Excel (.xlsx) LogBook STEP. Data lama akan digantikan data baru.</p>
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <div class="icon">📂</div>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px"><path d="M3 7a2 2 0 0 1 2-2h3.5l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
       <p><strong>Klik untuk pilih file</strong> atau drag & drop</p>
       <p style="margin-top:4px;font-size:11px">.xlsx · Sheet "Data Awal"</p>
     </div>
@@ -266,8 +266,8 @@ tr:hover td{background:rgba(79,142,247,.03)}
 <!-- Clear Confirm Modal -->
 <div class="modal-bg" id="clearModal" onclick="if(event.target===this)closeClear()">
   <div class="modal">
-    <button class="modal-close" onclick="closeClear()">✕</button>
-    <h2>🧹 Bersihkan Cache Dashboard?</h2>
+    <button class="modal-close" onclick="closeClear()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>Bersihkan Cache Dashboard?</h2>
     <p>Ini hanya menghapus cache yang tersimpan di browser ini (localStorage). Tidak ada data yang dihapus dari Google Sheet. Setelah dibersihkan, dashboard akan langsung menarik ulang data terbaru dari Apps Script.</p>
     <div class="confirm-btns">
       <button class="btn-cancel" onclick="closeClear()">Batal</button>
@@ -286,7 +286,7 @@ tr:hover td{background:rgba(79,142,247,.03)}
         <div class="hero-title">Dashboard Monitoring Anak – BEN SCN Manggarai</div>
         <div class="hero-sub">Building Effective Network · Data Awal Benefisiari · Fokus: Kondisi & Perkembangan Anak</div>
       </div>
-      <div class="data-badge" id="dataBadge">📁 0 entri</div>
+      <div class="data-badge" id="dataBadge">0 entri</div>
     </div>
     <div class="hero-pills">
       <div class="pill">Total anak: <span id="h-total">—</span></div>
@@ -296,7 +296,7 @@ tr:hover td{background:rgba(79,142,247,.03)}
   </div>
 
   <div id="emptyAnakState" class="empty-state">
-    <div class="icon">📂</div>
+    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px"><path d="M3 7a2 2 0 0 1 2-2h3.5l1.5 2H19a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
     <h2>Belum ada data</h2>
     <p>Upload file Excel LogBook STEP untuk mulai menampilkan dashboard monitoring anak.</p>
     <button onclick="openUpload()">Upload Data Excel</button>
@@ -347,8 +347,8 @@ tr:hover td{background:rgba(79,142,247,.03)}
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi anak (frekuensi)</div>
     <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualAnak('naik_anak',this)">⬆ Faktor Naik Tangga</button>
-      <button class="qtab red" onclick="showQualAnak('turun_anak',this)">⬇ Faktor Turun Tangga</button>
+      <button class="qtab grn act" onclick="showQualAnak('naik_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor Naik Tangga</button>
+      <button class="qtab red" onclick="showQualAnak('turun_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor Turun Tangga</button>
     </div>
     <div id="qualAnakBars"></div>
   </div>
@@ -373,8 +373,8 @@ tr:hover td{background:rgba(79,142,247,.03)}
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi mereka sendiri (frekuensi)</div>
     <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualPeng('naik_pengasuh',this)">⬆ Faktor yang Membantu</button>
-      <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)">⬇ Faktor yang Menghambat</button>
+      <button class="qtab grn act" onclick="showQualPeng('naik_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor yang Membantu</button>
+      <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor yang Menghambat</button>
     </div>
     <div id="qualPengBars"></div>
   </div>
@@ -430,7 +430,7 @@ tr:hover td{background:rgba(79,142,247,.03)}
     </div>
   </div>
   <div class="det-panel" id="mapDetail">
-    <div class="det-hd"><strong id="mapDetTitle">Detail Anak</strong><button class="det-close" onclick="document.getElementById('mapDetail').classList.remove('open')">✕</button></div>
+    <div class="det-hd"><strong id="mapDetTitle">Detail Anak</strong><button class="det-close" onclick="document.getElementById('mapDetail').classList.remove('open')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
     <div class="dp-grid" id="mapDetGrid"></div>
   </div>
 </div>
@@ -483,7 +483,7 @@ async function fetchFromAppsScript() {
     const resp = await fetch(APPS_SCRIPT_URL + '?sheet=DataAwal');
     const json = await resp.json();
     if (!json.data || !json.data.length) {
-      showKoboStatus('⚠️ Belum ada data.', 'warn');
+      showKoboStatus('Belum ada data.', 'warn');
       KOBO_LOADING = false;
       return;
     }
@@ -507,7 +507,7 @@ async function fetchFromAppsScript() {
       localStorage.setItem('ben_last_sync', KOBO_LAST_SYNC || '');
     } catch(e) {}
     renderAll();
-    showKoboStatus('✅ ' + D.length + ' anak · Sync: ' + formatSyncTime(KOBO_LAST_SYNC), 'ok');
+    showKoboStatus(D.length + ' anak · Sync: ' + formatSyncTime(KOBO_LAST_SYNC), 'ok');
   } catch(err) {
     try {
       const cached = localStorage.getItem('ben_data');
@@ -516,11 +516,11 @@ async function fetchFromAppsScript() {
         QUAL = JSON.parse(localStorage.getItem('ben_qual') || '{}') || QUAL;
         KOBO_LAST_SYNC = localStorage.getItem('ben_last_sync');
         renderAll();
-        showKoboStatus('⚠️ Cache · ' + formatSyncTime(KOBO_LAST_SYNC), 'warn');
+        showKoboStatus('Cache · ' + formatSyncTime(KOBO_LAST_SYNC), 'warn');
       } else {
-        showKoboStatus('❌ ' + err.message, 'err');
+        showKoboStatus(err.message, 'err');
       }
-    } catch(e2) { showKoboStatus('❌ ' + err.message, 'err'); }
+    } catch(e2) { showKoboStatus(err.message, 'err'); }
   }
   KOBO_LOADING = false;
 }
@@ -648,7 +648,7 @@ function renderAnak(){
   document.getElementById('emptyAnakState').style.display='none'; document.getElementById('anakContent').style.display='block';
 
   const total=d.length;
-  document.getElementById('dataBadge').textContent='📁 '+total+' entri aktif';
+  document.getElementById('dataBadge').textContent=total+' entri aktif';
   document.getElementById('h-total').textContent=total;
 
   const lk=d.filter(r=>r.j==='Laki-Laki').length, pr=d.filter(r=>r.j==='Perempuan').length;
@@ -860,11 +860,11 @@ function renderPengasuh(){
   const tkpSamples=d.filter(r=>r.tkp&&r.tkp.length>20).slice(0,4);
   document.getElementById('quoteGrid').innerHTML=`
     <div class="quote-card">
-      <div class="qc-hd" style="color:var(--grn)">⬆ Hal yang Membantu Pengasuh Naik Tangga</div>
+      <div class="qc-hd" style="color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Hal yang Membantu Pengasuh Naik Tangga</div>
       ${nkpSamples.map(r=>`<div class="quote-item up">"${r.nkp.substring(0,120)}${r.nkp.length>120?'…':''}" <br><span style="font-size:10px;color:var(--mut);font-style:normal">— ${r.np||'Pengasuh'} (${r.cb||'CBR'})</span></div>`).join('')}
     </div>
     <div class="quote-card">
-      <div class="qc-hd" style="color:var(--red)">⬇ Hal yang Membuat Pengasuh Turun Tangga</div>
+      <div class="qc-hd" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Hal yang Membuat Pengasuh Turun Tangga</div>
       ${tkpSamples.map(r=>`<div class="quote-item dn">"${r.tkp.substring(0,120)}${r.tkp.length>120?'…':''}" <br><span style="font-size:10px;color:var(--mut);font-style:normal">— ${r.np||'Pengasuh'} (${r.cb||'CBR'})</span></div>`).join('')}
     </div>`;
 }
@@ -1004,8 +1004,8 @@ function updateMap(){
         <div class="mp-si"><div class="sc-l">Skor Anak</div><div class="sc-v" style="color:${sc(sa)}">${r.sa||'—'}</div></div>
         <div class="mp-si"><div class="sc-l">Skor Pengasuh</div><div class="sc-v" style="color:${sc(sp)}">${r.sp||'—'}</div></div>
       </div>
-      ${r.nka?`<div class="mp-q">⬆ Anak: "${r.nka.substring(0,100)}${r.nka.length>100?'…':''}"</div>`:''}
-      ${r.nkp?`<div class="mp-q" style="margin-top:4px">⬆ Pengasuh: "${r.nkp.substring(0,100)}${r.nkp.length>100?'…':''}"</div>`:''}
+      ${r.nka?`<div class="mp-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Anak: "${r.nka.substring(0,100)}${r.nka.length>100?'…':''}"</div>`:''}
+      ${r.nkp?`<div class="mp-q" style="margin-top:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Pengasuh: "${r.nkp.substring(0,100)}${r.nkp.length>100?'…':''}"</div>`:''}
     </div>`));
     m.on('click',()=>showMapDetail(r));
     m.addTo(markerLayer); lls.push([r.lat,r.lon]);
@@ -1125,7 +1125,7 @@ function setStatus(msg,type){ const el=document.getElementById('uploadStatus'); 
 function handleFile(file){
   if(!file)return;
   FILENAME_EXCEL = file.name;
-  if(!file.name.match(/\.xlsx?$/i)){setStatus('⚠️ Format harus .xlsx','err');return;}
+  if(!file.name.match(/\.xlsx?$/i)){setStatus('Format harus .xlsx','err');return;}
   setStatus('⏳ Membaca file Excel...');
   const reader=new FileReader();
   reader.onload=e=>{
@@ -1133,16 +1133,16 @@ function handleFile(file){
       const wb=XLSX.read(e.target.result,{type:'array'});
       const sName=wb.SheetNames.includes('Data Awal')?'Data Awal':wb.SheetNames[0];
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[sName],{header:1,defval:null});
-      if(!rows.length){setStatus('⚠️ Sheet kosong','err');return;}
+      if(!rows.length){setStatus('Sheet kosong','err');return;}
       const headers=rows[0];
       setStatus('⏳ Memproses '+rows.length+' baris...');
       const parsed=parseUpload(headers,rows.slice(1));
-      if(!parsed.length){setStatus('⚠️ Tidak ada data valid.','err');return;}
+      if(!parsed.length){setStatus('Tidak ada data valid.','err');return;}
       D=parsed; rebuildQual(parsed);
       try{localStorage.setItem('ben_data',JSON.stringify(D));localStorage.setItem('ben_qual',JSON.stringify(QUAL));localStorage.setItem('ben_filename',FILENAME_EXCEL);}catch(e){}
       renderAll(); closeUpload();
-      setTimeout(()=>setStatus('✅ '+parsed.length+' entri berhasil dimuat','ok'),100);
-    }catch(err){setStatus('❌ Error: '+err.message,'err');console.error(err);}
+      setTimeout(()=>setStatus(parsed.length+' entri berhasil dimuat','ok'),100);
+    }catch(err){setStatus('Error: '+err.message,'err');console.error(err);}
   };
   reader.readAsArrayBuffer(file);
 }
