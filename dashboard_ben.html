@@ -1303,10 +1303,16 @@ function renderAll(){
   populateFilters();
   renderDataTable();
   if(leafletMap) updateMap(false);
-  setTimeout(()=>{ Object.values(Chart.instances||{}).forEach(c=>c.resize()); },100);
+  // Resize semua chart setelah browser selesai layout
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      Object.values(Chart.instances||{}).forEach(c=>c.resize());
+    });
+  });
 }
 
-renderAll();
+// Tunggu browser selesai paint sebelum render pertama
+requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ renderAll(); }); });
 
 // postMessage bridge — terima perintah dari portal
 window.addEventListener('message', function(e) {
