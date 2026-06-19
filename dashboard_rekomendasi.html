@@ -57,6 +57,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 .fsel{background:var(--card);border:1px solid var(--bdr);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:12px;outline:none;cursor:pointer;font-family:inherit}
 .fsel:focus{border-color:var(--amb)}
 .filter-count{font-size:11px;font-weight:700;color:var(--mut2);padding:4px 10px;background:var(--card2);border-radius:6px;border:1px solid var(--bdr)}
+.view-toggle{display:flex;gap:2px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:3px;flex-shrink:0}
+.vt-btn{width:30px;height:28px;border:none;background:transparent;color:var(--mut);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.vt-btn.act{background:var(--acc);color:#fff}
 
 /* ── LIST ANAK ── */
 .reco-list{display:flex;flex-direction:column;gap:8px}
@@ -183,18 +186,26 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <span style="font-size:11px;color:var(--mut2)">Menampilkan:</span>
           <span class="filter-count" id="filterCount">0 anak</span>
-          <div style="margin-left:auto;display:flex;gap:2px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:3px">
-            <button id="vt-list" onclick="setRekoView('list')" title="List" style="padding:4px 8px;border:none;border-radius:5px;cursor:pointer;background:var(--acc);color:#fff;font-size:11px;font-weight:700">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          <div class="view-toggle" style="margin-left:auto">
+            <button class="vt-btn act" id="vt-reko-large" onclick="setRekoView('large')" title="Kartu Besar">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
             </button>
-            <button id="vt-card" onclick="setRekoView('card')" title="Kartu Nama" style="padding:4px 8px;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--mut);font-size:11px;font-weight:700">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <button class="vt-btn" id="vt-reko-small" onclick="setRekoView('small')" title="Kartu Kecil">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="3" height="3" rx="0.5"/><rect x="6" y="1" width="3" height="3" rx="0.5"/><rect x="11" y="1" width="3" height="3" rx="0.5"/><rect x="1" y="6" width="3" height="3" rx="0.5"/><rect x="6" y="6" width="3" height="3" rx="0.5"/><rect x="11" y="6" width="3" height="3" rx="0.5"/><rect x="1" y="11" width="3" height="3" rx="0.5"/><rect x="6" y="11" width="3" height="3" rx="0.5"/><rect x="11" y="11" width="3" height="3" rx="0.5"/></svg>
+            </button>
+            <button class="vt-btn" id="vt-reko-list" onclick="setRekoView('list')" title="List">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="12" width="14" height="2" rx="1"/></svg>
+            </button>
+            <button class="vt-btn" id="vt-reko-detail" onclick="setRekoView('detail')" title="Detail">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="2" height="2" rx="0.5"/><rect x="5" y="2" width="10" height="2" rx="1"/><rect x="1" y="7" width="2" height="2" rx="0.5"/><rect x="5" y="7" width="10" height="2" rx="1"/><rect x="1" y="12" width="2" height="2" rx="0.5"/><rect x="5" y="12" width="10" height="2" rx="1"/></svg>
             </button>
           </div>
         </div>
 
-        <div class="reco-list" id="recoList"></div>
-        <div id="recoCardView" style="display:none;display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+        <div id="recoGridLarge" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px"></div>
+        <div id="recoGridSmall" style="display:none;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:12px"></div>
+        <div class="reco-list" id="recoList" style="display:none"></div>
+        <div id="recoDetailView" style="display:none;margin-bottom:12px"></div>
         <div class="empty" id="emptyState" style="display:none">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
           <h2>Tidak ada hasil</h2>
@@ -576,7 +587,7 @@ function runAnalysis() {
     if (totalHambatan >= 4 || skorRendah) priorityLevel = 'tinggi';
     else if (totalHambatan >= 2) priorityLevel = 'sedang';
 
-    ANALISIS.push({ na: nama, cb, awal, obs, top3, priorityLevel, totalHambatan });
+    ANALISIS.push({ na: nama, cb, rg: (awal && awal.rg)||'', awal, obs, top3, priorityLevel, totalHambatan });
   });
 
   const prioOrder = { tinggi:0, sedang:1, rendah:2 };
@@ -663,14 +674,106 @@ function filterReko() {
   document.getElementById('filterCount').textContent = filteredReko.length + ' anak';
 }
 
-let rekoViewMode = 'list';
+let rekoViewMode = 'large';
+
 function setRekoView(mode) {
   rekoViewMode = mode;
-  document.getElementById('vt-list').style.background = mode==='list' ? 'var(--acc)' : 'transparent';
-  document.getElementById('vt-list').style.color = mode==='list' ? '#fff' : 'var(--mut)';
-  document.getElementById('vt-card').style.background = mode==='card' ? 'var(--acc)' : 'transparent';
-  document.getElementById('vt-card').style.color = mode==='card' ? '#fff' : 'var(--mut)';
+  ['large','small','list','detail'].forEach(m => {
+    const btn = document.getElementById('vt-reko-'+m);
+    if(btn) btn.classList.toggle('act', m===mode);
+  });
+  document.getElementById('recoGridLarge').style.display  = mode==='large'  ? 'grid' : 'none';
+  document.getElementById('recoGridSmall').style.display  = mode==='small'  ? 'grid' : 'none';
+  document.getElementById('recoList').style.display       = mode==='list'   ? 'flex' : 'none';
+  document.getElementById('recoDetailView').style.display = mode==='detail' ? 'block': 'none';
   renderRecoList();
+}
+
+function renderRecoList() {
+  const priColor = {tinggi:'var(--red)',sedang:'var(--amb)',rendah:'var(--grn)'};
+  const priLabel = {tinggi:'Tinggi',sedang:'Sedang',rendah:'Rendah'};
+
+  const DOT_RED = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--red);vertical-align:1px;margin-right:3px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_AMB = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--amb);vertical-align:1px;margin-right:3px"><circle cx="12" cy="12" r="10"/></svg>';
+  const DOT_GRN = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--grn);vertical-align:1px;margin-right:3px"><circle cx="12" cy="12" r="10"/></svg>';
+  const dots = {tinggi:DOT_RED,sedang:DOT_AMB,rendah:DOT_GRN};
+
+  const emptyEl = document.getElementById('emptyState');
+  if(filteredReko.length===0){ emptyEl.style.display='flex'; return; }
+  emptyEl.style.display='none';
+
+  function cardHTML(a, size) {
+    const color = avatarColor(a.na);
+    const initials = a.na.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+    const pc = priColor[a.priorityLevel]||'var(--mut)';
+    const dot = dots[a.priorityLevel]||'';
+    const pl = priLabel[a.priorityLevel]||'—';
+    const sz = size==='large' ? 48 : 32;
+    const fs = size==='large' ? 18 : 13;
+    const pad = size==='large' ? '14px' : '8px 10px';
+    return `<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:${pad};text-align:center;cursor:pointer;transition:all .18s" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
+      <div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${color}22;color:${color};font-weight:800;font-size:${fs}px;display:flex;align-items:center;justify-content:center;margin:0 auto ${size==='large'?'8':'5'}px">${initials}</div>
+      <div style="font-size:${size==='large'?'12':'10'}px;font-weight:700;color:var(--txt);margin-bottom:2px;line-height:1.3">${a.na}</div>
+      ${size==='large'?`<div style="font-size:10px;color:var(--mut);margin-bottom:5px">${a.cb}</div>`:''}
+      <div style="font-size:9px;font-weight:700;color:${pc};background:${pc}18;border-radius:99px;padding:2px 7px;display:inline-block">${dot}${pl}</div>
+    </div>`;
+  }
+
+  // Grid Large
+  if(rekoViewMode==='large') {
+    document.getElementById('recoGridLarge').innerHTML = filteredReko.map(a=>cardHTML(a,'large')).join('');
+  }
+  // Grid Small
+  else if(rekoViewMode==='small') {
+    document.getElementById('recoGridSmall').innerHTML = filteredReko.map(a=>cardHTML(a,'small')).join('');
+  }
+  // List
+  else if(rekoViewMode==='list') {
+    const priClass = {tinggi:'pr-tinggi',sedang:'pr-sedang',rendah:'pr-rendah'};
+    document.getElementById('recoList').innerHTML = filteredReko.map((a,i) => {
+      const color = avatarColor(a.na);
+      const initials = a.na.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+      const dot = dots[a.priorityLevel]||'';
+      const pl = priLabel[a.priorityLevel]||'—';
+      const pc = priColor[a.priorityLevel]||'var(--mut)';
+      return `<div class="ri-item" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
+        <div class="ri-avatar" style="background:${color}22;color:${color}">${initials}</div>
+        <div class="ri-body">
+          <div class="ri-name">${a.na}</div>
+          <div class="ri-sub">${a.cb} · ${a.totalHambatan} hal teridentifikasi</div>
+        </div>
+        <div class="ri-priority ${priClass[a.priorityLevel]||''}">${dot}${pl}</div>
+        <div class="ri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>`;
+    }).join('');
+  }
+  // Detail table
+  else if(rekoViewMode==='detail') {
+    document.getElementById('recoDetailView').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--card)">
+          <th style="padding:8px 12px;text-align:left;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bdr)">Nama Anak</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bdr)">CBR Worker</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bdr)">Ragam</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bdr)">Prioritas</th>
+          <th style="padding:8px 12px;text-align:left;color:var(--mut);font-weight:700;border-bottom:1px solid var(--bdr)">Hal Teridentifikasi</th>
+        </tr></thead>
+        <tbody>${filteredReko.map((a,i)=>{
+          const pc=priColor[a.priorityLevel]||'var(--mut)';
+          const dot=dots[a.priorityLevel]||'';
+          const pl=priLabel[a.priorityLevel]||'—';
+          return `<tr style="border-bottom:1px solid var(--bdr);cursor:pointer${i%2?';background:var(--sur)':''}" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
+            <td style="padding:8px 12px;font-weight:600;color:var(--txt)">${a.na}</td>
+            <td style="padding:8px 12px;color:var(--mut2)">${a.cb}</td>
+            <td style="padding:8px 12px;color:var(--mut2)">${a.rg||'—'}</td>
+            <td style="padding:8px 12px"><span style="color:${pc};font-weight:700">${dot}${pl}</span></td>
+            <td style="padding:8px 12px;color:var(--mut2)">${a.totalHambatan}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  }
+
+  document.getElementById('filterCount').textContent = filteredReko.length + ' anak';
 }
 
 function avatarColor(name) {
@@ -683,37 +786,6 @@ function avatarColor(name) {
 function initials(name) {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]||'')[0] || '') + ((parts[1]||'')[0] || '');
-}
-
-function renderRecoList() {
-  const el = document.getElementById('recoList');
-  const empty = document.getElementById('emptyState');
-
-  if (!filteredReko.length) {
-    el.innerHTML = '';
-    empty.style.display = 'flex';
-    return;
-  }
-  empty.style.display = 'none';
-
-  const DOT_RED = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--red);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const DOT_AMB = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--amb);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const DOT_GRN = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--grn);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const priLabel = { tinggi:DOT_RED+'Tinggi', sedang:DOT_AMB+'Sedang', rendah:DOT_GRN+'Rendah' };
-  const priClass = { tinggi:'pr-tinggi', sedang:'pr-sedang', rendah:'pr-rendah' };
-
-  el.innerHTML = filteredReko.map(a => {
-    const color = avatarColor(a.na);
-    return `<div class="reco-item" onclick="openDetail('${a.na.replace(/'/g,"\\'")}')">
-      <div class="ri-avatar" style="background:${color}22;color:${color}">${initials(a.na)}</div>
-      <div class="ri-body">
-        <div class="ri-name">${a.na}</div>
-        <div class="ri-sub">${a.cb} · ${a.totalHambatan} hal teridentifikasi</div>
-      </div>
-      <div class="ri-priority ${priClass[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
-      <div class="ri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M9 18l6-6-6-6"/></svg></div>
-    </div>`;
-  }).join('');
 }
 
 function showList() {
@@ -796,6 +868,7 @@ function renderDetailAnak(nama) {
   const awal = a.awal;
 
   let html = `
+    <button onclick="showList()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr);color:var(--mut2);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Kembali ke Daftar</button>
     <div class="detail-hdr">
       <div class="d-avatar" style="background:${color}22;color:${color}">${initials(a.na)}</div>
       <div style="flex:1;min-width:200px">
