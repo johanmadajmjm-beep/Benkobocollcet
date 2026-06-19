@@ -408,19 +408,19 @@ tr:hover td{background:rgba(79,142,247,.03)}
   <div class="card" style="margin-bottom:12px;padding:14px">
     <div class="fbar">
       <label>Ragam:</label>
-      <select id="mapRagam" onchange="updateMap()">
+      <select id="mapRagam" onchange="updateMap(false)">
         <option value="all">Semua</option><option>Fisik</option><option>Intelektual</option>
         <option value="Sensorik (penglihatan)">S.Penglihatan</option>
         <option value="Sensorik (pendengaran dan bicara)">S.Pendengaran</option><option>Ganda</option>
       </select>
       <label>Level:</label>
-      <select id="mapLevel" onchange="updateMap()">
+      <select id="mapLevel" onchange="updateMap(false)">
         <option value="all">Semua</option>
         <option value="Parah (dukungan penuh)">Parah</option>
         <option value="Sedang (dukungan reguler)">Sedang</option>
         <option value="Rendah (sedikit dukungan)">Rendah</option>
       </select>
-      <label>CBR:</label><select id="mapCbr" onchange="updateMap()"><option value="all">Semua</option></select>
+      <label>CBR:</label><select id="mapCbr" onchange="updateMap(false)"><option value="all">Semua</option></select>
       <span id="mapCount" style="margin-left:auto;color:var(--acc);font-weight:700;font-size:12px"></span>
       <button onclick="resetMapView()" style="background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);color:var(--acc);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Reset View</button>
     </div>
@@ -975,7 +975,7 @@ function renderWorker(){
 // ════════════════════════════════════════════════════
 // TAB 5: PETA
 // ════════════════════════════════════════════════════
-let leafletMap=null, markerLayer=null;
+let leafletMap=null, markerLayer=null, mapFitDone=false;
 function initMap(){
   if(leafletMap) return;
   leafletMap=L.map('leafletMap',{center:[-8.57,120.45],zoom:9,preferCanvas:true});
@@ -984,9 +984,9 @@ function initMap(){
   statCtrl.onAdd=function(){const d=L.DomUtil.create('div','stat-ctrl leaflet-bar');d.id='mapStatBox';L.DomEvent.disableClickPropagation(d);return d;};
   statCtrl.addTo(leafletMap);
   markerLayer=L.layerGroup().addTo(leafletMap);
-  updateMap();
+  // updateMap dipanggil dari switchTab setelah initMap — tidak perlu dipanggil di sini
 }
-function updateMap(){
+function updateMap(doFit){
   if(!leafletMap) return;
   const d=V();
   const rF=document.getElementById('mapRagam')?.value||'all';
@@ -1012,8 +1012,8 @@ function updateMap(){
   const lls=[];
   pts.forEach(r=>{
     const col=RC[r.rg]||'#64748b';
-    const rad=r.lv==='Parah (dukungan penuh)'?11:r.lv==='Sedang (dukungan reguler)'?8:6;
-    const m=L.circleMarker([r.lat,r.lon],{radius:rad,fillColor:col,color:'rgba(255,255,255,.2)',weight:1.5,opacity:1,fillOpacity:.88});
+    const rad=r.lv==='Parah (dukungan penuh)'?9:r.lv==='Sedang (dukungan reguler)'?7:5;
+    const m=L.circleMarker([r.lat,r.lon],{radius:rad,fillColor:col,color:'rgba(255,255,255,.25)',weight:1,opacity:1,fillOpacity:.85});
     const sa=parseFloat(r.sa||0),sp=parseFloat(r.sp||0);
     m.bindPopup(L.popup({maxWidth:300}).setContent(`<div class="mp">
       <div class="mp-name">${r.na||'—'}</div>
@@ -1028,23 +1028,32 @@ function updateMap(){
         <div class="mp-si"><div class="sc-l">Skor Anak</div><div class="sc-v" style="color:${sc(sa)}">${r.sa||'—'}</div></div>
         <div class="mp-si"><div class="sc-l">Skor Pengasuh</div><div class="sc-v" style="color:${sc(sp)}">${r.sp||'—'}</div></div>
       </div>
-      ${r.nka?`<div class="mp-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Anak: "${r.nka.substring(0,100)}${r.nka.length>100?'…':''}"</div>`:''}
-      ${r.nkp?`<div class="mp-q" style="margin-top:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Pengasuh: "${r.nkp.substring(0,100)}${r.nkp.length>100?'…':''}"</div>`:''}
+      ${r.nka?(()=>{const s=String(r.nka);return`<div class="mp-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Anak: "${s.substring(0,100)}${s.length>100?'…':''}"</div>`;})():''}
+      ${r.nkp?(()=>{const s=String(r.nkp);return`<div class="mp-q" style="margin-top:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Pengasuh: "${s.substring(0,100)}${s.length>100?'…':''}"</div>`;})():''}
     </div>`));
     m.on('click',()=>showMapDetail(r));
     m.addTo(markerLayer); lls.push([r.lat,r.lon]);
   });
-  if(lls.length>0){
+  // fitBounds hanya saat: pertama buka peta (doFit=true) ATAU user klik Reset View
+  // Saat filter berubah, posisi peta TIDAK berubah — user bebas zoom sendiri
+  if(doFit && lls.length>0){
     const bounds=L.latLngBounds(lls);
-    setTimeout(()=>{ leafletMap.invalidateSize(); leafletMap.fitBounds(bounds,{padding:[40,40],maxZoom:12,minZoom:8}); },50);
-    setTimeout(()=>{ leafletMap.invalidateSize(); leafletMap.fitBounds(bounds,{padding:[40,40],maxZoom:12,minZoom:8}); },500);
+    leafletMap.invalidateSize();
+    leafletMap.fitBounds(bounds,{padding:[40,40]});
   }
 }
 function resetMapView(){
   if(!leafletMap) return;
-  // Manggarai Raya bounds: meliputi Manggarai Barat, Tengah, Timur
   leafletMap.invalidateSize();
-  leafletMap.fitBounds([[-8.95,119.8],[-8.2,121.1]],{padding:[20,20]});
+  // fitBounds ke semua titik GPS yang ada, fallback ke bounds Manggarai Raya
+  const hasGPS=r=>r.lat!=null&&r.lon!=null&&!isNaN(r.lat)&&!isNaN(r.lon)&&!(r.lat===0&&r.lon===0);
+  const pts=V().filter(hasGPS);
+  if(pts.length>0){
+    const bounds=L.latLngBounds(pts.map(r=>[r.lat,r.lon]));
+    leafletMap.fitBounds(bounds,{padding:[40,40]});
+  } else {
+    leafletMap.fitBounds([[-8.95,119.8],[-8.2,121.1]],{padding:[20,20]});
+  }
 }
 function showMapDetail(r){
   document.getElementById('mapDetTitle').textContent=`${r.na||'—'} · ${r.d||'—'}`;
@@ -1270,10 +1279,18 @@ function switchTab(id,btn){
   btn.classList.add('act');
   if(id==='peta') {
     if(!leafletMap){
-      setTimeout(()=>{ initMap(); }, 200);
-      setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); },300); },400);
+      // Peta belum pernah dibuka: init dulu, lalu updateMap sekali dengan fitBounds
+      setTimeout(()=>{
+        initMap();
+        setTimeout(()=>{
+          leafletMap.invalidateSize();
+          mapFitDone = true;
+          updateMap(true); // true = lakukan fitBounds pertama kali
+        }, 100);
+      }, 50);
     } else {
-      setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(); },100);
+      // Peta sudah ada: cukup invalidateSize + render ulang marker tanpa fitBounds
+      setTimeout(()=>{ leafletMap.invalidateSize(); updateMap(false); }, 100);
     }
   }
 }
@@ -1285,7 +1302,7 @@ function renderAll(){
   renderWorker();
   populateFilters();
   renderDataTable();
-  if(leafletMap) updateMap();
+  if(leafletMap) updateMap(false);
   setTimeout(()=>{ Object.values(Chart.instances||{}).forEach(c=>c.resize()); },100);
 }
 
