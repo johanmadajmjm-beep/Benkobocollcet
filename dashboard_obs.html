@@ -182,13 +182,6 @@ main{padding:16px;width:100%}
     <div id="ringkasan-temuan" style="padding:8px 0"></div>
   </div>
 
-  <!-- Progress Observasi per CBR Worker -->
-  <div class="card" style="margin-bottom:14px">
-    <div class="card-hd"><div class="dot" style="background:var(--grn)"></div>Progress Observasi per CBR Worker
-      <span style="font-size:10px;color:var(--mut);font-weight:400;margin-left:8px">dari 200 anak master</span>
-    </div>
-    <div id="progress-cbr" style="padding:8px 0"></div>
-  </div>
 
 </div>
 
@@ -556,37 +549,6 @@ function updateKPI() {
 
 const MASTER_CBR_COUNT = {"Elfrida Suryati": 8, "Jack Roka": 24, "Laurensius Herbianto": 41, "Leonardus M. Mawardi": 26, "Magdalena Sabe": 30, "Maria Diana Banut": 20, "Miseldis Halmida": 28, "Stanis J. Ngalu": 23};
 
-function renderProgressCBR() {
-  const el = document.getElementById('progress-cbr');
-  if (!el) return;
-
-  // Hitung berapa anak unik sudah diobservasi per CBR
-  const obsPerCBR = {};
-  OBS.forEach(function(r) {
-    if (!r.cb || !r.na) return;
-    const cb = r.cb.trim();
-    if (!obsPerCBR[cb]) obsPerCBR[cb] = new Set();
-    obsPerCBR[cb].add(r.na.trim().toLowerCase());
-  });
-
-  const cbrs = Object.keys(MASTER_CBR_COUNT).sort();
-  el.innerHTML = cbrs.map(function(cbr) {
-    const total = MASTER_CBR_COUNT[cbr] || 0;
-    const done = obsPerCBR[cbr] ? obsPerCBR[cbr].size : 0;
-    const pct = total > 0 ? Math.round(done / total * 100) : 0;
-    const color = pct === 100 ? '#22c55e' : pct >= 70 ? '#4f8ef7' : pct >= 40 ? '#f59e0b' : '#ef4444';
-    const shortName = cbr.split(' ').pop();
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:12px;color:var(--txt)">${cbr}</span>
-        <span style="font-size:11px;font-weight:700;color:${color}">${done}/${total} (${pct}%)</span>
-      </div>
-      <div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width .4s"></div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
 function renderTemuanUtama() {
   const el = document.getElementById('ringkasan-temuan');
@@ -662,7 +624,7 @@ function renderRingkasan(){
     datasets:[{data:TGL_VALUES,backgroundColor:'#a78bfa99',borderColor:'#a78bfa',borderWidth:1,borderRadius:4,borderSkipped:false}]
   },{...BASE,scales:SC,layout:{padding:{top:22}},animation:labelAnim(true)});
 
-  renderProgressCBR();
+
   renderTemuanUtama();
 
 
