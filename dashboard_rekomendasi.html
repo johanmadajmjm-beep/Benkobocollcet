@@ -172,6 +172,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
             <input id="searchInput" type="text" placeholder="Cari nama anak, CBR Worker..." oninput="filterReko()">
           </div>
           <select class="fsel" id="filterCBR" onchange="filterReko()"><option value="">Semua CBR Worker</option></select>
+          <select class="fsel" id="filterRagam" onchange="filterReko()"><option value="">Semua Ragam</option></select>
           <select class="fsel" id="filterPriority" onchange="filterReko()">
             <option value="">Semua Prioritas</option>
             <option value="tinggi">● Prioritas Tinggi</option>
@@ -182,9 +183,18 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
           <span style="font-size:11px;color:var(--mut2)">Menampilkan:</span>
           <span class="filter-count" id="filterCount">0 anak</span>
+          <div style="margin-left:auto;display:flex;gap:2px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:3px">
+            <button id="vt-list" onclick="setRekoView('list')" title="List" style="padding:4px 8px;border:none;border-radius:5px;cursor:pointer;background:var(--acc);color:#fff;font-size:11px;font-weight:700">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+            </button>
+            <button id="vt-card" onclick="setRekoView('card')" title="Kartu Nama" style="padding:4px 8px;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--mut);font-size:11px;font-weight:700">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="reco-list" id="recoList"></div>
+        <div id="recoCardView" style="display:none;display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
         <div class="empty" id="emptyState" style="display:none">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
           <h2>Tidak ada hasil</h2>
@@ -627,22 +637,40 @@ function populateFilters() {
   const cbrs = Array.from(new Set(ANALISIS.map(a => a.cb))).sort((a,b) => a.localeCompare(b,'id'));
   sel.innerHTML = '<option value="">Semua CBR Worker</option>' +
     cbrs.map(c => `<option value="${c}">${c}</option>`).join('');
+  const ragamSel = document.getElementById('filterRagam');
+  if(ragamSel) {
+    const ragams = Array.from(new Set(ANALISIS.map(a => a.rg).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'id'));
+    ragamSel.innerHTML = '<option value="">Semua Ragam</option>' +
+      ragams.map(r => `<option value="${r}">${r}</option>`).join('');
+  }
 }
 
 function filterReko() {
   const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
   const cbr = document.getElementById('filterCBR').value;
   const pri = document.getElementById('filterPriority').value;
+  const ragam = document.getElementById('filterRagam')?.value || '';
 
   filteredReko = ANALISIS.filter(a => {
     const mq = !q || a.na.toLowerCase().includes(q) || a.cb.toLowerCase().includes(q);
     const mc = !cbr || a.cb === cbr;
     const mp = !pri || a.priorityLevel === pri;
-    return mq && mc && mp;
+    const mr = !ragam || a.rg === ragam;
+    return mq && mc && mp && mr;
   });
 
   renderRecoList();
   document.getElementById('filterCount').textContent = filteredReko.length + ' anak';
+}
+
+let rekoViewMode = 'list';
+function setRekoView(mode) {
+  rekoViewMode = mode;
+  document.getElementById('vt-list').style.background = mode==='list' ? 'var(--acc)' : 'transparent';
+  document.getElementById('vt-list').style.color = mode==='list' ? '#fff' : 'var(--mut)';
+  document.getElementById('vt-card').style.background = mode==='card' ? 'var(--acc)' : 'transparent';
+  document.getElementById('vt-card').style.color = mode==='card' ? '#fff' : 'var(--mut)';
+  renderRecoList();
 }
 
 function avatarColor(name) {

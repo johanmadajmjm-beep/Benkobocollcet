@@ -1286,6 +1286,7 @@ function renderAll(){
   populateFilters();
   renderDataTable();
   if(leafletMap) updateMap();
+  setTimeout(()=>{ Object.values(Chart.instances||{}).forEach(c=>c.resize()); },100);
 }
 
 renderAll();
