@@ -15,7 +15,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
 header{position:sticky;top:0;z-index:200;background:rgba(7,9,15,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr);padding:0 16px;height:56px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.logo{font-size:14px;font-weight:800;color:var(--acc);white-space:nowrap}
+.logo{font-size:15px;font-weight:800;color:var(--txt);white-space:nowrap;line-height:1.2}
+.logo small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:0}
 .logo small{font-weight:400;color:var(--mut);font-size:11px;margin-left:6px}
 .nav{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
 .nav button{padding:5px 11px;border-radius:6px;cursor:pointer;background:transparent;border:none;color:var(--mut);font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap}
@@ -107,7 +108,7 @@ main{max-width:1380px;margin:0 auto;padding:18px}
 </head>
 <body>
 <header>
-  <div class="logo">OBS<small>SCN Manggarai · Observasi Langsung &amp; Tidak Langsung</small></div>
+  <div class="logo">BEN SCN Manggarai<small>Observasi Langsung &amp; Tidak Langsung</small></div>
   <nav class="nav">
     <button class="act" onclick="switchTab('ringkasan',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg>Ringkasan</button>
     <button onclick="switchTab('struktur',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path d="M8 8a3 3 0 1 0-3.83-4.6A3 3 0 1 0 4.6 8.6c-.97 1-.97 2.6 0 3.6l7.2 7.2c1 .97 2.6.97 3.6 0a3 3 0 1 0 4.6-.4 3 3 0 1 0-4.6-4.2L8 7.6z"/></svg>Struktur Tubuh</button>

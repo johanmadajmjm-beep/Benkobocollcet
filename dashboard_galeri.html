@@ -18,7 +18,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 /* ── HEADER ── */
 .hdr{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
 .hdr-logo{font-weight:900;font-size:13px;background:var(--acc);color:#000;padding:4px 9px;border-radius:7px;letter-spacing:-.3px}
-.hdr-title{font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;color:var(--txt)}
+.hdr-logo{display:none}
+.hdr-title{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:var(--txt);line-height:1.2}
 .hdr-sub{font-size:11px;color:var(--mut);margin-left:4px}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .hbtn{padding:6px 14px;border-radius:8px;border:1px solid var(--bdr2);background:var(--card);color:var(--txt);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px}
@@ -114,7 +115,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-logo">GALERI</div>
-  <div class="hdr-title">BEN SCN Manggarai <span class="hdr-sub">· Galeri</span></div>
+  <div class="hdr-title">BEN SCN Manggarai<span class="hdr-sub" style="display:block;font-size:10px;font-weight:500;color:var(--mut);font-family:inherit">Galeri</span></div>
   <div class="hdr-right">
     <button class="hbtn" onclick="refreshData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg></button>
     <button class="hbtn primary" onclick="downloadSelected()" id="btnDlSel" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></button>
