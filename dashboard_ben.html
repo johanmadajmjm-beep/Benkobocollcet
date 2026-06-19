@@ -98,10 +98,10 @@ main{padding:16px;width:100%}
 @media(max-width:860px){.g2,.g3,.g13,.g31,.g12{grid-template-columns:1fr}}
 
 /* CARD */
-.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:12px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:12px;min-width:0}
 .card-hd{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;display:flex;align-items:center;gap:7px}
 .card-hd .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.ch{position:relative}
+.ch{position:relative;min-width:0;overflow:hidden}
 .ch.h145{height:145px}.ch.h160{height:160px}.ch.h180{height:180px}.ch.h200{height:200px}.ch.h240{height:240px}.ch.h260{height:260px}.ch.h280{height:280px}.ch.h320{height:320px}
 
 /* SEC */
@@ -1303,16 +1303,10 @@ function renderAll(){
   populateFilters();
   renderDataTable();
   if(leafletMap) updateMap(false);
-  // Resize semua chart setelah browser selesai layout
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      Object.values(Chart.instances||{}).forEach(c=>c.resize());
-    });
-  });
+  setTimeout(()=>{ Object.values(Chart.instances||{}).forEach(c=>c.resize()); },100);
 }
 
-// Tunggu browser selesai paint sebelum render pertama
-requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ renderAll(); }); });
+renderAll();
 
 // postMessage bridge — terima perintah dari portal
 window.addEventListener('message', function(e) {
