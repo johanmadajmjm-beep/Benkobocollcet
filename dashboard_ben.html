@@ -221,6 +221,18 @@ tr:hover td{background:rgba(79,142,247,.03)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* AI Qual Cards */
+.aiq-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:680px){.aiq-grid{grid-template-columns:1fr}}
+.aiq-col-hd{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.aiq-cards{display:flex;flex-direction:column;gap:8px}
+.aiq-card{background:var(--card);border:1px solid var(--bdr);border-radius:9px;overflow:hidden}
+.aiq-card-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--bdr)}
+.aiq-card-label{font-size:12px;font-weight:700;color:var(--txt)}
+.aiq-card-n{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px}
+.aiq-card-body{padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.aiq-quote{background:var(--faint);border-radius:6px;padding:8px 11px;border-left:3px solid;font-size:11px;line-height:1.7;color:var(--txt)}
 </style>
 </head>
 <body>
@@ -355,6 +367,18 @@ tr:hover td{background:rgba(79,142,247,.03)}
       <button class="qtab red" onclick="showQualAnak('turun_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor Turun Tangga</button>
     </div>
     <div id="qualAnakBars"></div>
+    <div id="aiq-anak-wrap" style="display:none">
+      <div class="aiq-grid">
+        <div>
+          <div class="aiq-col-hd" id="aiq-anak-naik-hd"></div>
+          <div class="aiq-cards" id="aiq-anak-naik"></div>
+        </div>
+        <div>
+          <div class="aiq-col-hd" id="aiq-anak-turun-hd"></div>
+          <div class="aiq-cards" id="aiq-anak-turun"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -381,6 +405,18 @@ tr:hover td{background:rgba(79,142,247,.03)}
       <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor yang Menghambat</button>
     </div>
     <div id="qualPengBars"></div>
+    <div id="aiq-peng-wrap" style="display:none">
+      <div class="aiq-grid">
+        <div>
+          <div class="aiq-col-hd" id="aiq-peng-naik-hd"></div>
+          <div class="aiq-cards" id="aiq-peng-naik"></div>
+        </div>
+        <div>
+          <div class="aiq-col-hd" id="aiq-peng-turun-hd"></div>
+          <div class="aiq-cards" id="aiq-peng-turun"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="sec">Kutipan Pengasuh – Suara dari Lapangan</div>
@@ -1254,15 +1290,52 @@ function parseUpload(headers,rows){
 }
 
 function rebuildQual(parsed){
-  const kwN=[['ekonomi|uang|penghasilan|nafkah|bantuan|modal','Dukungan Ekonomi'],['sehat|kesehatan|terapi|fisioterapi','Kesehatan & Terapi'],['sekolah|pendidikan|belajar','Akses Pendidikan'],['dukungan|keluarga|sosial|komunitas|masyarakat','Dukungan Sosial'],['mandiri|keterampilan|kerja','Kemandirian & Keterampilan'],['pemerintah|desa|pkh|blt|dtks','Program Pemerintah']];
-  const kwT=[['sakit|drop|kondisi','Sakit/Kesehatan Memburuk'],['ekonomi|uang|panen|penghasilan','Tekanan Ekonomi'],['stigma|bullying|dikucilkan|malu','Stigma & Diskriminasi'],['lelah|capek|kelelahan|menyerah','Kelelahan Pengasuh'],['meninggal|tiada|tidak ada yang','Kehilangan Pengasuh'],['tidak ada dukungan|tidak ada pihak','Minimnya Dukungan']];
-  const ck=(texts,kws)=>kws.map(([p,l])=>({label:l,count:texts.filter(t=>t&&new RegExp(p,'i').test(t)).length})).sort((a,b)=>b.count-a.count);
+  const kwN=[
+    ['keluarga|orang tua|ibu|ayah|sayang|peduli|mendukung','Dukungan Keluarga'],
+    ['bpjs|puskesmas|posyandu|kesehatan|berobat|dokter','Akses Kesehatan'],
+    ['slb|sekolah|belajar|guru|pendidikan|paud','Akses Pendidikan'],
+    ['pkh|blt|bantuan|sembako|dtks|kip|pemerintah|desa','Bantuan Pemerintah'],
+    ['gereja|pastor|romo|suster|doa|katolik|misa|adat|tu.a golo','Gereja & Adat'],
+    ['tetangga|masyarakat|diterima|lingkungan|kampung','Dukungan Masyarakat'],
+    ['mandiri|keterampilan|bisa sendiri|aktif|berkembang','Kemandirian'],
+    ['tembok|permanen|listrik|air bersih|layak','Rumah Layak'],
+    ['cbr|petugas|pendamping|rehabilitasi','Pendampingan CBR'],
+  ];
+  const kwT=[
+    ['ekonomi|penghasilan|miskin|pas-pasan|tidak mampu|buruh|kekurangan','Ekonomi Lemah'],
+    ['jauh|jalan rusak|tidak ada kendaraan|ojek|transportasi|akses sulit','Jarak & Akses Sulit'],
+    ['tidak punya bpjs|belum punya bpjs|tidak ada bpjs','Tidak Ada BPJS'],
+    ['janda|ayah meninggal|ibu meninggal|orang tua tunggal','Orang Tua Tunggal'],
+    ['papan|bambu|semi permanen|lantai tanah|tidak layak|rusak','Rumah Tidak Layak'],
+    ['stigma|dikucilkan|diejek|malu|tidak diterima|diskriminasi','Stigma Sosial'],
+    ['tidak dapat bantuan|tidak terdaftar|tidak ada bantuan|belum dapat','Tidak Ada Bantuan'],
+    ['lelah|capek|kelelahan|menyerah|beban|kewalahan','Kelelahan Pengasuh'],
+    ['sakit|drop|memburuk|kondisi menurun|semakin parah','Kondisi Memburuk'],
+  ];
+  const ck=(texts,kws)=>kws.map(([p,l])=>{
+    const matched=texts.filter(t=>t&&new RegExp(p,'i').test(t));
+    const samples=matched.slice(0,5).map(t=>{
+      const kw=p.split('|')[0];
+      const sents=t.split(/[.!?\n]+/).filter(s=>s.trim().length>10);
+      const found=sents.find(s=>new RegExp(kw,'i').test(s));
+      return (found||sents[0]||t.slice(0,120)).trim();
+    });
+    return {label:l,count:matched.length,samples,rawTexts:matched};
+  }).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
   QUAL={
     naik_pengasuh:ck(parsed.map(r=>r.nkp),kwN),
     turun_pengasuh:ck(parsed.map(r=>r.tkp),kwT),
     naik_anak:ck(parsed.map(r=>r.nka),kwN),
     turun_anak:ck(parsed.map(r=>r.tka),kwT),
   };
+  _aiqShow('aiq-anak-naik','aiq-anak-naik-hd','aiq-anak-wrap',QUAL.naik_anak,'#22c55e','rgba(34,197,94,.1)','↑ Naik Tangga');
+  _aiqShow('aiq-anak-turun','aiq-anak-turun-hd',null,QUAL.turun_anak,'#ef4444','rgba(239,68,68,.1)','↓ Turun Tangga');
+  _aiqShow('aiq-peng-naik','aiq-peng-naik-hd','aiq-peng-wrap',QUAL.naik_pengasuh,'#22c55e','rgba(34,197,94,.1)','↑ Membantu');
+  _aiqShow('aiq-peng-turun','aiq-peng-turun-hd',null,QUAL.turun_pengasuh,'#ef4444','rgba(239,68,68,.1)','↓ Menghambat');
+  _aiqAI('aiq-anak-naik',QUAL.naik_anak,'#22c55e','Kondisi ANAK','naik');
+  _aiqAI('aiq-anak-turun',QUAL.turun_anak,'#ef4444','Kondisi ANAK','turun');
+  _aiqAI('aiq-peng-naik',QUAL.naik_pengasuh,'#22c55e','Kondisi PENGASUH','naik');
+  _aiqAI('aiq-peng-turun',QUAL.turun_pengasuh,'#ef4444','Kondisi PENGASUH','turun');
 }
 
 
@@ -1315,6 +1388,57 @@ window.addEventListener('message', function(e) {
     if (btn) switchTab(e.data.tab, btn);
   }
 });
+
+
+// ── AI Qual Functions ──
+const _AIQ_KEY='AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const _AIQ_URL='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+_AIQ_KEY;
+
+function _aiqShow(cardsId,hdId,wrapId,items,color,bg,title){
+  var hd=document.getElementById(hdId);
+  if(hd){hd.innerHTML='<span style="color:'+color+'">'+title+'</span>';hd.style.background=bg;}
+  if(wrapId){var w=document.getElementById(wrapId);if(w)w.style.display='';}
+  var el=document.getElementById(cardsId);
+  if(!el)return;
+  if(!items||!items.length){el.innerHTML='<div style="padding:12px;font-size:11px;color:var(--mut)">Tidak ada data</div>';return;}
+  el.innerHTML=items.slice(0,6).map(function(item){
+    var qh=(item.samples||[]).slice(0,2).map(function(k){
+      return '<div class="aiq-quote" style="border-left-color:'+color+'">'+k+'</div>';
+    }).join('');
+    return '<div class="aiq-card">'+
+      '<div class="aiq-card-hd">'+
+        '<div class="aiq-card-label">'+item.label+'</div>'+
+        '<div class="aiq-card-n" style="background:'+bg+';color:'+color+'">'+item.count+' anak</div>'+
+      '</div>'+
+      '<div class="aiq-card-body">'+(qh||'<div style="font-size:11px;color:var(--mut)">-</div>')+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+async function _aiqAI(cardsId,items,color,konteks,tipe){
+  if(!items||!items.length)return;
+  var el=document.getElementById(cardsId);
+  if(!el)return;
+  var temaData=items.slice(0,6).map(function(item){
+    var s=(item.rawTexts||[]).slice(0,3).map(function(t){return t.slice(0,200);}).join(' | ');
+    return item.label+' ('+item.count+' org): "'+s+'"';
+  }).join('\n\n');
+  var prompt='Analis CBR Manggarai NTT. Konteks: '+konteks+'. Tipe: '+(tipe==='naik'?'MEMBANTU':'MENGHAMBAT')+'\n\n'+temaData+'\n\nUntuk setiap tema, pilih 2 kalimat utuh terbaik dari teks asli. Balas HANYA JSON: [{"tema":"x","kutipan":["kalimat 1","kalimat 2"]},...]';
+  try{
+    var res=await fetch(_AIQ_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.2,maxOutputTokens:2000}})});
+    var data=await res.json();
+    var txt=((data.candidates||[])[0]||{}).content?.parts?.[0]?.text||'';
+    var parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    var cards=el.querySelectorAll('.aiq-card');
+    parsed.forEach(function(t,i){
+      if(!cards[i])return;
+      var body=cards[i].querySelector('.aiq-card-body');
+      if(!body)return;
+      var qh=(t.kutipan||[]).map(function(k){return '<div class="aiq-quote" style="border-left-color:'+color+'">'+k+'</div>';}).join('');
+      if(qh)body.innerHTML=qh;
+    });
+  }catch(e){console.warn('AIQ:',e);}
+}
 
 </script>
 </body>
