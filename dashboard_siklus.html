@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEN SCN Manggarai – Siklus Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050810;
+  --sur:#0a0f1e;
+  --card:#0e1628;
+  --card2:#131d35;
+  --bdr:#1c2a45;
+  --bdr2:#243558;
+  --txt:#f0f4ff;
+  --mut:#5a6a8a;
+  --mut2:#7a8faf;
+  --faint:#111c35;
+
+  --grn:#22c55e;
+  --red:#ef4444;
+  --yel:#f59e0b;
+  --pur:#a78bfa;
+  --blu:#3b82f6;
+
+  /* Siklus color */
+  --sik:#10b981;
+  --sik2:#34d399;
+  --sik-bg:rgba(16,185,129,.08);
+  --sik-bdr:rgba(16,185,129,.25);
+
+  /* Tab colors */
+  --ov:#6366f1;
+  --rn:#f97316;
+  --dy:#06b6d4;
+  --em:#a78bfa;
+  --ea:#22c55e;
+
+  --rnd:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column}
+
+/* ══ HEADER ══ */
+.hdr{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;gap:16px;height:58px;flex-shrink:0}
+.hdr-back{width:32px;height:32px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;color:var(--mut2);flex-shrink:0}
+.hdr-back:hover{background:var(--bdr);color:var(--txt)}
+.hdr-back svg{width:16px;height:16px}
+.hdr-logo{width:36px;height:36px;border-radius:9px;background:var(--sik);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:#fff;letter-spacing:-.5px;flex-shrink:0;position:relative;overflow:hidden}
+.hdr-logo::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent)}
+.hdr-titles{flex:1}
+.hdr-top{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--sik);line-height:1}
+.hdr-main{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:var(--txt);line-height:1.2;margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hdr-stat{text-align:right}
+.hdr-stat-val{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:var(--sik);line-height:1}
+.hdr-stat-lbl{font-size:9px;color:var(--mut2);font-weight:600;margin-top:1px}
+.hdr-badge{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:20px;background:var(--sik-bg);color:var(--sik);border:1px solid var(--sik-bdr)}
+.sync-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr2);color:var(--mut2);cursor:pointer;font-size:11px;font-weight:700;transition:all .15s;font-family:inherit}
+.sync-btn:hover{background:var(--bdr);color:var(--txt)}
+.sync-btn svg{width:13px;height:13px}
+.sync-btn.loading svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ══ TABS ══ */
+.tabs{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;gap:4px;flex-shrink:0;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:2px solid transparent;cursor:pointer;font-size:12px;font-weight:700;color:var(--mut2);white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--txt)}
+.tab.act{color:var(--txt);border-bottom-color:currentColor}
+.tab svg{width:14px;height:14px}
+.tab-count{font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;background:var(--faint);color:var(--mut2)}
+.tab.act .tab-count{background:rgba(255,255,255,.08);color:var(--txt)}
+
+.tab-ov{color:var(--mut2)} .tab-ov.act{color:#6366f1}
+.tab-rn{color:var(--mut2)} .tab-rn.act{color:#f97316}
+.tab-dy{color:var(--mut2)} .tab-dy.act{color:#06b6d4}
+.tab-em{color:var(--mut2)} .tab-em.act{color:#a78bfa}
+.tab-ea{color:var(--mut2)} .tab-ea.act{color:#22c55e}
+
+/* ══ CONTENT ══ */
+.content{flex:1;overflow:hidden;position:relative}
+.panel{display:none;height:100%;overflow-y:auto;padding:20px 24px}
+.panel.act{display:block}
+
+/* ══ LOADING ══ */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:12px;color:var(--mut2)}
+.loader-ring{width:32px;height:32px;border:2px solid var(--bdr2);border-top-color:var(--sik);border-radius:50%;animation:spin .7s linear infinite}
+.loading-state span{font-size:12px;font-weight:600}
+
+/* ══ EMPTY STATE ══ */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:10px;color:var(--mut)}
+.empty-state svg{width:40px;height:40px;opacity:.3}
+.empty-state p{font-size:13px;font-weight:600}
+.empty-state small{font-size:11px;color:var(--mut)}
+
+/* ══ SECTION HEADER ══ */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-family:'Manrope',sans-serif;font-size:13px;font-weight:800;color:var(--txt)}
+.sec-sub{font-size:11px;color:var(--mut2);margin-top:1px}
+.sec-count{font-size:11px;font-weight:700;color:var(--mut2)}
+
+/* ══ STAT CARDS ROW ══ */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);padding:16px 18px}
+.stat-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.stat-icon svg{width:17px;height:17px}
+.stat-pct{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.stat-val{font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.stat-lbl{font-size:11px;color:var(--mut2);margin-top:4px;font-weight:500}
+.stat-bar{height:3px;border-radius:2px;background:var(--bdr);margin-top:10px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
+/* ══ FILTER ROW ══ */
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{background:var(--card);border:1px solid var(--bdr);color:var(--txt);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.filter-select:focus{outline:none;border-color:var(--bdr2)}
+.search-box{flex:1;min-width:160px;background:var(--card);border:1px solid var(--bdr);color:var(--txt);padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit}
+.search-box::placeholder{color:var(--mut)}
+.search-box:focus{outline:none;border-color:var(--bdr2)}
+
+/* ══ OVERVIEW TABLE ══ */
+.ov-table-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);overflow:hidden}
+.ov-table{width:100%;border-collapse:collapse}
+.ov-table th{background:var(--card2);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mut2);border-bottom:1px solid var(--bdr)}
+.ov-table td{padding:10px 14px;border-bottom:1px solid var(--bdr);font-size:12px;vertical-align:middle}
+.ov-table tr:last-child td{border-bottom:none}
+.ov-table tr:hover td{background:var(--faint)}
+.ov-nama{font-weight:700;color:var(--txt)}
+.ov-cbr{font-size:11px;color:var(--mut2)}
+.status-pip{display:flex;gap:6px}
+.pip{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.pip svg{width:13px;height:13px}
+.pip.done{background:rgba(34,197,94,.12);color:var(--grn)}
+.pip.pend{background:var(--faint);color:var(--mut)}
+.pip.none{background:var(--faint);color:var(--bdr2)}
+
+/* ══ PROGRESS BAR ══ */
+.prog-wrap{display:flex;align-items:center;gap:8px}
+.prog-bar{flex:1;height:6px;border-radius:3px;background:var(--bdr);overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.prog-txt{font-size:10px;font-weight:700;color:var(--mut2);width:28px;text-align:right}
+
+/* ══ RENCANA CARDS ══ */
+.rn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.rn-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);overflow:hidden;transition:all .2s}
+.rn-card:hover{border-color:var(--bdr2);transform:translateY(-2px)}
+.rn-card-top{height:3px;background:linear-gradient(90deg,#f97316,#fb923c,transparent)}
+.rn-card-body{padding:16px}
+.rn-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.rn-nama{font-weight:800;font-size:14px;color:var(--txt)}
+.rn-cbr{font-size:11px;color:var(--mut2);margin-top:2px}
+.rn-date{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(249,115,22,.1);color:#f97316;flex-shrink:0}
+.rn-tujuan{margin-top:10px}
+.rn-tuj-item{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;background:var(--faint);border-radius:8px;margin-bottom:6px;border:1px solid var(--bdr)}
+.rn-tuj-num{width:20px;height:20px;border-radius:5px;background:rgba(249,115,22,.12);color:#f97316;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rn-tuj-txt{font-size:12px;color:var(--mut2);line-height:1.5}
+.rn-tuj-txt strong{color:var(--txt);font-weight:700;display:block;margin-bottom:2px}
+.rn-foto-row{display:flex;gap:6px;margin-top:10px}
+.rn-foto-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--bdr);cursor:pointer;transition:all .15s}
+.rn-foto-thumb:hover{border-color:var(--bdr2);transform:scale(1.05)}
+.rn-foto-placeholder{width:52px;height:52px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.rn-foto-placeholder svg{width:16px;height:16px}
+
+/* ══ DIARY ══ */
+.dy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.dy-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);overflow:hidden;transition:all .2s}
+.dy-card:hover{border-color:var(--bdr2)}
+.dy-card-top{height:3px;background:linear-gradient(90deg,#06b6d4,#22d3ee,transparent)}
+.dy-card-body{padding:16px}
+.dy-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.dy-nama{font-weight:800;font-size:14px;color:var(--txt)}
+.dy-cbr{font-size:11px;color:var(--mut2);margin-top:2px}
+.dy-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(6,182,212,.1);color:#06b6d4;flex-shrink:0}
+.dy-entries{margin-top:8px}
+.dy-entry{padding:8px 10px;background:var(--faint);border-radius:8px;margin-bottom:6px;border:1px solid var(--bdr)}
+.dy-entry-hdr{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.dy-entry-num{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(6,182,212,.1);color:#06b6d4}
+.dy-entry-date{font-size:10px;color:var(--mut2);font-weight:600}
+.dy-entry-txt{font-size:11px;color:var(--mut2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dy-empty-entry{font-size:11px;color:var(--bdr2);font-style:italic}
+
+/* ══ EVAL MENENGAH ══ */
+.em-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.em-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);overflow:hidden;transition:all .2s}
+.em-card:hover{border-color:var(--bdr2)}
+.em-card-top{height:3px;background:linear-gradient(90deg,#a78bfa,#c4b5fd,transparent)}
+.em-card-body{padding:16px}
+.em-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.em-nama{font-weight:800;font-size:14px;color:var(--txt)}
+.em-cbr{font-size:11px;color:var(--mut2);margin-top:2px}
+.em-date{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(167,139,250,.1);color:#a78bfa;flex-shrink:0}
+.em-scores{display:flex;gap:8px;margin-bottom:12px}
+.em-score-item{flex:1;background:var(--faint);border-radius:8px;padding:10px;border:1px solid var(--bdr);text-align:center}
+.em-score-lbl{font-size:9px;font-weight:700;color:var(--mut2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.em-score-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.em-score-bar{height:4px;border-radius:2px;background:var(--bdr);margin-top:6px;overflow:hidden}
+.em-score-fill{height:100%;border-radius:2px;background:var(--pur)}
+.em-detail{background:var(--faint);border-radius:8px;padding:10px;border:1px solid var(--bdr)}
+.em-detail-row{font-size:11px;color:var(--mut2);line-height:1.6;margin-bottom:4px}
+.em-detail-row:last-child{margin-bottom:0}
+.em-detail-row strong{color:var(--txt);font-weight:700}
+
+/* ══ EVAL AKHIR ══ */
+.ea-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.ea-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rnd);overflow:hidden;transition:all .2s}
+.ea-card:hover{border-color:var(--bdr2)}
+.ea-card-top{height:3px;background:linear-gradient(90deg,#22c55e,#4ade80,transparent)}
+.ea-card-body{padding:16px}
+.ea-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.ea-nama{font-weight:800;font-size:14px;color:var(--txt)}
+.ea-cbr{font-size:11px;color:var(--mut2);margin-top:2px}
+.ea-date{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(34,197,94,.1);color:#22c55e;flex-shrink:0}
+.ea-tujuan{margin-top:4px}
+.ea-tuj-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--faint);border-radius:8px;margin-bottom:6px;border:1px solid var(--bdr)}
+.ea-tuj-item.tercapai{border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.04)}
+.ea-tuj-item.belum{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.04)}
+.ea-tuj-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ea-tuj-icon svg{width:12px;height:12px}
+.ea-tuj-item.tercapai .ea-tuj-icon{background:rgba(34,197,94,.12);color:var(--grn)}
+.ea-tuj-item.belum .ea-tuj-icon{background:rgba(239,68,68,.12);color:var(--red)}
+.ea-tuj-num{font-size:10px;font-weight:800;color:var(--mut2);margin-bottom:2px}
+.ea-tuj-status{font-size:11px;font-weight:700}
+.ea-tuj-item.tercapai .ea-tuj-status{color:var(--grn)}
+.ea-tuj-item.belum .ea-tuj-status{color:var(--red)}
+.ea-tuj-note{font-size:11px;color:var(--mut2);line-height:1.5;margin-top:2px}
+
+/* ══ LIGHTBOX ══ */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center}
+.lightbox.act{display:flex}
+.lightbox img{max-width:90vw;max-height:85vh;border-radius:10px;object-fit:contain}
+.lightbox-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;border:none}
+
+/* ══ CBR LEGEND ══ */
+.cbr-legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.cbr-chip{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--card);border:1px solid var(--bdr);color:var(--mut2);cursor:pointer;transition:all .15s}
+.cbr-chip:hover{border-color:var(--bdr2);color:var(--txt)}
+.cbr-chip.act{background:var(--sik-bg);border-color:var(--sik-bdr);color:var(--sik)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-back" onclick="goBack()" title="Kembali ke Portal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  </div>
+  <div class="hdr-logo">BEN</div>
+  <div class="hdr-titles">
+    <div class="hdr-top">BEN SCN Manggarai</div>
+    <div class="hdr-main">Dashboard Siklus Program</div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-stat">
+      <div class="hdr-stat-val" id="hdr-total">–</div>
+      <div class="hdr-stat-lbl">Anak Terdaftar</div>
+    </div>
+    <div class="hdr-badge" id="hdr-sync-time">Memuat...</div>
+    <button class="sync-btn" id="sync-btn" onclick="syncData()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab tab-ov act" onclick="switchTab('ov')" id="tab-ov">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Overview
+    <span class="tab-count" id="cnt-ov">0</span>
+  </div>
+  <div class="tab tab-rn" onclick="switchTab('rn')" id="tab-rn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+    Perencanaan
+    <span class="tab-count" id="cnt-rn">0</span>
+  </div>
+  <div class="tab tab-dy" onclick="switchTab('dy')" id="tab-dy">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+    Buku Harian
+    <span class="tab-count" id="cnt-dy">0</span>
+  </div>
+  <div class="tab tab-em" onclick="switchTab('em')" id="tab-em">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    Eval Menengah
+    <span class="tab-count" id="cnt-em">0</span>
+  </div>
+  <div class="tab tab-ea" onclick="switchTab('ea')" id="tab-ea">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+    Eval Akhir
+    <span class="tab-count" id="cnt-ea">0</span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div class="panel act" id="panel-ov">
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(99,102,241,.12);color:#6366f1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
+          </div>
+          <div class="stat-pct" id="pct-rn" style="background:rgba(249,115,22,.1);color:#f97316">0%</div>
+        </div>
+        <div class="stat-val" id="val-rn">0</div>
+        <div class="stat-lbl">Sudah Perencanaan</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-rn" style="width:0%;background:#f97316"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(6,182,212,.12);color:#06b6d4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+          </div>
+          <div class="stat-pct" id="pct-dy" style="background:rgba(6,182,212,.1);color:#06b6d4">0%</div>
+        </div>
+        <div class="stat-val" id="val-dy">0</div>
+        <div class="stat-lbl">Ada Buku Harian</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-dy" style="width:0%;background:#06b6d4"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(167,139,250,.12);color:#a78bfa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+          </div>
+          <div class="stat-pct" id="pct-em" style="background:rgba(167,139,250,.1);color:#a78bfa">0%</div>
+        </div>
+        <div class="stat-val" id="val-em">0</div>
+        <div class="stat-lbl">Eval Menengah</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-em" style="width:0%;background:#a78bfa"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(34,197,94,.12);color:#22c55e">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+          </div>
+          <div class="stat-pct" id="pct-ea" style="background:rgba(34,197,94,.1);color:#22c55e">0%</div>
+        </div>
+        <div class="stat-val" id="val-ea">0</div>
+        <div class="stat-lbl">Eval Akhir</div>
+        <div class="stat-bar"><div class="stat-bar-fill" id="bar-ea" style="width:0%;background:#22c55e"></div></div>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <select class="filter-select" id="ov-cbr" onchange="renderOverview()">
+        <option value="">Semua CBR Worker</option>
+      </select>
+      <input class="search-box" type="text" id="ov-search" placeholder="Cari nama anak..." oninput="renderOverview()">
+    </div>
+
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Status Siklus Per Anak</div>
+        <div class="sec-sub">P = Perencanaan &nbsp;|&nbsp; H = Buku Harian &nbsp;|&nbsp; M = Eval Menengah &nbsp;|&nbsp; A = Eval Akhir</div>
+      </div>
+      <div class="sec-count" id="ov-count"></div>
+    </div>
+    <div class="ov-table-wrap">
+      <table class="ov-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nama Anak</th>
+            <th>CBR Worker</th>
+            <th>Status Siklus</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody id="ov-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PERENCANAAN -->
+  <div class="panel" id="panel-rn">
+    <div class="filter-row">
+      <select class="filter-select" id="rn-cbr" onchange="renderRencana()">
+        <option value="">Semua CBR Worker</option>
+      </select>
+      <input class="search-box" type="text" id="rn-search" placeholder="Cari nama anak..." oninput="renderRencana()">
+    </div>
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Data Perencanaan Anak</div>
+        <div class="sec-sub">Tujuan 1-3, rencana aksi, dan dokumentasi foto</div>
+      </div>
+      <div class="sec-count" id="rn-count"></div>
+    </div>
+    <div class="rn-grid" id="rn-grid"></div>
+  </div>
+
+  <!-- BUKU HARIAN -->
+  <div class="panel" id="panel-dy">
+    <div class="filter-row">
+      <select class="filter-select" id="dy-cbr" onchange="renderDiary()">
+        <option value="">Semua CBR Worker</option>
+      </select>
+      <input class="search-box" type="text" id="dy-search" placeholder="Cari nama anak..." oninput="renderDiary()">
+    </div>
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Buku Harian</div>
+        <div class="sec-sub">Catatan diary per anak (hingga 10 entri)</div>
+      </div>
+      <div class="sec-count" id="dy-count"></div>
+    </div>
+    <div class="dy-grid" id="dy-grid"></div>
+  </div>
+
+  <!-- EVAL MENENGAH -->
+  <div class="panel" id="panel-em">
+    <div class="filter-row">
+      <select class="filter-select" id="em-cbr" onchange="renderEvalMenengah()">
+        <option value="">Semua CBR Worker</option>
+      </select>
+      <input class="search-box" type="text" id="em-search" placeholder="Cari nama anak..." oninput="renderEvalMenengah()">
+    </div>
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Evaluasi Tahap Menengah</div>
+        <div class="sec-sub">Score pencapaian tujuan 1-3 (skala 1–10)</div>
+      </div>
+      <div class="sec-count" id="em-count"></div>
+    </div>
+    <div class="em-grid" id="em-grid"></div>
+  </div>
+
+  <!-- EVAL AKHIR -->
+  <div class="panel" id="panel-ea">
+    <div class="filter-row">
+      <select class="filter-select" id="ea-cbr" onchange="renderEvalAkhir()">
+        <option value="">Semua CBR Worker</option>
+      </select>
+      <input class="search-box" type="text" id="ea-search" placeholder="Cari nama anak..." oninput="renderEvalAkhir()">
+    </div>
+    <div class="sec-hdr">
+      <div>
+        <div class="sec-title">Evaluasi Tahap Akhir</div>
+        <div class="sec-sub">Status ketercapaian tujuan program per anak</div>
+      </div>
+      <div class="sec-count" id="ea-count"></div>
+    </div>
+    <div class="ea-grid" id="ea-grid"></div>
+  </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+const AS_URL = 'https://script.google.com/macros/s/AKfycbww7oU4KXvVx7vYnS6umyhI9YWsF8wYstRVRV1oSVwBh0zFtgPxFwdlCBV7SYvySwS7/exec';
+
+let DATA = { rencana: [], diary: [], evalMenengah: [], evalAkhir: [] };
+let activeTab = 'ov';
+
+// ── FETCH ──
+async function fetchData(action) {
+  const res = await fetch(AS_URL + '?action=' + action);
+  const json = await res.json();
+  return json.data || [];
+}
+
+async function loadAll() {
+  try {
+    const [rn, dy, em, ea] = await Promise.all([
+      fetchData('GetRencana'),
+      fetchData('GetDiary'),
+      fetchData('GetEvalMenengah'),
+      fetchData('GetEvalAkhir')
+    ]);
+    DATA.rencana     = rn;
+    DATA.diary       = dy;
+    DATA.evalMenengah= em;
+    DATA.evalAkhir   = ea;
+    updateCounts();
+    populateFilters();
+    renderAll();
+    updateSyncTime();
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function syncData() {
+  const btn = document.getElementById('sync-btn');
+  btn.classList.add('loading');
+  try {
+    await fetch(AS_URL + '?action=SyncAll');
+    await loadAll();
+  } catch(e) {}
+  btn.classList.remove('loading');
+}
+
+function updateSyncTime() {
+  const now = new Date();
+  document.getElementById('hdr-sync-time').textContent =
+    now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + ' WIT';
+}
+
+function updateCounts() {
+  const rn = DATA.rencana.length;
+  const dy = DATA.diary.length;
+  const em = DATA.evalMenengah.length;
+  const ea = DATA.evalAkhir.length;
+  const total = Math.max(rn, 200);
+
+  document.getElementById('cnt-ov').textContent = rn;
+  document.getElementById('cnt-rn').textContent = rn;
+  document.getElementById('cnt-dy').textContent = dy;
+  document.getElementById('cnt-em').textContent = em;
+  document.getElementById('cnt-ea').textContent = ea;
+  document.getElementById('hdr-total').textContent = total;
+
+  function pct(n) { return Math.round(n / total * 100); }
+  document.getElementById('val-rn').textContent = rn;
+  document.getElementById('val-dy').textContent = dy;
+  document.getElementById('val-em').textContent = em;
+  document.getElementById('val-ea').textContent = ea;
+  document.getElementById('pct-rn').textContent = pct(rn) + '%';
+  document.getElementById('pct-dy').textContent = pct(dy) + '%';
+  document.getElementById('pct-em').textContent = pct(em) + '%';
+  document.getElementById('pct-ea').textContent = pct(ea) + '%';
+  document.getElementById('bar-rn').style.width = pct(rn) + '%';
+  document.getElementById('bar-dy').style.width = pct(dy) + '%';
+  document.getElementById('bar-em').style.width = pct(em) + '%';
+  document.getElementById('bar-ea').style.width = pct(ea) + '%';
+}
+
+// ── FILTERS ──
+function getCBRList() {
+  const all = [...DATA.rencana, ...DATA.diary, ...DATA.evalMenengah, ...DATA.evalAkhir];
+  return [...new Set(all.map(d => d.cbr_worker).filter(Boolean))].sort();
+}
+
+function populateFilters() {
+  const cbrs = getCBRList();
+  ['ov-cbr','rn-cbr','dy-cbr','em-cbr','ea-cbr'].forEach(id => {
+    const sel = document.getElementById(id);
+    const val = sel.value;
+    sel.innerHTML = '<option value="">Semua CBR Worker</option>';
+    cbrs.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      sel.appendChild(opt);
+    });
+    sel.value = val;
+  });
+}
+
+function filterData(arr, cbrId, searchId) {
+  const cbr = document.getElementById(cbrId).value.toLowerCase();
+  const q   = document.getElementById(searchId).value.toLowerCase();
+  return arr.filter(d => {
+    const matchCbr  = !cbr || (d.cbr_worker||'').toLowerCase() === cbr;
+    const matchName = !q   || (d.nama_anak||'').toLowerCase().includes(q);
+    return matchCbr && matchName;
+  });
+}
+
+// ── TABS ──
+function switchTab(id) {
+  activeTab = id;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('act'));
+  document.getElementById('tab-' + id).classList.add('act');
+  document.getElementById('panel-' + id).classList.add('act');
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderOverview();
+  renderRencana();
+  renderDiary();
+  renderEvalMenengah();
+  renderEvalAkhir();
+}
+
+// ── OVERVIEW ──
+function renderOverview() {
+  const data = filterData(DATA.rencana, 'ov-cbr', 'ov-search');
+  const rnNames  = new Set(DATA.rencana.map(d=>d.nama_anak));
+  const dyNames  = new Set(DATA.diary.map(d=>d.nama_anak));
+  const emNames  = new Set(DATA.evalMenengah.map(d=>d.nama_anak));
+  const eaNames  = new Set(DATA.evalAkhir.map(d=>d.nama_anak));
+
+  const allNames = [...new Set([
+    ...DATA.rencana.map(d=>({nama:d.nama_anak,cbr:d.cbr_worker})),
+    ...DATA.diary.map(d=>({nama:d.nama_anak,cbr:d.cbr_worker})),
+    ...DATA.evalMenengah.map(d=>({nama:d.nama_anak,cbr:d.cbr_worker})),
+    ...DATA.evalAkhir.map(d=>({nama:d.nama_anak,cbr:d.cbr_worker}))
+  ].map(JSON.stringify))].map(JSON.parse);
+
+  const cbrF  = document.getElementById('ov-cbr').value;
+  const nameQ = document.getElementById('ov-search').value.toLowerCase();
+  const filtered = allNames.filter(d => {
+    const mc = !cbrF || d.cbr === cbrF;
+    const mn = !nameQ || (d.nama||'').toLowerCase().includes(nameQ);
+    return mc && mn;
+  });
+
+  document.getElementById('ov-count').textContent = filtered.length + ' anak';
+  const tbody = document.getElementById('ov-tbody');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--mut)">Belum ada data</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((d, i) => {
+    const hasRn = rnNames.has(d.nama);
+    const hasDy = dyNames.has(d.nama);
+    const hasEm = emNames.has(d.nama);
+    const hasEa = eaNames.has(d.nama);
+    const done  = [hasRn,hasDy,hasEm,hasEa].filter(Boolean).length;
+    const pct   = Math.round(done/4*100);
+
+    const pip = (has, letter, color) => `
+      <div class="pip ${has?'done':'pend'}" title="${letter}" style="${has?'color:'+color+';background:'+color+'20':''}">
+        ${has
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>`
+          : `<span style="font-size:9px;font-weight:800">${letter}</span>`
+        }
+      </div>`;
+
+    return `<tr>
+      <td style="color:var(--mut);font-size:11px">${i+1}</td>
+      <td><div class="ov-nama">${d.nama||'–'}</div></td>
+      <td><div class="ov-cbr">${d.cbr||'–'}</div></td>
+      <td>
+        <div class="status-pip">
+          ${pip(hasRn,'P','#f97316')}
+          ${pip(hasDy,'H','#06b6d4')}
+          ${pip(hasEm,'M','#a78bfa')}
+          ${pip(hasEa,'A','#22c55e')}
+        </div>
+      </td>
+      <td>
+        <div class="prog-wrap">
+          <div class="prog-bar">
+            <div class="prog-fill" style="width:${pct}%;background:${pct===100?'#22c55e':pct>=50?'#a78bfa':'#f97316'}"></div>
+          </div>
+          <div class="prog-txt">${pct}%</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PERENCANAAN ──
+function renderRencana() {
+  const data = filterData(DATA.rencana, 'rn-cbr', 'rn-search');
+  document.getElementById('rn-count').textContent = data.length + ' anak';
+  const grid = document.getElementById('rn-grid');
+
+  if (data.length === 0) {
+    grid.innerHTML = emptyState('Belum ada data perencanaan', 'Data akan muncul setelah CBR Worker mengisi form Perencanaan Anak di Kobo');
+    return;
+  }
+
+  grid.innerHTML = data.map(d => {
+    const tujuan = [
+      {num:1, txt:d.tujuan_1, aksi:d.aksi_1},
+      {num:2, txt:d.tujuan_2, aksi:d.aksi_2},
+      {num:3, txt:d.tujuan_3, aksi:d.aksi_3}
+    ].filter(t => t.txt);
+
+    const fotos = [
+      {url:d.foto_anak_url, label:'Foto Anak'},
+      {url:d.foto_keluarga_url, label:'Foto Keluarga'},
+      {url:d.foto_lingkungan_url, label:'Foto Lingkungan'}
+    ];
+
+    return `<div class="rn-card">
+      <div class="rn-card-top"></div>
+      <div class="rn-card-body">
+        <div class="rn-head">
+          <div>
+            <div class="rn-nama">${d.nama_anak||'–'}</div>
+            <div class="rn-cbr">${d.cbr_worker||'–'}</div>
+          </div>
+          <div class="rn-date">${fmtDate(d.tanggal_rencana)}</div>
+        </div>
+        <div class="rn-tujuan">
+          ${tujuan.length ? tujuan.map(t => `
+            <div class="rn-tuj-item">
+              <div class="rn-tuj-num">${t.num}</div>
+              <div class="rn-tuj-txt">
+                <strong>${t.txt}</strong>
+                ${t.aksi ? '<span>'+t.aksi+'</span>' : ''}
+              </div>
+            </div>`).join('') : '<div style="font-size:11px;color:var(--mut)">Tujuan belum diisi</div>'}
+        </div>
+        <div class="rn-foto-row">
+          ${fotos.map(f => f.url
+            ? `<img class="rn-foto-thumb" src="${f.url}" alt="${f.label}" onclick="openLightbox('${f.url}')" title="${f.label}">`
+            : `<div class="rn-foto-placeholder" title="${f.label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M5 19l5-5a2 2 0 0 1 3 0l1 1"/></svg></div>`
+          ).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DIARY ──
+function renderDiary() {
+  const data = filterData(DATA.diary, 'dy-cbr', 'dy-search');
+  document.getElementById('dy-count').textContent = data.length + ' anak';
+  const grid = document.getElementById('dy-grid');
+
+  if (data.length === 0) {
+    grid.innerHTML = emptyState('Belum ada buku harian', 'Data akan muncul setelah CBR Worker mengisi form Buku Harian di Kobo');
+    return;
+  }
+
+  grid.innerHTML = data.map(d => {
+    const entries = [];
+    for (let i = 1; i <= 10; i++) {
+      const tgl = d['tgl_diary_' + i];
+      const isi = d['isi_diary_' + i];
+      if (tgl || isi) entries.push({num:i, tgl, isi});
+    }
+    const filled = entries.filter(e => e.isi).length;
+
+    return `<div class="dy-card">
+      <div class="dy-card-top"></div>
+      <div class="dy-card-body">
+        <div class="dy-head">
+          <div>
+            <div class="dy-nama">${d.nama_anak||'–'}</div>
+            <div class="dy-cbr">${d.cbr_worker||'–'}</div>
+          </div>
+          <div class="dy-badge">${filled}/10 Diary</div>
+        </div>
+        <div class="dy-entries">
+          ${entries.length ? entries.slice(0,5).map(e => `
+            <div class="dy-entry">
+              <div class="dy-entry-hdr">
+                <span class="dy-entry-num">Diary ${e.num}</span>
+                <span class="dy-entry-date">${fmtDate(e.tgl)}</span>
+              </div>
+              <div class="dy-entry-txt">${e.isi || '<span class="dy-empty-entry">–</span>'}</div>
+            </div>`).join('')
+          : '<div style="font-size:11px;color:var(--mut);padding:8px">Belum ada entri diary</div>'}
+          ${entries.length > 5 ? `<div style="font-size:11px;color:var(--mut2);text-align:center;padding:6px">+${entries.length-5} diary lainnya</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── EVAL MENENGAH ──
+function renderEvalMenengah() {
+  const data = filterData(DATA.evalMenengah, 'em-cbr', 'em-search');
+  document.getElementById('em-count').textContent = data.length + ' anak';
+  const grid = document.getElementById('em-grid');
+
+  if (data.length === 0) {
+    grid.innerHTML = emptyState('Belum ada evaluasi menengah', 'Data akan muncul setelah CBR Worker mengisi form Evaluasi Tahap Menengah di Kobo');
+    return;
+  }
+
+  grid.innerHTML = data.map(d => {
+    const scores = [
+      {num:1, score:d.score_tujuan_1, alasan:d.alasan_score_1, perubahan:d.perubahan_1},
+      {num:2, score:d.score_tujuan_2, alasan:d.alasan_score_2, perubahan:d.perubahan_2},
+      {num:3, score:d.score_tujuan_3, alasan:d.alasan_score_3, perubahan:d.perubahan_3}
+    ];
+    const avgScore = scores.filter(s=>s.score).reduce((a,b)=>a+(+b.score||0),0) / (scores.filter(s=>s.score).length||1);
+    const scoreColor = avgScore >= 7 ? '#22c55e' : avgScore >= 5 ? '#f59e0b' : '#ef4444';
+
+    return `<div class="em-card">
+      <div class="em-card-top"></div>
+      <div class="em-card-body">
+        <div class="em-head">
+          <div>
+            <div class="em-nama">${d.nama_anak||'–'}</div>
+            <div class="em-cbr">${d.cbr_worker||'–'}</div>
+          </div>
+          <div class="em-date">${fmtDate(d.tanggal_eval)}</div>
+        </div>
+        <div class="em-scores">
+          ${scores.map(s => `
+            <div class="em-score-item">
+              <div class="em-score-lbl">Tujuan ${s.num}</div>
+              <div class="em-score-val" style="color:${s.score?(+s.score>=7?'#22c55e':+s.score>=5?'#f59e0b':'#ef4444'):'var(--mut)'}">${s.score||'–'}</div>
+              <div class="em-score-bar">
+                <div class="em-score-fill" style="width:${s.score?(+s.score*10)+'%':'0%'};background:${s.score?(+s.score>=7?'#22c55e':+s.score>=5?'#f59e0b':'#ef4444'):'var(--bdr)'}"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+        ${scores.filter(s=>s.perubahan).length ? `
+        <div class="em-detail">
+          ${scores.filter(s=>s.perubahan).map(s=>`
+            <div class="em-detail-row"><strong>T${s.num}:</strong> ${s.perubahan}</div>
+          `).join('')}
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── EVAL AKHIR ──
+function renderEvalAkhir() {
+  const data = filterData(DATA.evalAkhir, 'ea-cbr', 'ea-search');
+  document.getElementById('ea-count').textContent = data.length + ' anak';
+  const grid = document.getElementById('ea-grid');
+
+  if (data.length === 0) {
+    grid.innerHTML = emptyState('Belum ada evaluasi akhir', 'Data akan muncul setelah CBR Worker mengisi form Evaluasi Tahap Akhir di Kobo');
+    return;
+  }
+
+  grid.innerHTML = data.map(d => {
+    const tujuan = [
+      {num:1, tercapai:d.tercapai_tujuan_1, ket:d.penjelasan_ya_1||d.alasan_tidak_1, saran:d.saran_1},
+      {num:2, tercapai:d.tercapai_tujuan_2, ket:d.penjelasan_ya_2||d.alasan_tidak_2, saran:d.saran_2},
+      {num:3, tercapai:d.tercapai_tujuan_3, ket:d.penjelasan_ya_3||d.alasan_tidak_3, saran:d.saran_3}
+    ].filter(t => t.tercapai);
+
+    const tercapaiCount = tujuan.filter(t => t.tercapai === 'ya').length;
+    const total = tujuan.length;
+
+    return `<div class="ea-card">
+      <div class="ea-card-top"></div>
+      <div class="ea-card-body">
+        <div class="ea-head">
+          <div>
+            <div class="ea-nama">${d.nama_anak||'–'}</div>
+            <div class="ea-cbr">${d.cbr_worker||'–'}</div>
+          </div>
+          <div class="ea-date">${fmtDate(d.tanggal_eval)}</div>
+        </div>
+        <div style="font-size:11px;color:var(--mut2);margin-bottom:10px">
+          Tercapai: <strong style="color:${tercapaiCount===total?'#22c55e':'#f59e0b'}">${tercapaiCount}/${total} tujuan</strong>
+        </div>
+        <div class="ea-tujuan">
+          ${tujuan.map(t => `
+            <div class="ea-tuj-item ${t.tercapai==='ya'?'tercapai':'belum'}">
+              <div class="ea-tuj-icon">
+                ${t.tercapai==='ya'
+                  ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>`
+                  : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+                }
+              </div>
+              <div>
+                <div class="ea-tuj-num">Tujuan ${t.num}</div>
+                <div class="ea-tuj-status">${t.tercapai==='ya'?'Tercapai':'Belum Tercapai'}</div>
+                ${t.ket ? `<div class="ea-tuj-note">${t.ket}</div>` : ''}
+                ${t.saran ? `<div class="ea-tuj-note" style="color:var(--yel);margin-top:3px">💡 ${t.saran}</div>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HELPERS ──
+function emptyState(title, sub) {
+  return `<div class="empty-state" style="grid-column:1/-1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p>${title}</p>
+    <small>${sub}</small>
+  </div>`;
+}
+
+function fmtDate(str) {
+  if (!str) return '–';
+  try {
+    const d = new Date(str);
+    return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  } catch(e) { return str; }
+}
+
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('act');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('act');
+  document.getElementById('lightbox-img').src = '';
+}
+
+function goBack() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ action: 'goHome' }, '*');
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
+// ── INIT ──
+loadAll();
+</script>
+</body>
+</html>
