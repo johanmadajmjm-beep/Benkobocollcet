@@ -4,79 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard BEN – SCN Manggarai</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
-// ════ AI QUAL CARDS ════
-const _GEMINI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
-const _GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + _GEMINI_KEY;
-
-function renderAIQualCards(containerId, items, color, bgColor) {
-  var el = document.getElementById(containerId);
-  if (!el) return;
-  if (!items || !items.length) {
-    el.innerHTML = '<div class="ai-qual-empty">Tidak ada data untuk kategori ini</div>';
-    return;
-  }
-  el.innerHTML = items.slice(0,6).map(function(item) {
-    var qHtml = (item.samples||[]).slice(0,2).map(function(k) {
-      return '<div class="ai-qual-quote" style="border-left-color:'+color+'">' + (k||'') + '</div>';
-    }).join('');
-    return '<div class="ai-qual-card">' +
-      '<div class="ai-qual-card-hd">' +
-        '<div class="ai-qual-tema">' + item.label + '</div>' +
-        '<div class="ai-qual-count" style="background:'+bgColor+';color:'+color+'">' + item.count + ' anak</div>' +
-      '</div>' +
-      '<div class="ai-qual-body">' + (qHtml || '<div class="ai-qual-empty">–</div>') + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-async function enrichAIQual(containerId, items, color, konteks, tipe) {
-  if (!items || !items.length) return;
-  var el = document.getElementById(containerId);
-  if (!el) return;
-
-  var temaData = items.slice(0,6).map(function(item) {
-    var sampel = (item.rawTexts||[]).slice(0,3).map(function(t){return t.slice(0,200);}).join(' | ');
-    return item.label + ' (' + item.count + ' org): "' + sampel + '"';
-  }).join('\n\n');
-
-  var prompt = 'Kamu analis program CBR anak disabilitas di Manggarai, NTT.\n' +
-    'Konteks: Jawaban tentang ' + konteks + '\n' +
-    'Tipe faktor: ' + (tipe==='naik' ? 'MEMBANTU (naik tangga)' : 'MENGHAMBAT (turun tangga)') + '\n\n' +
-    'Tema & sampel jawaban asli:\n' + temaData + '\n\n' +
-    'Untuk setiap tema, pilih 2 kalimat terbaik dari teks asli yang paling menggambarkan tema. Kalimat harus utuh, tidak dipotong, dan bermakna.\n\n' +
-    'Balas HANYA JSON array:\n[{"tema":"nama tema","kutipan":["kalimat 1","kalimat 2"]},...]';
-
-  try {
-    var res = await fetch(_GEMINI_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.2, maxOutputTokens: 2000}
-      })
-    });
-    var data = await res.json();
-    var text = ((data.candidates||[])[0]||{}).content?.parts?.[0]?.text || '';
-    var clean = text.replace(/```json|```/g,'').trim();
-    var parsed = JSON.parse(clean);
-
-    var cards = el.querySelectorAll('.ai-qual-card');
-    parsed.forEach(function(t, i) {
-      if (!cards[i]) return;
-      var body = cards[i].querySelector('.ai-qual-body');
-      if (!body) return;
-      var qHtml = (t.kutipan||[]).map(function(k) {
-        return '<div class="ai-qual-quote" style="border-left-color:'+color+'">' + k + '</div>';
-      }).join('');
-      if (qHtml) body.innerHTML = qHtml;
-    });
-  } catch(e) {
-    console.warn('AI qual error:', e);
-  }
-}
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -293,20 +221,6 @@ tr:hover td{background:rgba(79,142,247,.03)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
-
-/* ── AI QUAL CARDS ── */
-.ai-qual-wrap{margin-top:14px}
-.ai-qual-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:700px){.ai-qual-grid{grid-template-columns:1fr}}
-.ai-qual-col-hd{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:8px 12px;border-radius:8px 8px 0 0;margin-bottom:4px}
-.ai-qual-cards{display:flex;flex-direction:column;gap:8px}
-.ai-qual-card{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
-.ai-qual-card-hd{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--bdr)}
-.ai-qual-tema{font-size:12px;font-weight:800;color:var(--txt)}
-.ai-qual-count{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-.ai-qual-body{padding:10px 13px;display:flex;flex-direction:column;gap:6px}
-.ai-qual-quote{background:var(--faint);border-radius:7px;padding:9px 12px;border-left:3px solid transparent;font-size:11px;line-height:1.7;color:var(--txt)}
-.ai-qual-empty{font-size:11px;color:var(--mut);padding:8px 0;font-style:italic}
 </style>
 </head>
 <body>
@@ -441,18 +355,6 @@ tr:hover td{background:rgba(79,142,247,.03)}
       <button class="qtab red" onclick="showQualAnak('turun_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor Turun Tangga</button>
     </div>
     <div id="qualAnakBars"></div>
-    <div class="ai-qual-wrap" id="ai-qual-anak-wrap" style="display:none">
-      <div class="ai-qual-grid">
-        <div>
-          <div class="ai-qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M12 19V5M5 12l7-7 7 7"/></svg> Faktor Naik Tangga — Kutipan Asli</div>
-          <div class="ai-qual-cards" id="ai-anak-naik"></div>
-        </div>
-        <div>
-          <div class="ai-qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M12 5v14M5 12l7 7 7-7"/></svg> Faktor Turun Tangga — Kutipan Asli</div>
-          <div class="ai-qual-cards" id="ai-anak-turun"></div>
-        </div>
-      </div>
-    </div>
   </div>
 
 
@@ -479,18 +381,6 @@ tr:hover td{background:rgba(79,142,247,.03)}
       <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor yang Menghambat</button>
     </div>
     <div id="qualPengBars"></div>
-    <div class="ai-qual-wrap" id="ai-qual-peng-wrap" style="display:none">
-      <div class="ai-qual-grid">
-        <div>
-          <div class="ai-qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M12 19V5M5 12l7-7 7 7"/></svg> Faktor Membantu — Kutipan Asli</div>
-          <div class="ai-qual-cards" id="ai-peng-naik"></div>
-        </div>
-        <div>
-          <div class="ai-qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M12 5v14M5 12l7 7 7-7"/></svg> Faktor Menghambat — Kutipan Asli</div>
-          <div class="ai-qual-cards" id="ai-peng-turun"></div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="sec">Kutipan Pengasuh – Suara dari Lapangan</div>
@@ -1364,60 +1254,15 @@ function parseUpload(headers,rows){
 }
 
 function rebuildQual(parsed){
-  const kwN=[
-    ['keluarga|orang tua|ibu|ayah|pengasuh|sayang|peduli|mendukung','Dukungan Keluarga'],
-    ['bpjs|puskesmas|posyandu|kesehatan|berobat|dokter','Akses Kesehatan'],
-    ['slb|sekolah|belajar|guru|pendidikan|paud','Akses Pendidikan'],
-    ['pkh|blt|bantuan|sembako|desa|dtks|kip|pemerintah','Bantuan Pemerintah'],
-    ['gereja|pastor|romo|suster|doa|katolik|misa|tu.a golo|adat','Gereja & Komunitas Adat'],
-    ['tetangga|masyarakat|diterima|lingkungan|kampung','Dukungan Masyarakat'],
-    ['mandiri|keterampilan|bisa sendiri|aktif|berkembang','Kemandirian Anak'],
-    ['tembok|permanen|listrik|air bersih|layak','Rumah Layak'],
-    ['cbr|petugas|pendamping|rehabilitasi','Pendampingan CBR'],
-  ];
-  const kwT=[
-    ['ekonomi|penghasilan|miskin|pas-pasan|tidak mampu|petani|buruh|kekurangan','Ekonomi Lemah'],
-    ['jauh|jalan rusak|tidak ada kendaraan|ojek|transportasi|akses sulit','Jarak & Akses Sulit'],
-    ['tidak punya bpjs|belum punya bpjs|tidak ada bpjs','Tidak Ada BPJS'],
-    ['janda|ayah meninggal|ibu meninggal|single parent|orang tua tunggal','Orang Tua Tunggal'],
-    ['papan|bambu|semi permanen|lantai tanah|tidak layak|rusak','Rumah Tidak Layak'],
-    ['stigma|dikucilkan|diejek|malu|tidak diterima|diskriminasi','Stigma Sosial'],
-    ['tidak dapat bantuan|tidak terdaftar|tidak ada bantuan|belum dapat','Tidak Ada Bantuan'],
-    ['lelah|capek|kelelahan|menyerah|beban|kewalahan','Kelelahan Pengasuh'],
-    ['sakit|drop|memburuk|kondisi menurun|semakin parah','Kondisi Memburuk'],
-  ];
-  const ck=(texts,kws)=>kws.map(([p,l])=>{
-    const matched=texts.filter(t=>t&&new RegExp(p,'i').test(t));
-    const samples=matched.slice(0,5).map(t=>{
-      const kw=p.split('|')[0];
-      const sents=t.split(/[.!?\n]+/).filter(s=>s.trim().length>10);
-      const found=sents.find(s=>new RegExp(kw,'i').test(s));
-      return (found||sents[0]||t.slice(0,120)).trim();
-    });
-    return {label:l,count:matched.length,samples,rawTexts:matched};
-  }).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
+  const kwN=[['ekonomi|uang|penghasilan|nafkah|bantuan|modal','Dukungan Ekonomi'],['sehat|kesehatan|terapi|fisioterapi','Kesehatan & Terapi'],['sekolah|pendidikan|belajar','Akses Pendidikan'],['dukungan|keluarga|sosial|komunitas|masyarakat','Dukungan Sosial'],['mandiri|keterampilan|kerja','Kemandirian & Keterampilan'],['pemerintah|desa|pkh|blt|dtks','Program Pemerintah']];
+  const kwT=[['sakit|drop|kondisi','Sakit/Kesehatan Memburuk'],['ekonomi|uang|panen|penghasilan','Tekanan Ekonomi'],['stigma|bullying|dikucilkan|malu','Stigma & Diskriminasi'],['lelah|capek|kelelahan|menyerah','Kelelahan Pengasuh'],['meninggal|tiada|tidak ada yang','Kehilangan Pengasuh'],['tidak ada dukungan|tidak ada pihak','Minimnya Dukungan']];
+  const ck=(texts,kws)=>kws.map(([p,l])=>({label:l,count:texts.filter(t=>t&&new RegExp(p,'i').test(t)).length})).sort((a,b)=>b.count-a.count);
   QUAL={
     naik_pengasuh:ck(parsed.map(r=>r.nkp),kwN),
     turun_pengasuh:ck(parsed.map(r=>r.tkp),kwT),
     naik_anak:ck(parsed.map(r=>r.nka),kwN),
     turun_anak:ck(parsed.map(r=>r.tka),kwT),
   };
-  // Render AI cards setelah QUAL tersedia
-  setTimeout(function(){
-    renderAIQualCards('ai-anak-naik', QUAL.naik_anak, '#22c55e', 'rgba(34,197,94,.1)');
-    renderAIQualCards('ai-anak-turun', QUAL.turun_anak, '#ef4444', 'rgba(239,68,68,.1)');
-    renderAIQualCards('ai-peng-naik', QUAL.naik_pengasuh, '#22c55e', 'rgba(34,197,94,.1)');
-    renderAIQualCards('ai-peng-turun', QUAL.turun_pengasuh, '#ef4444', 'rgba(239,68,68,.1)');
-    var w1=document.getElementById('ai-qual-anak-wrap');
-    var w2=document.getElementById('ai-qual-peng-wrap');
-    if(w1) w1.style.display='';
-    if(w2) w2.style.display='';
-    // AI enrich async
-    enrichAIQual('ai-anak-naik', QUAL.naik_anak, '#22c55e', 'Kondisi ANAK', 'naik');
-    enrichAIQual('ai-anak-turun', QUAL.turun_anak, '#ef4444', 'Kondisi ANAK', 'turun');
-    enrichAIQual('ai-peng-naik', QUAL.naik_pengasuh, '#22c55e', 'Kondisi PENGASUH', 'naik');
-    enrichAIQual('ai-peng-turun', QUAL.turun_pengasuh, '#ef4444', 'Kondisi PENGASUH', 'turun');
-  }, 100);
 }
 
 
