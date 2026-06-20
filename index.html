@@ -179,6 +179,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 .sb-item.act-reko .sb-icon{background:rgba(245,158,11,.12)}
 .sb-item.act-reko .sb-indicator{background:#f59e0b}
 .sb-item.act-reko .sb-badge{background:rgba(245,158,11,.12);color:#f59e0b}
+.sb-item.act-siklus{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:#10b981}
+.sb-item.act-siklus .sb-icon{background:rgba(16,185,129,.12)}
+.sb-item.act-siklus .sb-indicator{background:#10b981}
+.sb-item.act-siklus .sb-badge{background:rgba(16,185,129,.12);color:#10b981}
 </style>
 </head>
 <body>
@@ -235,6 +239,13 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
     <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg></div>
     <div class="sb-label">Rekomendasi</div>
     <div class="sb-badge">REKO</div>
+  </div>
+
+  <div class="sb-item" id="nav-siklus" onclick="openDash('siklus')">
+    <div class="sb-indicator"></div>
+    <div class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></div>
+    <div class="sb-label">Siklus Program</div>
+    <div class="sb-badge">SIKLUS</div>
   </div>
 
   <div class="sb-footer">
@@ -364,6 +375,27 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
             </div>
           </div>
 
+          <!-- KARTU SIKLUS PROGRAM -->
+          <div class="portal-card" onclick="openDash('siklus')" style="background:linear-gradient(145deg,#061810,#081e14);border-color:rgba(16,185,129,.25)">
+            <div class="pc-glow" style="background:#10b981"></div>
+            <div class="pc-top-bar" style="background:linear-gradient(90deg,#10b981,#34d399,transparent)"></div>
+            <div class="pc-body">
+              <div class="pc-head">
+                <div class="pc-icon" style="background:rgba(16,185,129,.12);color:#10b981"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;color:#10b981"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></div>
+                <div class="pc-tag" style="background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.3)">SIKLUS · v1</div>
+              </div>
+              <div class="pc-name" style="color:#10b981">Siklus Program</div>
+              <div class="pc-desc">Monitoring siklus program per anak — Perencanaan, Buku Harian, Evaluasi Menengah, dan Evaluasi Akhir dalam satu dashboard.</div>
+              <div class="pc-pills">
+                <span class="pc-pill">Perencanaan</span>
+                <span class="pc-pill">Buku Harian</span>
+                <span class="pc-pill">Eval Menengah</span>
+                <span class="pc-pill">Eval Akhir</span>
+              </div>
+              <button class="pc-btn" style="background:#10b981;color:#fff">Buka Siklus Program →</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -424,11 +456,22 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
     </div>
   </div>
 
+  <!-- SIKLUS PROGRAM -->
+  <div class="view" id="view-siklus">
+    <div class="iframe-view">
+      <div class="iframe-overlay" id="overlay-siklus">
+        <div class="loader-ring" style="border-top-color:#10b981"></div>
+        <div class="loader-text">Memuat Siklus Program...</div>
+      </div>
+      <iframe id="iframe-siklus" src=""></iframe>
+    </div>
+  </div>
+
 </div><!-- end .main -->
 
 <script>
-const FILES = { ben: 'dashboard_ben.html', obs: 'dashboard_obs.html', anak: 'dashboard_anak.html', galeri: 'dashboard_galeri.html', reko: 'dashboard_rekomendasi.html' };
-const loaded = { ben: false, obs: false, anak: false, galeri: false, reko: false };
+const FILES = { ben: 'dashboard_ben.html', obs: 'dashboard_obs.html', anak: 'dashboard_anak.html', galeri: 'dashboard_galeri.html', reko: 'dashboard_rekomendasi.html', siklus: 'dashboard_siklus.html' };
+const loaded = { ben: false, obs: false, anak: false, galeri: false, reko: false, siklus: false };
 
 function goHome() {
   showView('home');
@@ -476,7 +519,7 @@ function hideOverlay(id) {
 (function() {
   try {
     const last = sessionStorage.getItem('scn_view');
-    if (last && ['ben','obs','anak','galeri','reko'].includes(last)) {
+    if (last && ['ben','obs','anak','galeri','reko','siklus'].includes(last)) {
       openDash(last);
     }
   } catch(e) {}
@@ -490,6 +533,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '4') openDash('anak');
   if (e.key === '5') openDash('galeri');
   if (e.key === '6') openDash('reko');
+  if (e.key === '7') openDash('siklus');
 });
 </script>
 </body>
