@@ -499,7 +499,7 @@ function showView(id) {
 
 function setNav(id) {
   document.querySelectorAll('.sb-item').forEach(b => {
-    b.classList.remove('act-home','act-ben','act-obs','act-peta','act-anak','act-galeri','act-reko','act');
+    b.classList.remove('act-home','act-ben','act-obs','act-peta','act-anak','act-galeri','act-reko','act-siklus','act');
   });
   const el = document.getElementById('nav-' + id);
   if (el) el.classList.add('act-' + id);
