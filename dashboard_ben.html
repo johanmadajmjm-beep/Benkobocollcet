@@ -221,6 +221,25 @@ tr:hover td{background:rgba(79,142,247,.03)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* ── QUAL CARDS BARU ── */
+.qual-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+@media(max-width:700px){.qual-grid{grid-template-columns:1fr}}
+.qual-col-hd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 12px;border-radius:8px 8px 0 0;margin-bottom:1px}
+.qual-cards{display:flex;flex-direction:column;gap:10px}
+.qual-card{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
+.qual-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bdr)}
+.qual-card-tema{font-size:12px;font-weight:800;color:var(--txt)}
+.qual-card-count{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.qual-card-body{padding:10px 14px;display:flex;flex-direction:column;gap:7px}
+.qual-quote{background:var(--faint);border-radius:7px;padding:9px 12px;border-left:3px solid transparent;font-size:11px;line-height:1.7;color:var(--txt)}
+.qual-quote-attr{font-size:10px;color:var(--mut2);margin-top:4px}
+.qual-loading{display:flex;align-items:center;gap:8px;padding:20px 14px;color:var(--mut);font-size:12px}
+.qual-dots{display:flex;gap:3px}
+.qual-dot{width:5px;height:5px;border-radius:50%;animation:qdot 1.2s ease-in-out infinite}
+.qual-dot:nth-child(2){animation-delay:.2s}
+.qual-dot:nth-child(3){animation-delay:.4s}
+@keyframes qdot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -349,12 +368,23 @@ tr:hover td{background:rgba(79,142,247,.03)}
 
   <div class="sec">Apa yang Membantu Anak Naik Tangga?</div>
   <div class="card" style="margin-bottom:12px">
-    <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi anak (frekuensi)</div>
-    <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualAnak('naik_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor Naik Tangga</button>
-      <button class="qtab red" onclick="showQualAnak('turun_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor Turun Tangga</button>
+    <div class="card-hd">Faktor pendukung & penghambat berdasarkan jawaban pengasuh (AI-powered)</div>
+    <div class="qual-grid">
+      <div>
+        <div class="qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          Faktor Naik Tangga
+        </div>
+        <div class="qual-cards" id="qual-anak-naik"></div>
+      </div>
+      <div>
+        <div class="qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Faktor Turun Tangga
+        </div>
+        <div class="qual-cards" id="qual-anak-turun"></div>
+      </div>
     </div>
-    <div id="qualAnakBars"></div>
   </div>
 
 
@@ -375,12 +405,23 @@ tr:hover td{background:rgba(79,142,247,.03)}
 
   <div class="sec">Apa yang Membantu Pengasuh Naik Tangga?</div>
   <div class="card" style="margin-bottom:12px">
-    <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi mereka sendiri (frekuensi)</div>
-    <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualPeng('naik_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor yang Membantu</button>
-      <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor yang Menghambat</button>
+    <div class="card-hd">Faktor pendukung & penghambat berdasarkan jawaban pengasuh (AI-powered)</div>
+    <div class="qual-grid">
+      <div>
+        <div class="qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          Faktor yang Membantu
+        </div>
+        <div class="qual-cards" id="qual-peng-naik"></div>
+      </div>
+      <div>
+        <div class="qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Faktor yang Menghambat
+        </div>
+        <div class="qual-cards" id="qual-peng-turun"></div>
+      </div>
     </div>
-    <div id="qualPengBars"></div>
   </div>
 
   <div class="sec">Kutipan Pengasuh – Suara dari Lapangan</div>
@@ -821,14 +862,12 @@ function renderSkor(){
   });
 
   // Qual anak
-  showQualAnak('naik_anak', document.querySelector('.qtab.grn'));
+  renderQualAnak();
 
 }
 
 function showQualAnak(key,btn){
-  document.querySelectorAll('#pg-skor .qtab').forEach(t=>t.classList.remove('act'));
-  if(btn)btn.classList.add('act');
-  renderBars(QUAL[key]||[], document.getElementById('qualAnakBars'), key.includes('naik')?'#22c55e':'#ef4444');
+  // kept for backward compat - not used anymore
 }
 
 // ════════════════════════════════════════════════════
@@ -870,7 +909,7 @@ function renderPengasuh(){
   });
 
   // Qual pengasuh
-  showQualPeng('naik_pengasuh', document.querySelector('#pg-pengasuh .qtab.grn'));
+  renderQualPeng();
 
   // Quotes naik dan turun
   const nkpSamples=d.filter(r=>r.nkp&&r.nkp.length>20).slice(0,4);
@@ -887,9 +926,7 @@ function renderPengasuh(){
 }
 
 function showQualPeng(key,btn){
-  document.querySelectorAll('#pg-pengasuh .qtab').forEach(t=>t.classList.remove('act'));
-  if(btn)btn.classList.add('act');
-  renderBars(QUAL[key]||[], document.getElementById('qualPengBars'), key.includes('naik')?'#22c55e':'#ef4444');
+  // kept for backward compat - not used anymore
 }
 
 function renderBars(items, container, color){
@@ -1254,17 +1291,195 @@ function parseUpload(headers,rows){
 }
 
 function rebuildQual(parsed){
-  const kwN=[['ekonomi|uang|penghasilan|nafkah|bantuan|modal','Dukungan Ekonomi'],['sehat|kesehatan|terapi|fisioterapi','Kesehatan & Terapi'],['sekolah|pendidikan|belajar','Akses Pendidikan'],['dukungan|keluarga|sosial|komunitas|masyarakat','Dukungan Sosial'],['mandiri|keterampilan|kerja','Kemandirian & Keterampilan'],['pemerintah|desa|pkh|blt|dtks','Program Pemerintah']];
-  const kwT=[['sakit|drop|kondisi','Sakit/Kesehatan Memburuk'],['ekonomi|uang|panen|penghasilan','Tekanan Ekonomi'],['stigma|bullying|dikucilkan|malu','Stigma & Diskriminasi'],['lelah|capek|kelelahan|menyerah','Kelelahan Pengasuh'],['meninggal|tiada|tidak ada yang','Kehilangan Pengasuh'],['tidak ada dukungan|tidak ada pihak','Minimnya Dukungan']];
-  const ck=(texts,kws)=>kws.map(([p,l])=>({label:l,count:texts.filter(t=>t&&new RegExp(p,'i').test(t)).length})).sort((a,b)=>b.count-a.count);
+  // Keyword baru - kontekstual Manggarai
+  const kwN=[
+    ['keluarga|orang tua|ibu|ayah|pengasuh|sayang|peduli|mendukung|suportif','Dukungan Keluarga'],
+    ['bpjs|puskesmas|posyandu|kesehatan|berobat|dokter|perawat|kader','Akses Kesehatan'],
+    ['slb|sekolah|belajar|guru|pendidikan|kelas|ikut sekolah|paud','Akses Pendidikan'],
+    ['pkh|blt|bantuan|sembako|desa|dtks|kip|program|pemerintah','Bantuan Pemerintah'],
+    ['gereja|pastor|romo|suster|doa|katolik|ibadah|misa|komunitas adat|tu.a golo|adat','Gereja & Komunitas Adat'],
+    ['tetangga|masyarakat|diterima|lingkungan|dusun|kampung|rt|rw','Dukungan Masyarakat'],
+    ['mandiri|keterampilan|bisa sendiri|aktif|berkembang|kemajuan','Kemandirian Anak'],
+    ['tembok|permanen|listrik|air bersih|bersih|layak|nyaman','Rumah Layak'],
+    ['cbr|petugas|pendamping|rehabilitasi','Pendampingan CBR'],
+  ];
+  const kwT=[
+    ['ekonomi|penghasilan|miskin|pas-pasan|tidak mampu|petani|buruh|tidak punya uang|kekurangan','Ekonomi Lemah'],
+    ['jauh|jalan rusak|tidak ada kendaraan|ojek|transportasi|akses sulit|terpencil','Jarak & Akses Sulit'],
+    ['tidak punya bpjs|belum punya bpjs|tidak ada bpjs|tidak memiliki bpjs','Tidak Ada BPJS'],
+    ['janda|ayah meninggal|ibu meninggal|single parent|orang tua tunggal|ditinggal','Orang Tua Tunggal'],
+    ['papan|bambu|semi permanen|lantai tanah|tidak layak|rusak|darurat','Rumah Tidak Layak'],
+    ['stigma|dikucilkan|diejek|malu|tidak diterima|diskriminasi','Stigma Sosial'],
+    ['tidak dapat bantuan|tidak terdaftar|tidak ada bantuan|belum dapat','Tidak Ada Bantuan'],
+    ['lelah|capek|kelelahan|menyerah|beban|kewalahan|stress','Kelelahan Pengasuh'],
+    ['sakit|drop|memburuk|kondisi menurun|semakin parah','Kondisi Memburuk'],
+  ];
+
+  const ck=(texts,kws)=>kws.map(([p,l])=>{
+    const matched = texts.filter(t=>t&&new RegExp(p,'i').test(t));
+    // Ambil max 3 kutipan representatif
+    const samples = matched.slice(0,3).map(t=>{
+      // Cari kalimat yang mengandung keyword
+      const kw = p.split('|')[0];
+      const sentences = t.split(/[.!?\n]+/).filter(s=>s.trim().length>10);
+      const found = sentences.find(s=>new RegExp(kw,'i').test(s));
+      return (found||sentences[0]||t.slice(0,100)).trim();
+    });
+    return {label:l, count:matched.length, samples, rawTexts:matched};
+  }).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
+
   QUAL={
     naik_pengasuh:ck(parsed.map(r=>r.nkp),kwN),
     turun_pengasuh:ck(parsed.map(r=>r.tkp),kwT),
     naik_anak:ck(parsed.map(r=>r.nka),kwN),
     turun_anak:ck(parsed.map(r=>r.tka),kwT),
   };
+
+  // Simpan parsed data untuk AI
+  window.PARSED_DATA = parsed;
 }
 
+
+
+// ════ GEMINI CONFIG ════
+const GEMINI_KEY_BEN = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const GEMINI_URL_BEN = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY_BEN;
+
+// Render qual cards dua kolom dengan AI kutipan
+async function renderQualSection(naik, turun, naikId, turunId, konteks) {
+  // Render loading dulu
+  const loadHtml = `<div class="qual-loading">
+    <div class="qual-dots">
+      <div class="qual-dot" style="background:#22c55e"></div>
+      <div class="qual-dot" style="background:#22c55e"></div>
+      <div class="qual-dot" style="background:#22c55e"></div>
+    </div>
+    <span>AI sedang menganalisis jawaban...</span>
+  </div>`;
+  const naikEl  = document.getElementById(naikId);
+  const turunEl = document.getElementById(turunId);
+  if (naikEl)  naikEl.innerHTML  = loadHtml;
+  if (turunEl) turunEl.innerHTML = loadHtml.replace('22c55e','ef4444').replace('22c55e','ef4444');
+
+  // Render naik & turun dengan AI kutipan
+  await Promise.all([
+    renderQualCol(naik,  naikEl,  '#22c55e', 'rgba(34,197,94,.1)',  konteks, 'naik'),
+    renderQualCol(turun, turunEl, '#ef4444', 'rgba(239,68,68,.1)',  konteks, 'turun'),
+  ]);
+}
+
+async function renderQualCol(items, container, color, bgColor, konteks, tipe) {
+  if (!container) return;
+  if (!items || !items.length) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--mut);font-size:12px">Tidak ada data</div>`;
+    return;
+  }
+
+  // Ambil AI kutipan untuk semua tema sekaligus
+  const aiKutipan = await getAIKutipanBen(items, konteks, tipe);
+
+  container.innerHTML = items.slice(0,6).map((item, idx) => {
+    const kutipan = aiKutipan[idx] || item.samples || [];
+    const kutipanHtml = kutipan.map(k =>
+      `<div class="qual-quote" style="border-left-color:${color}">
+        ${k.teks || k}
+        ${k.sumber ? `<div class="qual-quote-attr">— ${k.sumber}</div>` : ''}
+      </div>`
+    ).join('');
+
+    return `<div class="qual-card">
+      <div class="qual-card-hd">
+        <div class="qual-card-tema">${item.label}</div>
+        <div class="qual-card-count" style="background:${bgColor};color:${color}">${item.count} anak</div>
+      </div>
+      <div class="qual-card-body">
+        ${kutipanHtml || '<div style="font-size:11px;color:var(--mut);padding:4px 0">–</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function getAIKutipanBen(items, konteks, tipe) {
+  if (!items.length) return [];
+
+  // Siapkan data untuk AI
+  const temaData = items.slice(0,6).map((item, i) => ({
+    tema: item.label,
+    jumlah: item.count,
+    sampel: (item.rawTexts || []).slice(0,5).map(t => t.slice(0,300)).join(' | ')
+  }));
+
+  const prompt = `Kamu adalah analis program CBR untuk anak disabilitas di Manggarai, NTT.
+
+Konteks: ${konteks}
+Tipe faktor: ${tipe === 'naik' ? 'Faktor yang MEMBANTU (naik tangga)' : 'Faktor yang MENGHAMBAT (turun tangga)'}
+
+Berikut tema-tema yang teridentifikasi beserta sampel jawaban asli:
+
+${temaData.map((t,i) => `[TEMA ${i+1}] ${t.tema} (${t.jumlah} orang)
+Sampel jawaban: "${t.sampel}"`).join('
+
+')}
+
+Tugasmu: Untuk setiap tema, pilih 2 kutipan terbaik dari sampel jawaban asli yang paling menggambarkan tema tersebut. Kutipan harus:
+- Diambil dari teks asli (jangan mengarang)
+- Kalimat utuh dan bermakna
+- Mencerminkan konteks Manggarai yang spesifik
+
+Balas HANYA dalam format JSON array:
+[
+  {
+    "tema": "nama tema",
+    "kutipan": [
+      {"teks": "kalimat kutipan 1 yang utuh"},
+      {"teks": "kalimat kutipan 2 yang utuh"}
+    ]
+  },
+  ...
+]`;
+
+  try {
+    const res = await fetch(GEMINI_URL_BEN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2000 }
+      })
+    });
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    return parsed.map(t => t.kutipan || []);
+  } catch(e) {
+    // Fallback ke sampel keyword
+    return items.slice(0,6).map(item =>
+      (item.samples || []).map(s => ({ teks: s }))
+    );
+  }
+}
+
+// Render saat data tersedia
+async function renderQualAnak() {
+  await renderQualSection(
+    QUAL.naik_anak,
+    QUAL.turun_anak,
+    'qual-anak-naik',
+    'qual-anak-turun',
+    'Jawaban pengasuh tentang apa yang membantu/menghambat kehidupan ANAK disabilitas'
+  );
+}
+
+async function renderQualPeng() {
+  await renderQualSection(
+    QUAL.naik_pengasuh,
+    QUAL.turun_pengasuh,
+    'qual-peng-naik',
+    'qual-peng-turun',
+    'Jawaban pengasuh tentang apa yang membantu/menghambat kehidupan PENGASUH sendiri'
+  );
+}
 
 // ════════════════════════════════════════════════════
 // TAB 7: REKOMENDASI & KRITIS
