@@ -104,6 +104,22 @@ main{padding:16px;width:100%}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* ── AI NARASI ── */
+.ai-box{background:linear-gradient(135deg,rgba(6,182,212,.06),rgba(167,139,250,.04));border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:14px 16px;margin-top:12px;position:relative;overflow:hidden}
+.ai-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#06b6d4,#a78bfa)}
+.ai-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ai-badge{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:10px;background:rgba(6,182,212,.12);color:#06b6d4;border:1px solid rgba(6,182,212,.3)}
+.ai-loading{display:flex;align-items:center;gap:8px;color:var(--mut);font-size:12px}
+.ai-dots{display:flex;gap:3px}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:#06b6d4;animation:ai-pulse 1.2s ease-in-out infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}
+.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes ai-pulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.ai-text{font-size:12px;line-height:1.8;color:var(--txt)}
+.ai-text strong{color:#06b6d4}
+.ai-text em{color:var(--mut2);font-style:normal}
+.ai-error{font-size:11px;color:var(--mut);font-style:italic}
 </style>
 </head>
 <body>
@@ -209,6 +225,10 @@ main{padding:16px;width:100%}
       <input id="search-struktur" type="text" placeholder="Cari nama anak..." oninput="filterTabel('struktur')">
     </div>
     <div class="domain-table-wrap" id="tabel-struktur"></div>
+    <div class="ai-box" id="ai-box-struktur" style="display:none">
+      <div class="ai-header"><span class="ai-badge">✦ Analisis AI</span></div>
+      <div id="ai-content-struktur"></div>
+    </div>
   </div>
 </div>
 
@@ -236,6 +256,10 @@ main{padding:16px;width:100%}
       <input id="search-kegiatan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('kegiatan')">
     </div>
     <div class="domain-table-wrap" id="tabel-kegiatan"></div>
+    <div class="ai-box" id="ai-box-kegiatan" style="display:none">
+      <div class="ai-header"><span class="ai-badge">✦ Analisis AI</span></div>
+      <div id="ai-content-kegiatan"></div>
+    </div>
   </div>
 </div>
 
@@ -262,6 +286,10 @@ main{padding:16px;width:100%}
       <input id="search-personal" type="text" placeholder="Cari nama anak..." oninput="filterTabel('personal')">
     </div>
     <div class="domain-table-wrap" id="tabel-personal"></div>
+    <div class="ai-box" id="ai-box-personal" style="display:none">
+      <div class="ai-header"><span class="ai-badge">✦ Analisis AI</span></div>
+      <div id="ai-content-personal"></div>
+    </div>
   </div>
 </div>
 
@@ -289,6 +317,10 @@ main{padding:16px;width:100%}
       <input id="search-lingkungan" type="text" placeholder="Cari nama anak..." oninput="filterTabel('lingkungan')">
     </div>
     <div class="domain-table-wrap" id="tabel-lingkungan"></div>
+    <div class="ai-box" id="ai-box-lingkungan" style="display:none">
+      <div class="ai-header"><span class="ai-badge">✦ Analisis AI</span></div>
+      <div id="ai-content-lingkungan"></div>
+    </div>
   </div>
 </div>
 
@@ -901,17 +933,80 @@ function analyzeThemes(obsData) {
 }
 
 function getSnippet(text, keywords) {
+  // Fallback: ambil kalimat yang mengandung keyword secara utuh
   if (!text) return '';
+  const sentences = text.split(/(?<=[.!?])\s+/);
   const lower = text.toLowerCase();
   for (const kw of keywords) {
-    const idx = lower.indexOf(kw.toLowerCase());
-    if (idx >= 0) {
-      const start = Math.max(0, idx - 30);
-      const end = Math.min(text.length, idx + kw.length + 80);
-      return (start > 0 ? '...' : '') + text.slice(start, end) + (end < text.length ? '...' : '');
-    }
+    const kwLow = kw.toLowerCase();
+    const found = sentences.find(s => s.toLowerCase().includes(kwLow));
+    if (found) return found.trim();
   }
-  return text.slice(0, 100) + (text.length > 100 ? '...' : '');
+  // Kalau tidak ketemu, kembalikan kalimat pertama
+  return sentences[0]?.trim() || text.slice(0, 120);
+}
+
+// AI-powered: ambil kutipan rapi untuk semua anak sekaligus
+async function getAIKutipan(rows, themeLabel, kondisiLabel, domain) {
+  if (!rows.length) return {};
+
+  // Siapkan data per anak
+  const fieldMap = {struktur:'st', kegiatan:'kg', personal:'pf', lingkungan:'lg'};
+  const field = fieldMap[domain];
+
+  // Cari narasi asli dari OBS
+  const items = rows.map(r => {
+    const obs = OBS.find(o => o.na === r.na);
+    const narasi = obs ? (obs[field] || '') : (r.kutipan || '');
+    return { nama: r.na, narasi };
+  }).filter(x => x.narasi);
+
+  if (!items.length) return {};
+
+  const dataText = items.map((x, i) =>
+    `${i+1}. ${x.nama}: "${x.narasi}"`
+  ).join('\n');
+
+  const prompt = `Kamu membantu program CBR (rehabilitasi berbasis komunitas) di Manggarai, NTT.
+
+Berikut narasi observasi CBR Worker untuk sub-kategori "${themeLabel}" dengan kondisi "${kondisiLabel}":
+
+${dataText}
+
+Tugasmu: Untuk setiap anak, pilih SATU kalimat terbaik dari narasi asli yang paling menggambarkan kondisi "${kondisiLabel}" pada sub-kategori "${themeLabel}". 
+
+Aturan:
+- Ambil kalimat yang sudah ada di narasi (jangan mengarang)
+- Pilih kalimat yang paling jelas dan informatif
+- Kalimat harus utuh (tidak dipotong)
+- Kalau narasi sangat pendek, pakai narasi utuhnya
+
+Balas HANYA dalam format JSON array seperti ini, tanpa penjelasan lain:
+[
+  {"nama": "nama anak", "kutipan": "kalimat yang dipilih"},
+  ...
+]`;
+
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2000 }
+      })
+    });
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    const map = {};
+    parsed.forEach(x => { map[x.nama] = x.kutipan; });
+    return map;
+  } catch(e) {
+    console.warn('AI kutipan error:', e);
+    return {};
+  }
 }
 
 // Storage hasil analisis
@@ -1110,20 +1205,18 @@ function buildNarasi(key, themes) {
 }
 
 // ─── TABEL INTERAKTIF ─────────────────────────────────────────
-function showTabel(key, themeIdx, type) {
+async function showTabel(key, themeIdx, type) {
   const themes = ICF_ANALYSIS[key] || [];
   const theme = themes[themeIdx];
   if (!theme) return;
 
   ACTIVE_SUBCAT[key] = {themeIdx, type};
 
-  // Tentukan data dan header berdasarkan domain dan type
+  // Tentukan data dan header
   let rows = [];
-  let col3Label = theme.col3 || 'Kondisi';
   let titleSuffix = '';
 
   if (type === 'tema') {
-    // Personal
     rows = theme.rows_tema.map(r => ({...r, kondisi: 'tema'}));
     titleSuffix = theme.label;
   } else if (type === 'pos') {
@@ -1138,23 +1231,60 @@ function showTabel(key, themeIdx, type) {
 
   TABEL_DATA[key] = rows;
 
-  // Update title
+  // Update title & count
   const titleEl = document.getElementById('tabel-title-' + key);
   if (titleEl) titleEl.textContent = titleSuffix;
-
-  // Update count
   const countEl = document.getElementById('count-' + key);
   if (countEl) countEl.textContent = rows.length + ' anak';
 
-  // Render tabel
-  renderTabel(key, rows, type, theme);
-
-  // Tampilkan card tabel
+  // Tampilkan card dengan loading dulu
   const card = document.getElementById('tabel-card-' + key);
+  const tabelEl = document.getElementById('tabel-' + key);
   if (card) {
     card.style.display = '';
     card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
   }
+
+  // Tampilkan loading di area tabel
+  if (tabelEl) {
+    tabelEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:24px 16px;color:var(--mut)">
+      <div style="display:flex;gap:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:#06b6d4;animation:ai-pulse 1.2s ease-in-out infinite"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:#06b6d4;animation:ai-pulse 1.2s ease-in-out .2s infinite"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:#06b6d4;animation:ai-pulse 1.2s ease-in-out .4s infinite"></div>
+      </div>
+      <span style="font-size:12px">AI sedang menyiapkan kutipan...</span>
+    </div>`;
+  }
+
+  // Sembunyikan AI box dulu
+  const aiBox = document.getElementById('ai-box-' + key);
+  if (aiBox) aiBox.style.display = 'none';
+
+  // Ambil AI kutipan dulu, baru render tabel
+  const kondisiLabel = type === 'pos'
+    ? (theme.label_pos || (key==='struktur'?'Baik':key==='lingkungan'?'Dukungan':'Mampu'))
+    : type === 'neg'
+    ? (theme.label_neg || (key==='struktur'?'Terganggu':key==='lingkungan'?'Hambatan':'Terbatas'))
+    : theme.label;
+
+  // Dapatkan AI kutipan
+  const aiMap = await getAIKutipan(rows, theme.label, kondisiLabel, key);
+
+  // Inject kutipan AI ke rows
+  const rowsWithAI = rows.map(r => ({
+    ...r,
+    kutipan: aiMap[r.na] || r.kutipan || ''
+  }));
+
+  // Render tabel SEKALI dengan kutipan sudah rapi
+  renderTabel(key, rowsWithAI, type, theme);
+
+  // Update TABEL_DATA dengan kutipan AI untuk filter
+  TABEL_DATA[key] = rowsWithAI;
+
+  // Generate AI narasi di bawah tabel
+  generateAINarasi(key, theme, rows, type);
 }
 
 function renderTabel(key, rows, type, theme) {
@@ -1229,6 +1359,8 @@ function filterTabel(key) {
 function closeTabel(key) {
   const card = document.getElementById('tabel-card-' + key);
   if (card) card.style.display = 'none';
+  const aiBox = document.getElementById('ai-box-' + key);
+  if (aiBox) aiBox.style.display = 'none';
   ACTIVE_SUBCAT[key] = null;
 }
 
@@ -1385,6 +1517,96 @@ function switchTab(id, btn){
   document.getElementById('pg-'+id).classList.add('act');
   btn.classList.add('act');
   if(['struktur','kegiatan','personal','lingkungan'].includes(id)) renderDomain(id);
+}
+
+
+
+// ════ AI NARASI OTOMATIS ════
+const GEMINI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
+
+async function generateAINarasi(domain, theme, rows, type) {
+  const boxEl    = document.getElementById('ai-box-' + domain);
+  const contentEl = document.getElementById('ai-content-' + domain);
+  if (!boxEl || !contentEl) return;
+
+  // Tampilkan loading
+  boxEl.style.display = '';
+  contentEl.innerHTML = `<div class="ai-loading">
+    <div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+    <span>AI sedang menganalisis data...</span>
+  </div>`;
+
+  // Susun ringkasan data untuk prompt
+  const domainLabel = {struktur:'Struktur & Fungsi Tubuh',kegiatan:'Kegiatan & Partisipasi',personal:'Faktor Personal',lingkungan:'Faktor Lingkungan'}[domain];
+  const typeLabel = type === 'pos'
+    ? (theme.label_pos || (domain==='struktur'?'Kondisi Baik':domain==='lingkungan'?'Dukungan':'Mampu'))
+    : type === 'neg'
+    ? (theme.label_neg || (domain==='struktur'?'Terganggu':domain==='lingkungan'?'Hambatan':'Terbatas'))
+    : 'Tema';
+
+  // Ambil max 15 kutipan untuk prompt
+  const sampleRows = rows.slice(0, 15);
+  const kutipanText = sampleRows
+    .filter(r => r.kutipan)
+    .map((r,i) => `${i+1}. [${r.na}/${r.cb}]: "${r.kutipan}"`)
+    .join('\n');
+
+  // Hitung distribusi per CBR Worker
+  const cbrCount = {};
+  rows.forEach(r => { cbrCount[r.cb] = (cbrCount[r.cb]||0)+1; });
+  const cbrSummary = Object.entries(cbrCount).sort((a,b)=>b[1]-a[1])
+    .map(([cb,n]) => `${cb}: ${n} anak`).join(', ');
+
+  const prompt = `Kamu adalah analis program rehabilitasi berbasis komunitas (CBR) untuk anak disabilitas di Manggarai, NTT, Indonesia.
+
+Data observasi lapangan:
+- Domain ICF: ${domainLabel}
+- Sub-kategori: ${theme.label}
+- Kondisi: ${typeLabel}
+- Jumlah anak: ${rows.length} anak
+- Distribusi per CBR Worker: ${cbrSummary}
+- Total data observasi program: ${OBS.length} kunjungan
+
+Kutipan narasi observasi dari CBR Worker (sampel):
+${kutipanText || 'Tidak ada kutipan tersedia'}
+
+Tugas kamu:
+1. Jelaskan pola utama yang terlihat dari data ini (2-3 kalimat)
+2. Identifikasi faktor penyebab atau konteks yang relevan dengan kondisi di Manggarai (1-2 kalimat)
+3. Berikan 2-3 rekomendasi tindak lanjut yang konkret dan dapat dilakukan CBR Worker (poin singkat)
+
+Gunakan bahasa Indonesia yang natural, tidak terlalu formal. Gunakan data angka yang tersedia. Fokus pada hal yang actionable untuk CBR Worker dan supervisor program.`;
+
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+      })
+    });
+
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!text) throw new Error('Respons AI kosong');
+
+    // Format teks — bold, bullet
+    const formatted = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^\d+\. /gm, '<br>• ')
+      .replace(/^- /gm, '<br>• ')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+
+    contentEl.innerHTML = `<div class="ai-text"><p>${formatted}</p></div>`;
+
+  } catch(err) {
+    contentEl.innerHTML = `<div class="ai-error">Analisis AI tidak tersedia saat ini. ${err.message}</div>`;
+  }
 }
 
 // ════ INIT ════
