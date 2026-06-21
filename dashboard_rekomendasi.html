@@ -142,6 +142,39 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;gap:14px;color:var(--mut)}
 .spin{width:32px;height:32px;border:3px solid var(--bdr);border-top-color:var(--amb);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Detail Mode Layout ── */
+#cbr-detail-mode { padding: 0; height: 100%; overflow-y: auto; }
+#cbr-detail-content { padding: 16px; max-width: 900px; margin: 0 auto; }
+
+/* Detail Header */
+.detail-header { display: flex; align-items: flex-start; gap: 14px; background: var(--card); border: 1px solid var(--bdr); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.detail-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#4f8ef7,#06b6d4); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.detail-info { flex: 1; min-width: 0; }
+.detail-nama { font-size: 18px; font-weight: 800; color: var(--txt); margin-bottom: 2px; }
+.detail-sub { font-size: 11px; color: var(--mut); font-weight: 600; }
+.detail-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+
+/* Chip */
+.chip { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid var(--bdr); color: var(--mut2); }
+
+/* Kategori Blocks */
+.kat-block { margin-bottom: 14px; border-radius: 10px; overflow: hidden; border: 1px solid var(--bdr); }
+.kat-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+.kat-body { padding: 12px 14px; background: var(--card); }
+.kat-label { font-size: 10px; font-weight: 700; color: var(--mut); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; margin-top: 8px; }
+.kat-label:first-child { margin-top: 0; }
+.kat-temuan { font-size: 12.5px; color: var(--txt); line-height: 1.6; margin-bottom: 2px; }
+.kat-rtl { font-size: 12px; color: var(--txt); line-height: 1.6; background: rgba(255,255,255,.03); border-left: 3px solid; padding: 8px 10px; border-radius: 0 6px 6px 0; margin-bottom: 2px; }
+.kat-loading { display: flex; align-items: center; gap: 6px; padding: 24px 14px; font-size: 12px; color: var(--mut); }
+
+.kat-kesehatan .kat-header { background: rgba(239,68,68,.12); color: #ef4444; }
+.kat-kesehatan .kat-rtl { border-color: #ef4444; }
+.kat-sosial .kat-header { background: rgba(59,130,246,.12); color: #3b82f6; }
+.kat-sosial .kat-rtl { border-color: #3b82f6; }
+.kat-ekonomi .kat-header { background: rgba(234,179,8,.12); color: #eab308; }
+.kat-ekonomi .kat-rtl { border-color: #eab308; }
+
 </style>
 </head>
 <body>
