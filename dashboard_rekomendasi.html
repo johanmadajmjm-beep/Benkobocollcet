@@ -1265,22 +1265,26 @@ async function generateRekoAI(nama, cb, top3, awal, obs) {
 
   const prompt = `Kamu adalah supervisor program CBR (rehabilitasi berbasis komunitas) di Manggarai, NTT, Indonesia.
 
-Data anak:
+DATA ANAK:
 ${konteks}
 
-Temuan prioritas:
+TEMUAN PRIORITAS (dari sistem analisis):
 ${temuan}
 
-Pihak yang akan dilibatkan: ${pihakLabels || 'belum ditentukan'}
+PIHAK YANG AKAN DILIBATKAN: ${pihakLabels || 'belum ditentukan'}
 
-Buatkan kesimpulan rekomendasi dan tindak lanjut yang:
-1. Ringkas tapi bermakna (3-4 kalimat)
-2. Spesifik dan actionable untuk CBR Worker dan supervisor
-3. Kontekstual dengan situasi Manggarai (komunitas adat, gereja, pertanian)
-4. Menyebutkan pihak kunci yang perlu dilibatkan
-5. Memiliki target waktu yang realistis (1-3 bulan)
+TUGAS KAMU:
+Baca semua data di atas dengan teliti — terutama hasil observasi lapangan dari CBR Worker. Identifikasi SEMUA isu konkret dan spesifik yang ditemukan, lalu buat rekomendasi tindak lanjut yang:
 
-Tulis dalam bahasa Indonesia yang natural dan langsung ke poin.`;
+1. SPESIFIK — sebutkan isu nyata dari observasi (contoh: toilet training, belum sekolah, rumah tidak layak, pengawasan minim, bantuan sosial terhenti, perilaku stereotipe, akses layanan, kondisi fisik rumah, dll)
+2. ACTIONABLE — langkah yang bisa langsung dilakukan CBR Worker dan pihak terkait
+3. KONTEKSTUAL — sesuai situasi Manggarai (adat, gereja, pertanian, kondisi geografis)
+4. ADA TARGET WAKTU — setiap poin ada rentang waktu (minggu ini / 1 bulan / 3 bulan)
+
+Format jawaban dalam poin-poin singkat:
+• [Isu spesifik] → [Tindak lanjut konkret] — [Target waktu]
+
+Jangan lewatkan isu penting dari data observasi! Tulis dalam bahasa Indonesia yang natural.`;
 
   try {
     const res = await fetch(_REKO_AI_URL, {
@@ -1288,7 +1292,7 @@ Tulis dalam bahasa Indonesia yang natural dan langsung ke poin.`;
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.4, maxOutputTokens: 400}
+        generationConfig: {temperature: 0.3, maxOutputTokens: 700}
       })
     });
     const data = await res.json();
