@@ -283,7 +283,7 @@ async function fetchAllData() {
       ep: r.ep||'Tidak', ob: r.ob||'Tidak', tr: r.tr||'Tidak',
       sp: r.sp !== null && r.sp !== '' ? Number(r.sp) : null,
       sa: r.sa !== null && r.sa !== '' ? Number(r.sa) : null,
-      nkp: (r.nkp||'').replace(/\n/g,' ').trim(), tkp: (r.tkp||'').replace(/\n/g,' ').trim(), nka: (r.nka||'').replace(/\n/g,' ').trim(), tka: (r.tka||'').replace(/\n/g,' ').trim(),
+      nkp: String(r.nkp||'').replace(/\n/g,' ').trim(), tkp: String(r.tkp||'').replace(/\n/g,' ').trim(), nka: String(r.nka||'').replace(/\n/g,' ').trim(), tka: String(r.tka||'').replace(/\n/g,' ').trim(),
       lat: r.lat !== null ? Number(r.lat) : null,
       lon: r.lon !== null ? Number(r.lon) : null,
     })).filter(r => r.na);
