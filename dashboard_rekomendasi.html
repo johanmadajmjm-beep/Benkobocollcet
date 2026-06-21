@@ -178,6 +178,14 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 .kat-ekonomi .kat-header { background: rgba(234,179,8,.12); color: #eab308; }
 .kat-ekonomi .kat-rtl { border-color: #eab308; }
 
+
+.kat-pendidikan .kat-header { background: rgba(59,130,246,.12); color: #3b82f6; }
+.kat-pendidikan .kat-rtl { border-color: #3b82f6; }
+.kat-penghidupan .kat-header { background: rgba(245,158,11,.12); color: #f59e0b; }
+.kat-penghidupan .kat-rtl { border-color: #f59e0b; }
+.kat-pemberdayaan .kat-header { background: rgba(16,185,129,.12); color: #10b981; }
+.kat-pemberdayaan .kat-rtl { border-color: #10b981; }
+
 </style>
 </head>
 <body>
@@ -984,6 +992,379 @@ function filterNamaPanel() {
   renderNamaPanelList(getNamaPanelData());
 }
 
+
+// ════════════════════════════════════════════════════════
+// RULE ENGINE — 5 KATEGORI WHO CBR MATRIX
+// ════════════════════════════════════════════════════════
+
+// Keyword per kategori — cek pada teks bebas
+const RULES = {
+  kesehatan: {
+    label: 'Kesehatan',
+    icon: '🏥',
+    color: '#ef4444',
+    bg: 'rgba(239,68,68,.1)',
+    // Keyword yang menunjukkan isu kesehatan
+    keywords: [
+      'sakit','epilepsi','kejang','terapi','obat','gizi','nutrisi','susu','pampers',
+      'kursi roda','alat bantu','kacamata','alat dengar','standing table',
+      'cerebral palsy','cp ','kekakuan','otot','saraf','fisioterapi',
+      'puskesmas','dokter','bidan','perawat','rujukan','operasi','rawat',
+      'low vision','tuli','bisu','gangguan penglihatan','gangguan pendengaran',
+      'luka','nyeri','kaku','lemah','baring','tidur','pola tidur',
+      'tumbuh kembang','pertumbuhan','berat badan','bb rendah',
+      'toilet','cebok','bab','bak','inkontinensia',
+    ],
+    // Field yang selalu masuk kesehatan
+    fields_always: ['ep','ob','tr','st'],
+    // Field yang masuk jika ada keyword
+    fields_check: ['tka','tkp','nka','nkp','kg','lg'],
+    pihak: ['dokter_puskesmas','perawat_puskesmas','bidan_desa','kader_posyandu',
+            'fisioterapis','dinkes','kader_posbindu'],
+  },
+  pendidikan: {
+    label: 'Pendidikan',
+    icon: '🎓',
+    color: '#3b82f6',
+    bg: 'rgba(59,130,246,.1)',
+    keywords: [
+      'sekolah','belajar','baca','tulis','hitung','slb','sdlb','smplb','smalb',
+      'inklusi','gpk','guru pendamping','pendidikan','kelas','kurikulum',
+      'pip','beasiswa','putus sekolah','tidak sekolah','belum sekolah',
+      'paud','tk','taman kanak','pendidikan anak','dini',
+      'literasi','numerasi','komunikasi','bahasa isyarat','bisindo',
+      'braille','alat peraga','media pembelajaran',
+    ],
+    fields_always: [],
+    fields_check: ['tka','tkp','nka','nkp','kg','lg','pf'],
+    pihak: ['guru_kelas','wali_kelas','kepala_sekolah','gpk','guru_paud',
+            'pengelola_paud','dindik','ayo_indonesia'],
+  },
+  penghidupan: {
+    label: 'Penghidupan',
+    icon: '💰',
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,.1)',
+    keywords: [
+      'penghasilan','pendapatan','ekonomi','panen','hasil kebun','cengkeh','kemiri',
+      'buruh','harian','upah','tenun','kain','parang','sawah','kebun','tani',
+      'kiriman','merantau','kalimantan','papua','sumba','jakarta',
+      'pkh','blt','sembako','beras','bansos','bantuan sosial','bantuan desa',
+      'bpjs','jkn','kartu','dtks','pse','pip',
+      'rumah','dinding','lantai','bambu','tanah','papan','semi permanen','layak huni',
+      'air bersih','listrik','sanitasi','jamban','toilet','wc',
+      'modal','usaha','kios','dagang','ternak','kambing','sapi','babi','ayam',
+      'biaya','ongkos','tidak mampu','tidak ada uang','keuangan','hutang',
+      'infrastruktur','jalan','akses','topografi','lokasi','terpencil',
+    ],
+    fields_always: [],
+    fields_check: ['tkp','nkp','tka','nka','lg'],
+    pihak: ['kepala_desa','kasi_kesra','pkk_desa','dinsos','uptd_sosial',
+            'p2tp2a','karang_taruna','pkh_officer','rt_rw','bpd'],
+  },
+  sosial: {
+    label: 'Sosial',
+    icon: '👥',
+    color: '#8b5cf6',
+    bg: 'rgba(139,92,246,.1)',
+    keywords: [
+      'stigma','dikucilkan','bully','ejek','disoraki','malu','takut','minder',
+      'teman','bermain','bergaul','sosialisasi','interaksi','komunikasi sosial',
+      'isolasi','sendirian','tidak keluar','di rumah terus','jarang','terpencil',
+      'adat','tua golo','gereja','pastor','doa','misa','komunitas','lingkungan',
+      'tetangga','warga','masyarakat','kampung','desa',
+      'pengasuh tunggal','ibu tunggal','ayah tunggal','janda','duda',
+      'jaringan','dukungan','tidak ada yang membantu','sendirian mengurus',
+      'ditinggal','merantau','kerja jauh','orang tua pergi',
+      'keluarga','kakek','nenek','saudara','paman','bibi',
+      'partisipasi','inklusif','penerimaan','diterima',
+    ],
+    fields_always: ['pf'],
+    fields_check: ['tka','tkp','nka','nkp','kg','lg'],
+    pihak: ['tua_golo','tokoh_adat','pastor','katekis','kelompok_doa',
+            'rt_rw','warga_kampung','tetangga','teman_sebaya','karang_taruna',
+            'omk','org_perempuan'],
+  },
+  pemberdayaan: {
+    label: 'Pemberdayaan',
+    icon: '💪',
+    color: '#10b981',
+    bg: 'rgba(16,185,129,.1)',
+    keywords: [
+      'mandiri','kemandirian','percaya diri','kepercayaan diri',
+      'mandi sendiri','makan sendiri','pakai baju','berpakaian sendiri',
+      'toilet training','cebok sendiri','bab sendiri','bak sendiri',
+      'mobilitas','berjalan','berdiri','bergerak','pindah',
+      'mimpi','cita-cita','harapan','masa depan','potensi','bakat',
+      'hak','advokasi','ktp','akta','kartu disabilitas','dtks',
+      'pemerintah desa','layanan','program','akses program',
+      'keterampilan','pelatihan','vokasi','kerja','produktif',
+      'pengasuh','cara merawat','stimulasi','latihan','pendampingan',
+      'emosi','perilaku','stereotipe','tantrum','regulasi',
+    ],
+    fields_always: [],
+    fields_check: ['tka','nka','tkp','nkp','kg','pf'],
+    pihak: ['ibu','ayah','saudara_kandung','cbr_worker_lain','scn',
+            'ayo_indonesia','cbm_global','kader_disabilitas'],
+  },
+};
+
+function hasKeyword(text, keywords) {
+  if (!text) return false;
+  var t = String(text).toLowerCase();
+  return keywords.some(function(kw) { return t.indexOf(kw.toLowerCase()) >= 0; });
+}
+
+function buildTemuan(kat, awal, obs, awalK, obsK) {
+  var temuan = [];
+  var rule = RULES[kat];
+
+  // Ambil teks dari semua field relevan
+  var texts = {
+    ep:  awal ? (awal.ep === 'Ya' ? 'epilepsi aktif' : '') : '',
+    ob:  awal ? (awal.ob === 'Tidak' ? 'tidak ada pengobatan rutin' : '') : '',
+    tr:  awal ? (awal.tr === 'Tidak' ? 'belum mendapat terapi' : '') : '',
+    rg:  awal ? awal.rg || '' : '',
+    lv:  awal ? awal.lv || '' : '',
+    sa:  awal && awal.sa !== null ? String(awal.sa) : '',
+    sp:  awal && awal.sp !== null ? String(awal.sp) : '',
+    nkp: awalK ? awalK.nkp || '' : (awal ? awal.nkp || '' : ''),
+    tkp: awalK ? awalK.tkp || '' : (awal ? awal.tkp || '' : ''),
+    nka: awalK ? awalK.nka || '' : (awal ? awal.nka || '' : ''),
+    tka: awalK ? awalK.tka || '' : (awal ? awal.tka || '' : ''),
+    st:  obsK ? obsK.st || '' : (obs ? obs.st || '' : ''),
+    kg:  obsK ? obsK.kg || '' : (obs ? obs.kg || '' : ''),
+    pf:  obsK ? obsK.pf || '' : (obs ? obs.pf || '' : ''),
+    lg:  obsK ? obsK.lg || '' : (obs ? obs.lg || '' : ''),
+  };
+
+  // Cek field yang selalu masuk kategori ini
+  rule.fields_always.forEach(function(field) {
+    var val = texts[field];
+    if (val && val.length > 3) {
+      temuan.push({ field: field, text: val, score: 10 });
+    }
+  });
+
+  // Cek field yang masuk jika ada keyword
+  rule.fields_check.forEach(function(field) {
+    var val = texts[field];
+    if (val && hasKeyword(val, rule.keywords)) {
+      // Ekstrak kalimat yang mengandung keyword
+      var kalimat = extractRelevantSentences(val, rule.keywords, 200);
+      if (kalimat) temuan.push({ field: field, text: kalimat, score: 5 });
+    }
+  });
+
+  // Aturan khusus
+  if (kat === 'kesehatan') {
+    if (awal && awal.ep === 'Ya') temuan.push({ field: 'ep', text: 'Epilepsi aktif', score: 15 });
+    if (awal && awal.ob === 'Tidak') temuan.push({ field: 'ob', text: 'Tidak ada pengobatan rutin', score: 8 });
+    if (awal && awal.tr === 'Tidak' && awal.lv === 'Parah (dukungan penuh)') {
+      temuan.push({ field: 'tr', text: 'Belum mendapat terapi meski level parah', score: 12 });
+    }
+    if (awal && awal.sa !== null && awal.sa <= 4) {
+      // Cek apakah alasannya kesehatan
+      if (hasKeyword(texts.tka, rule.keywords)) {
+        temuan.push({ field: 'sa', text: 'Kualitas hidup anak sangat rendah (skor ' + awal.sa + '/10) karena hambatan kesehatan', score: 10 });
+      }
+    }
+    if (awal && awal.sp !== null && awal.sp <= 4) {
+      if (hasKeyword(texts.tkp, rule.keywords)) {
+        temuan.push({ field: 'sp', text: 'Kualitas hidup pengasuh sangat rendah (skor ' + awal.sp + '/10) karena hambatan kesehatan', score: 10 });
+      }
+    }
+  }
+
+  if (kat === 'penghidupan') {
+    if (awal && awal.sp !== null && awal.sp <= 4 && hasKeyword(texts.tkp, rule.keywords)) {
+      temuan.push({ field: 'sp', text: 'Kualitas hidup pengasuh rendah (skor ' + awal.sp + '/10) akibat tekanan ekonomi', score: 10 });
+    }
+  }
+
+  if (kat === 'pendidikan') {
+    if (awal && awal.sa !== null && awal.sa <= 5 && hasKeyword(texts.tka, rule.keywords)) {
+      temuan.push({ field: 'sa', text: 'Kualitas hidup anak rendah (skor ' + awal.sa + '/10) berkaitan dengan hambatan pendidikan', score: 8 });
+    }
+  }
+
+  // Dedup berdasarkan field
+  var seen = {};
+  temuan = temuan.filter(function(t) {
+    if (seen[t.field]) return false;
+    seen[t.field] = true;
+    return true;
+  });
+
+  return temuan;
+}
+
+function extractRelevantSentences(text, keywords, maxLen) {
+  if (!text) return '';
+  var t = String(text);
+  // Split per kalimat
+  var sentences = t.split(/[.;\n]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 10; });
+  var relevant = sentences.filter(function(s) { return hasKeyword(s, keywords); });
+  if (!relevant.length) relevant = sentences;
+  var result = relevant.slice(0, 3).join('; ');
+  return result.length > maxLen ? result.substring(0, maxLen) + '...' : result;
+}
+
+function buildRTL(kat, temuan, awal, obs) {
+  var rtlMap = {
+    kesehatan: {
+      epilepsi: 'Pastikan obat epilepsi tersedia rutin dan jadwalkan kontrol ke Puskesmas dalam 1 bulan.',
+      tidak_obat: 'Koordinasikan akses pengobatan rutin melalui Puskesmas dan Bidan Desa dalam 2 minggu.',
+      tidak_terapi: 'Ajukan rujukan terapi ke Puskesmas atau Dinas Kesehatan dalam 1 bulan.',
+      alat_bantu: 'Identifikasi kebutuhan alat bantu dan ajukan ke Dinas Sosial/CBM Global dalam 1 bulan.',
+      gizi: 'Koordinasikan dengan Kader Posyandu untuk pemantauan gizi dan akses susu/nutrisi.',
+      default: 'Jadwalkan pemeriksaan kesehatan rutin dan diskusikan dengan keluarga langkah perawatan yang bisa dilakukan di rumah dalam 2 minggu.',
+    },
+    pendidikan: {
+      belum_sekolah: 'Koordinasikan dengan Dinas Pendidikan dan Kepala Sekolah terdekat untuk pendaftaran anak ke sekolah inklusi atau SLB dalam 1 bulan.',
+      gpk: 'Ajukan kebutuhan Guru Pendamping Khusus (GPK) ke sekolah dan Dinas Pendidikan dalam 1 bulan.',
+      default: 'Diskusikan dengan keluarga rencana pendidikan anak dan koordinasikan dengan sekolah terdekat dalam 1 bulan.',
+    },
+    penghidupan: {
+      bantuan: 'Verifikasi status PKH/BLT/BPJS keluarga dan koordinasikan dengan Kepala Desa untuk aktivasi/reaktivasi dalam 2 minggu.',
+      rumah: 'Laporkan kondisi rumah tidak layak ke Kepala Desa/Dinas Sosial untuk program renovasi rumah dalam 1 bulan.',
+      ekonomi: 'Diskusikan peluang usaha atau sumber penghasilan alternatif bersama PKK Desa dan kelompok tani dalam 1 bulan.',
+      default: 'Koordinasikan akses bantuan sosial dan layanan ekonomi dengan Kepala Desa dan Dinas Sosial dalam 1 bulan.',
+    },
+    sosial: {
+      stigma: 'Lakukan edukasi kepada keluarga, tetangga, dan Tu'a Golo tentang disabilitas dan inklusivitas dalam 1 bulan.',
+      isolasi: 'Fasilitasi keterlibatan anak/pengasuh dalam kegiatan komunitas (doa, adat, karang taruna) dalam 1 bulan.',
+      pengasuh_tunggal: 'Identifikasi anggota keluarga atau tetangga yang bisa membantu pengasuhan dan diskusikan pembagian peran dalam 2 minggu.',
+      default: 'Diskusikan dengan Tu'a Golo dan pemuka gereja tentang dukungan sosial untuk keluarga dalam 1 bulan.',
+    },
+    pemberdayaan: {
+      kemandirian: 'Latih pengasuh teknik stimulasi kemandirian (toilet training, makan, berpakaian) yang bisa dilakukan setiap hari di rumah.',
+      percaya_diri: 'Libatkan anak dalam kegiatan sederhana yang sesuai kemampuannya untuk membangun kepercayaan diri dalam 1 bulan.',
+      hak: 'Bantu keluarga mengurus dokumen hak disabilitas (KTP, DTKS, kartu disabilitas) melalui Kepala Desa dalam 1 bulan.',
+      default: 'Diskusikan bersama keluarga potensi dan mimpi anak, serta rancang langkah kecil untuk meningkatkan kemandirian dalam 1 bulan.',
+    },
+  };
+
+  var rtl = rtlMap[kat];
+  var fields = temuan.map(function(t) { return t.field; });
+  var texts = temuan.map(function(t) { return t.text.toLowerCase(); }).join(' ');
+
+  if (kat === 'kesehatan') {
+    if (fields.indexOf('ep') >= 0) return rtl.epilepsi;
+    if (fields.indexOf('ob') >= 0) return rtl.tidak_obat;
+    if (fields.indexOf('tr') >= 0) return rtl.tidak_terapi;
+    if (hasKeyword(texts, ['alat bantu','kursi roda','kacamata','alat dengar'])) return rtl.alat_bantu;
+    if (hasKeyword(texts, ['gizi','nutrisi','susu','berat badan'])) return rtl.gizi;
+    return rtl.default;
+  }
+  if (kat === 'pendidikan') {
+    if (hasKeyword(texts, ['belum sekolah','tidak sekolah','belum masuk'])) return rtl.belum_sekolah;
+    if (hasKeyword(texts, ['gpk','guru pendamping'])) return rtl.gpk;
+    return rtl.default;
+  }
+  if (kat === 'penghidupan') {
+    if (hasKeyword(texts, ['pkh','blt','bpjs','bantuan','sembako','dtks'])) return rtl.bantuan;
+    if (hasKeyword(texts, ['rumah','dinding','lantai','bambu','layak'])) return rtl.rumah;
+    if (hasKeyword(texts, ['penghasilan','panen','kiriman','ekonomi','uang'])) return rtl.ekonomi;
+    return rtl.default;
+  }
+  if (kat === 'sosial') {
+    if (hasKeyword(texts, ['stigma','dikucilkan','bully','ejek'])) return rtl.stigma;
+    if (hasKeyword(texts, ['isolasi','sendirian','tidak keluar','jarang'])) return rtl.isolasi;
+    if (hasKeyword(texts, ['tunggal','janda','duda','merantau'])) return rtl.pengasuh_tunggal;
+    return rtl.default;
+  }
+  if (kat === 'pemberdayaan') {
+    if (hasKeyword(texts, ['mandiri','toilet','cebok','mandi','makan','pakai baju'])) return rtl.kemandirian;
+    if (hasKeyword(texts, ['percaya diri','minder','malu','takut'])) return rtl.percaya_diri;
+    if (hasKeyword(texts, ['ktp','akta','dtks','hak','kartu'])) return rtl.hak;
+    return rtl.default;
+  }
+  return '';
+}
+
+function buildPihak(kat, temuan, awal, obs) {
+  var basePihak = RULES[kat].pihak.slice();
+  var texts = temuan.map(function(t) { return t.text.toLowerCase(); }).join(' ');
+  var allTexts = (texts + ' ' +
+    (awal ? (awal.tka||'') + ' ' + (awal.tkp||'') + ' ' + (awal.nka||'') + ' ' + (awal.nkp||'') : '') + ' ' +
+    (obs  ? (obs.st||'') + ' ' + (obs.kg||'') + ' ' + (obs.pf||'') + ' ' + (obs.lg||'') : '')).toLowerCase();
+
+  if (kat === 'kesehatan') {
+    basePihak.push('bidan_desa','kader_posyandu','ibu','ayah');
+    if (hasKeyword(allTexts,['epilepsi','kejang','obat kejang'])) basePihak.push('dokter_puskesmas','perawat_puskesmas','dinkes');
+    if (hasKeyword(allTexts,['terapi','fisioterapi','rehabilitasi'])) basePihak.push('fisioterapis','cbm_global','ayo_indonesia');
+    if (hasKeyword(allTexts,['kursi roda','alat bantu','standing table','kacamata','alat dengar'])) basePihak.push('dinsos','uptd_sosial','cbm_global','ayo_indonesia');
+    if (hasKeyword(allTexts,['gizi','nutrisi','susu','berat badan'])) basePihak.push('kader_posyandu','bidan_desa','pkk_desa');
+    if (hasKeyword(allTexts,['bpjs','jkn','kartu'])) basePihak.push('kepala_desa','kasi_kesra','dinkes');
+    if (awal && awal.lv === 'Parah (dukungan penuh)') basePihak.push('pastor','tua_golo');
+  }
+
+  if (kat === 'pendidikan') {
+    basePihak.push('ibu','ayah','guru_agama');
+    if (hasKeyword(allTexts,['belum sekolah','tidak sekolah','putus sekolah','belum masuk'])) basePihak.push('kepala_sekolah','dindik','kasi_kesra','kepala_desa');
+    if (hasKeyword(allTexts,['slb','sdlb','smplb','smalb','sekolah luar biasa'])) basePihak.push('dindik','kepala_sekolah','gpk');
+    if (hasKeyword(allTexts,['paud','tk','taman kanak'])) basePihak.push('guru_paud','pengelola_paud','kader_posyandu');
+    if (hasKeyword(allTexts,['gpk','guru pendamping','pendampingan khusus'])) basePihak.push('gpk','kepala_sekolah','dindik');
+    if (hasKeyword(allTexts,['pip','beasiswa','biaya sekolah'])) basePihak.push('kepala_sekolah','dindik','kepala_desa','kasi_kesra');
+    if (hasKeyword(allTexts,['bahasa isyarat','bisindo','braille'])) basePihak.push('gpk','dindik','cbm_global','ayo_indonesia');
+  }
+
+  if (kat === 'penghidupan') {
+    basePihak.push('ibu','ayah','bpd');
+    if (hasKeyword(allTexts,['pkh','blt','bansos','bantuan sosial','sembako','dtks','pse'])) basePihak.push('pkh_officer','kepala_desa','kasi_kesra','dinsos');
+    if (hasKeyword(allTexts,['rumah','dinding','lantai','bambu','semi permanen','layak huni'])) basePihak.push('dinsos','uptd_sosial','kepala_desa','karang_taruna','rt_rw');
+    if (hasKeyword(allTexts,['penghasilan','panen','kebun','tani','usaha','modal','ternak'])) basePihak.push('pkk_desa','kelompok_tani','koperasi','kepala_desa');
+    if (hasKeyword(allTexts,['bpjs','jkn','kartu','tidak ada bpjs'])) basePihak.push('kepala_desa','kasi_kesra','dinkes');
+    if (hasKeyword(allTexts,['biaya terapi','biaya kursi roda','biaya alat'])) basePihak.push('dinsos','uptd_sosial','cbm_global','ayo_indonesia');
+  }
+
+  if (kat === 'sosial') {
+    basePihak.push('ibu','ayah','tetangga','pkk_desa');
+    if (hasKeyword(allTexts,['stigma','dikucilkan','bully','ejek','malu','diskriminasi'])) basePihak.push('tua_golo','tokoh_adat','pastor','rt_rw','kepala_desa');
+    if (hasKeyword(allTexts,['isolasi','sendirian','tidak keluar','jarang bergaul'])) basePihak.push('tua_golo','kelompok_doa','omk','karang_taruna','teman_sebaya');
+    if (hasKeyword(allTexts,['tunggal','janda','duda','merantau','ditinggal','sendirian mengurus'])) basePihak.push('tua_golo','paman_bibi','kakek_nenek_serumah','keluarga_besar_lain','rt_rw');
+    if (hasKeyword(allTexts,['gereja','pastor','doa','misa'])) basePihak.push('pastor','katekis','kelompok_doa','pengurus_gereja');
+    if (hasKeyword(allTexts,['adat','tua golo'])) basePihak.push('tua_golo','tokoh_adat');
+    if (hasKeyword(allTexts,['teman','bermain','bergaul'])) basePihak.push('teman_sebaya','kelompok_bermain','warga_kampung');
+  }
+
+  if (kat === 'pemberdayaan') {
+    basePihak.push('ibu','ayah','saudara_kandung','kader_disabilitas','scn');
+    if (hasKeyword(allTexts,['toilet','cebok','mandi','makan sendiri','pakai baju','mandiri'])) basePihak.push('ibu','ayah','cbr_worker_lain','bidan_desa');
+    if (hasKeyword(allTexts,['percaya diri','minder','malu','takut','kepercayaan diri'])) basePihak.push('guru_kelas','teman_sebaya','pastor','tua_golo');
+    if (hasKeyword(allTexts,['ktp','akta','dtks','hak','kartu disabilitas','dokumen'])) basePihak.push('kepala_desa','kasi_kesra','p2tp2a','dinsos');
+    if (hasKeyword(allTexts,['keterampilan','pelatihan','vokasi','kerja','produktif'])) basePihak.push('ayo_indonesia','cbm_global','lsm_lokal');
+    if (awal && awal.lv === 'Parah (dukungan penuh)') basePihak.push('fisioterapis','cbm_global','ayo_indonesia');
+  }
+
+  basePihak.push('cbr_worker_lain','scn');
+  return [...new Set(basePihak)];
+}
+
+function analyzeKategori(awal, obs) {
+  var awalK = awal ? DATA_AWAL_KOMPRES[awal.na] || null : null;
+  var obsK  = obs  ? DATA_OBS_KOMPRES[obs.na]   || null : null;
+
+  var result = {};
+  ['kesehatan','pendidikan','penghidupan','sosial','pemberdayaan'].forEach(function(kat) {
+    var temuan = buildTemuan(kat, awal, obs, awalK, obsK);
+    if (!temuan.length) return;
+
+    // Gabung teks temuan
+    var temuanText = temuan.map(function(t) { return t.text; }).join('; ');
+    // Batasi panjang
+    if (temuanText.length > 300) temuanText = temuanText.substring(0, 300) + '...';
+
+    var rtl = buildRTL(kat, temuan, awal, obs);
+    var pihak = buildPihak(kat, temuan, awal, obs);
+
+    result[kat] = { temuan: temuanText, rtl: rtl, pihak: pihak };
+  });
+
+  return result;
+}
+
 function renderDetailAnak(nama) {
   const a = ANALISIS.find(x => x.na === nama);
   const el = document.getElementById('cbr-detail-content');
@@ -992,6 +1373,39 @@ function renderDetailAnak(nama) {
   const awal = a.awal;
   const obs  = a.obs;
   const initials = nama.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+
+  // Analisis 5 kategori CBR Matrix
+  var hasil = analyzeKategori(awal, obs);
+
+  // Build HTML kategori
+  var katConfig = {
+    kesehatan:    { label: '🏥 Kesehatan',    cls: 'kat-kesehatan' },
+    pendidikan:   { label: '🎓 Pendidikan',   cls: 'kat-pendidikan' },
+    penghidupan:  { label: '💰 Penghidupan',  cls: 'kat-penghidupan' },
+    sosial:       { label: '👥 Sosial',        cls: 'kat-sosial' },
+    pemberdayaan: { label: '💪 Pemberdayaan', cls: 'kat-pemberdayaan' },
+  };
+
+  var katHtml = '';
+  Object.keys(katConfig).forEach(function(kat) {
+    var d = hasil[kat];
+    if (!d || !d.temuan) return;
+    var cfg = katConfig[kat];
+    var pihakHtml = (d.pihak && d.pihak.length) ? renderPihakChips(d.pihak) : '';
+    katHtml += '<div class="kat-block ' + cfg.cls + '">' +
+      '<div class="kat-header">' + cfg.label + '</div>' +
+      '<div class="kat-body">' +
+        '<div class="kat-label">Temuan</div>' +
+        '<div class="kat-temuan">' + d.temuan + '</div>' +
+        '<div class="kat-label">Rekomendasi &amp; Tindak Lanjut</div>' +
+        '<div class="kat-rtl">' + d.rtl + '</div>' +
+        (pihakHtml ? '<div class="kat-label" style="margin-top:8px">Pihak yang perlu dilibatkan</div>' + pihakHtml : '') +
+      '</div></div>';
+  });
+
+  if (!katHtml) {
+    katHtml = '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada temuan dari data yang tersedia.</div>';
+  }
 
   el.innerHTML = `
     <div class="detail-header">
@@ -1012,424 +1426,15 @@ function renderDetailAnak(nama) {
         </div>` : ''}
       </div>
       ${awal ? `<div style="text-align:right;flex-shrink:0">
-        <div style="font-size:28px;font-weight:900;color:${awal && awal.sa<=4?'var(--red)':awal && awal.sa<=6?'#f59e0b':'#22c55e'}">${awal && awal.sa !== null ? awal.sa : '-'}</div>
+        <div style="font-size:28px;font-weight:900;color:${awal.sa<=4?'var(--red)':awal.sa<=6?'#f59e0b':'#22c55e'}">${awal.sa !== null ? awal.sa : '-'}</div>
         <div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div>
-        <div style="font-size:22px;font-weight:800;color:${awal && awal.sp<=4?'var(--red)':awal && awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal && awal.sp !== null ? awal.sp : '-'}</div>
+        <div style="font-size:22px;font-weight:800;color:${awal.sp<=4?'var(--red)':awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal.sp !== null ? awal.sp : '-'}</div>
         <div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div>
       </div>` : ''}
     </div>
 
     <div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div>
 
-    <div id="kat-container">
-      <div class="kat-loading">
-        <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
-        <span style="margin-left:8px;font-size:12px">AI sedang menganalisis data anak...</span>
-      </div>
-    </div>
+    <div id="kat-container">${katHtml}</div>
   `;
-
-  // Panggil AI - hanya jika tidak sedang proses
-  var _targetNama = nama;
-  if (window._rekoAIBusy) {
-    var container = document.getElementById('kat-container');
-    if (container) container.innerHTML = '<div style="color:var(--mut);padding:20px;font-size:12px">⏳ Tunggu sebentar, AI masih memproses...</div>';
-    // Coba lagi setelah 3 detik
-    setTimeout(function() {
-      if (activeAnak === _targetNama) renderDetailAnak(nama);
-    }, 3000);
-    return;
-  }
-  window._rekoAIBusy = true;
-  generateRekoAI(nama, a.cb, awal, obs).then(function(result) {
-    window._rekoAIBusy = false;
-    if (activeAnak !== _targetNama) return;
-    var container = document.getElementById('kat-container');
-    if (!container) return;
-    if (!result) {
-      container.innerHTML = '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada hasil analisis.</div>';
-      return;
-    }
-
-    var katConfig = {
-      kesehatan: { label: '&#128680; Kesehatan', cls: 'kat-kesehatan' },
-      sosial:    { label: '&#128101; Sosial',    cls: 'kat-sosial'    },
-      ekonomi:   { label: '&#128176; Ekonomi',   cls: 'kat-ekonomi'   },
-    };
-
-    var html = '';
-    ['kesehatan','sosial','ekonomi'].forEach(function(kat) {
-      var d = result[kat];
-      if (!d || !d.temuan) return;
-      var cfg = katConfig[kat];
-      var pihakHtml = (d.pihak && d.pihak.length) ? renderPihak(d.pihak) : '';
-      html += '<div class="kat-block ' + cfg.cls + '">' +
-        '<div class="kat-header">' + cfg.label + '</div>' +
-        '<div class="kat-body">' +
-          '<div class="kat-label">Temuan</div>' +
-          '<div class="kat-temuan">' + d.temuan + '</div>' +
-          '<div class="kat-label">Rekomendasi &amp; Tindak Lanjut</div>' +
-          '<div class="kat-rtl">' + d.rtl + '</div>' +
-          (pihakHtml ? '<div class="kat-label" style="margin-top:8px">Pihak yang perlu dilibatkan</div>' + pihakHtml : '') +
-        '</div></div>';
-    });
-
-    container.innerHTML = html || '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada temuan signifikan.</div>';
-  }).catch(function(e) {
-    window._rekoAIBusy = false;
-    console.warn('[RekoAI] catch:', e);
-    var container = document.getElementById('kat-container');
-    if (container) container.innerHTML = '<div style="color:var(--red);padding:20px;font-size:12px">Gagal memuat analisis AI. Coba klik nama anak lagi.</div>';
-  });
 }
-
-
-// ═══════════════════════════════════════════════════════════
-// EXPORT EXCEL — format tabel (bukan range biasa)
-// ═══════════════════════════════════════════════════════════
-const PRIO_LABEL_PLAIN = { tinggi: 'Tinggi', sedang: 'Sedang', rendah: 'Rendah' };
-
-function analisisToRows(list) {
-  return list.map(a => ({
-    'Nama Anak': a.na,
-    'CBR Worker': a.cb,
-    'Usia': a.awal && a.awal.u !== null ? a.awal.u : '',
-    'Jenis Kelamin': a.awal ? (a.awal.j || '') : '',
-    'Ragam Disabilitas': a.awal ? (a.awal.rg || '') : '',
-    'Desa': a.awal ? (a.awal.d || '') : '',
-    'Prioritas': PRIO_LABEL_PLAIN[a.priorityLevel] || a.priorityLevel,
-    'Jumlah Hal Teridentifikasi': a.totalHambatan,
-    'Temuan #1': a.top3[0] ? a.top3[0].masalah : '',
-    'Rencana #1': a.top3[0] ? a.top3[0].rencana : '',
-    'Pihak Terlibat #1': a.top3[0] && a.top3[0].pihak ? a.top3[0].pihak.join(', ') : '',
-    'Temuan #2': a.top3[1] ? a.top3[1].masalah : '',
-    'Rencana #2': a.top3[1] ? a.top3[1].rencana : '',
-    'Pihak Terlibat #2': a.top3[1] && a.top3[1].pihak ? a.top3[1].pihak.join(', ') : '',
-    'Temuan #3': a.top3[2] ? a.top3[2].masalah : '',
-    'Rencana #3': a.top3[2] ? a.top3[2].rencana : '',
-    'Pihak Terlibat #3': a.top3[2] && a.top3[2].pihak ? a.top3[2].pihak.join(', ') : '',
-  }));
-}
-
-function buildExcelTableSheet(wb, rows, sheetName) {
-  const ws = XLSX.utils.json_to_sheet(rows);
-  // Jadikan range data sebagai TABLE Excel sungguhan (bukan cuma range biasa)
-  const ref = ws['!ref'];
-  if (ref) {
-    ws['!autofilter'] = { ref: ref };
-    if (!wb.Workbook) wb.Workbook = {};
-    if (!wb.Workbook.Tables) wb.Workbook.Tables = [];
-  }
-  // Lebar kolom otomatis berdasarkan isi terlama
-  if (rows.length) {
-    const headers = Object.keys(rows[0]);
-    ws['!cols'] = headers.map(h => {
-      const maxLen = Math.max(h.length, ...rows.map(r => String(r[h] ?? '').length));
-      return { wch: Math.min(Math.max(maxLen + 2, 10), 50) };
-    });
-  }
-  XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  return ws;
-}
-
-function exportAllExcel() {
-  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
-  const wb = XLSX.utils.book_new();
-  buildExcelTableSheet(wb, analisisToRows(ANALISIS), 'Rekomendasi');
-  const now = new Date();
-  XLSX.writeFile(wb, 'Rekomendasi-Semua-Anak-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.xlsx');
-}
-
-function exportOneExcel(nama) {
-  const a = ANALISIS.find(x => x.na === nama);
-  if (!a) { alert('Data anak tidak ditemukan.'); return; }
-  const wb = XLSX.utils.book_new();
-  buildExcelTableSheet(wb, analisisToRows([a]), 'Rekomendasi');
-  const now = new Date();
-  const safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
-  XLSX.writeFile(wb, 'Rekomendasi-' + safeName + '-' + now.toISOString().slice(0,10) + '.xlsx');
-}
-
-// ═══════════════════════════════════════════════════════════
-// EXPORT PDF — summary report (bukan dump tabel mentah)
-// ═══════════════════════════════════════════════════════════
-function pdfHeader(doc, title, subtitle, W, M) {
-  doc.setFillColor(20, 28, 46);
-  doc.rect(0, 0, W, 26, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
-  doc.text(title, M, 12);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-  doc.setTextColor(190, 200, 220);
-  doc.text(subtitle, M, 19);
-  doc.setTextColor(0, 0, 0);
-}
-
-function pdfFooter(doc, W, H, M) {
-  const pg = doc.internal.getNumberOfPages();
-  const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-  for (let i = 1; i <= pg; i++) {
-    doc.setPage(i);
-    doc.setFillColor(20, 28, 46);
-    doc.rect(0, H - 8, W, 8, 'F');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-    doc.setTextColor(170, 180, 200);
-    doc.text('SCN Manggarai · NTT', M, H - 3);
-    doc.text(i + '/' + pg, W / 2, H - 3, { align: 'center' });
-    doc.text(tgl, W - M, H - 3, { align: 'right' });
-    doc.setTextColor(0, 0, 0);
-  }
-}
-
-function exportAllPDF() {
-  if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const M = 14;
-  let y = 36;
-
-  pdfHeader(doc, 'Ringkasan Rekomendasi & Tindak Lanjut', 'BEN SCN Manggarai · Seluruh Anak Dampingan', W, M);
-
-  const tinggi = ANALISIS.filter(a => a.priorityLevel === 'tinggi').length;
-  const sedang = ANALISIS.filter(a => a.priorityLevel === 'sedang').length;
-  const rendah = ANALISIS.filter(a => a.priorityLevel === 'rendah').length;
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Ringkasan Eksekutif', M, y); y += 6;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
-  const ringkasanText = `Dari total ${ANALISIS.length} anak yang dipantau, ${tinggi} anak (${Math.round(tinggi/ANALISIS.length*100)}%) berada pada prioritas tinggi dan memerlukan tindak lanjut segera, ${sedang} anak pada prioritas sedang, dan ${rendah} anak pada prioritas rendah. Rekomendasi berikut disusun berdasarkan hasil analisis Data Awal dan Observasi lapangan oleh CBR Worker.`;
-  const wrapped = doc.splitTextToSize(ringkasanText, W - 2*M);
-  doc.text(wrapped, M, y); y += wrapped.length * 4.6 + 6;
-
-  // Tabel ringkasan per kategori prioritas
-  doc.autoTable({
-    startY: y,
-    head: [['Kategori Prioritas', 'Jumlah Anak', 'Persentase']],
-    body: [
-      ['Tinggi', String(tinggi), Math.round(tinggi/ANALISIS.length*100) + '%'],
-      ['Sedang', String(sedang), Math.round(sedang/ANALISIS.length*100) + '%'],
-      ['Rendah', String(rendah), Math.round(rendah/ANALISIS.length*100) + '%'],
-    ],
-    theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    margin: { left: M, right: M },
-  });
-  y = doc.lastAutoTable.finalY + 10;
-
-  // Daftar anak prioritas tinggi — ini bagian aksi nyata, bukan dump semua field
-  const tinggiList = ANALISIS.filter(a => a.priorityLevel === 'tinggi');
-  if (tinggiList.length) {
-    if (y > H - 50) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-    doc.text('Anak Prioritas Tinggi — Perlu Tindak Lanjut Segera', M, y); y += 4;
-    doc.autoTable({
-      startY: y,
-      head: [['Nama Anak', 'CBR Worker', 'Desa', 'Temuan Utama']],
-      body: tinggiList.map(a => [a.na, a.cb, (a.awal && a.awal.d) || '-', a.top3[0] ? a.top3[0].masalah : '-']),
-      theme: 'striped',
-      headStyles: { fillColor: [220,38,38], fontSize: 8.5 },
-      bodyStyles: { fontSize: 8.5 },
-      columnStyles: { 3: { cellWidth: 70 } },
-      margin: { left: M, right: M },
-    });
-    y = doc.lastAutoTable.finalY + 10;
-  }
-
-  // Ringkasan per CBR Worker
-  const cbrSet = [...new Set(ANALISIS.map(a => a.cb))].sort();
-  if (y > H - 50) { doc.addPage(); y = 20; }
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
-  doc.autoTable({
-    startY: y,
-    head: [['CBR Worker', 'Jumlah Dampingan', 'Prioritas Tinggi', 'Prioritas Sedang', 'Prioritas Rendah']],
-    body: cbrSet.map(cb => {
-      const g = ANALISIS.filter(a => a.cb === cb);
-      return [cb, g.length, g.filter(a=>a.priorityLevel==='tinggi').length, g.filter(a=>a.priorityLevel==='sedang').length, g.filter(a=>a.priorityLevel==='rendah').length];
-    }),
-    theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
-    bodyStyles: { fontSize: 8.5 },
-    margin: { left: M, right: M },
-  });
-
-  pdfFooter(doc, W, H, M);
-  const now = new Date();
-  doc.save('Ringkasan-Rekomendasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.pdf');
-}
-
-function exportOnePDF(nama) {
-  const a = ANALISIS.find(x => x.na === nama);
-  if (!a) { alert('Data anak tidak ditemukan.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const M = 14;
-  let y = 36;
-  const priLabelPlain = PRIO_LABEL_PLAIN[a.priorityLevel] || a.priorityLevel;
-
-  pdfHeader(doc, 'Rencana Tindak Lanjut Anak', a.na + ' · ' + a.cb, W, M);
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Profil Singkat', M, y); y += 6;
-  doc.autoTable({
-    startY: y,
-    body: [
-      ['Nama Anak', a.na],
-      ['CBR Worker', a.cb],
-      ['Usia', a.awal && a.awal.u !== null ? a.awal.u + ' tahun' : '-'],
-      ['Jenis Kelamin', a.awal ? (a.awal.j || '-') : '-'],
-      ['Ragam Disabilitas', a.awal ? (a.awal.rg || '-') : '-'],
-      ['Desa', a.awal ? (a.awal.d || '-') : '-'],
-      ['Tingkat Prioritas', priLabelPlain],
-      ['Jumlah Hal Teridentifikasi', String(a.totalHambatan)],
-    ],
-    theme: 'plain',
-    bodyStyles: { fontSize: 9.5 },
-    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
-    margin: { left: M, right: M },
-  });
-  y = doc.lastAutoTable.finalY + 10;
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Bahan Diskusi Rencana Anak — 3 Bulan Ke Depan', M, y); y += 4;
-  doc.autoTable({
-    startY: y,
-    head: [['#', 'Temuan', 'Rencana', 'Pihak Terlibat']],
-    body: a.top3.map((s, i) => [String(i+1), s.masalah, s.rencana, (s.pihak||[]).join(', ')]),
-    theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
-    bodyStyles: { fontSize: 8.5 },
-    columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 55 }, 2: { cellWidth: 55 } },
-    margin: { left: M, right: M },
-  });
-
-  pdfFooter(doc, W, H, M);
-  const safeName = a.na.replace(/[^a-z0-9]+/gi, '-');
-  doc.save('Rencana-' + safeName + '-' + new Date().toISOString().slice(0,10) + '.pdf');
-}
-
-
-
-
-
-// ── Preprocessing: ekstrak poin kunci dari teks observasi ──
-function extractKeyPoints(text, maxChars) {
-  if (!text) return '';
-  var t = String(text);
-
-  // Split per newline dan kalimat
-  var parts = t.split(/\n+/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 10; });
-
-  // Jika tidak ada newline, split per kalimat
-  if (parts.length <= 2) {
-    parts = t.split(/\.\s+/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 10; });
-  }
-
-  // Hapus label/header di awal setiap poin (misal "Fungsi Mental:" atau "Faktor Pendukung:")
-  parts = parts.map(function(p) {
-    return p.replace(/^[A-Za-z\s&,()\/]{3,40}:\s*/u, '').replace(/^[-•*]\s*/, '').trim();
-  }).filter(function(p){ return p.length > 10; });
-
-  // Score setiap poin - utamakan yang paling informatif
-  var scored = parts.map(function(p) {
-    var score = 0;
-    if (/\d/.test(p)) score += 30;
-    if (/belum|tidak bisa|tidak mampu|sulit|hambatan|masalah|butuh|perlu|bantuan|kurang/i.test(p)) score += 25;
-    if (/bisa|mampu|mandiri|sudah|berhasil|aktif/i.test(p)) score += 15;
-    if (/sekolah|toilet|rumah|ekonomi|bantuan|terapi|alat bantu|BPJS|PKH/i.test(p)) score += 20;
-    if (p.length > 30 && p.length < 200) score += 10;
-    return { p: p, score: score };
-  });
-  scored.sort(function(a,b){ return b.score - a.score; });
-
-  var result = '';
-  for (var i = 0; i < scored.length; i++) {
-    if ((result.length + scored[i].p.length + 3) > maxChars) break;
-    result += (result ? '. ' : '') + scored[i].p;
-  }
-  return result || t.substring(0, maxChars);
-}
-
-async function generateRekoAI(nama, cb, awal, obs) {
-  var awalK = DATA_AWAL_KOMPRES[nama] || null;
-  var obsK  = DATA_OBS_KOMPRES[nama]  || null;
-  console.log('[RekoAI] Pakai data kompres untuk:', nama);
-
-  function cap(s, n) { return s ? String(s).substring(0, n) : ''; }
-
-  var konteks = [
-    'Nama: ' + nama + ' | CBR: ' + cb +
-    ' | Ragam: ' + (awal ? awal.rg||'-' : '-') +
-    ' | Skor Anak: ' + (awal && awal.sa !== null ? awal.sa+'/10' : '-') +
-    ' | Skor Pengasuh: ' + (awal && awal.sp !== null ? awal.sp+'/10' : '-'),
-    awalK && awalK.nka ? 'Naik anak: ' + cap(awalK.nka,150) : (awal && awal.nka ? 'Naik anak: ' + cap(awal.nka,150) : ''),
-    awalK && awalK.tka ? 'Turun anak: ' + cap(awalK.tka,150) : (awal && awal.tka ? 'Turun anak: ' + cap(awal.tka,150) : ''),
-    awalK && awalK.nkp ? 'Naik pengasuh: ' + cap(awalK.nkp,150) : (awal && awal.nkp ? 'Naik pengasuh: ' + cap(awal.nkp,150) : ''),
-    awalK && awalK.tkp ? 'Turun pengasuh: ' + cap(awalK.tkp,150) : (awal && awal.tkp ? 'Turun pengasuh: ' + cap(awal.tkp,150) : ''),
-    obsK && obsK.st ? 'Tubuh: ' + cap(obsK.st,200) : (obs && obs.st ? 'Tubuh: ' + cap(obs.st,200) : ''),
-    obsK && obsK.kg ? 'Kegiatan: ' + cap(obsK.kg,200) : (obs && obs.kg ? 'Kegiatan: ' + cap(obs.kg,200) : ''),
-    obsK && obsK.pf ? 'Personal: ' + cap(obsK.pf,150) : (obs && obs.pf ? 'Personal: ' + cap(obs.pf,150) : ''),
-    obsK && obsK.lg ? 'Lingkungan: ' + cap(obsK.lg,200) : (obs && obs.lg ? 'Lingkungan: ' + cap(obs.lg,200) : ''),
-  ].filter(Boolean).join('\n');
-
-  console.log('[RekoAI] Prompt konteks length:', konteks.length);
-
-  var pihakKodeList = Object.keys(AKTOR_LABEL_REKO).join(', ');
-
-  var prompt = 'Kamu supervisor program CBR anak disabilitas di Manggarai, NTT.\n\n' +
-    'DATA ANAK:\n' + konteks + '\n\n' +
-    'Analisis data dan return JSON (HANYA JSON tanpa teks lain):\n' +
-    '{\n' +
-    '  "kesehatan": {"temuan":"...","rtl":"...","pihak":["kode1","kode2"]},\n' +
-    '  "sosial": {"temuan":"...","rtl":"...","pihak":["kode1"]},\n' +
-    '  "ekonomi": {"temuan":"...","rtl":"...","pihak":["kode1"]}\n' +
-    '}\n\n' +
-    'Aturan kategori:\n' +
-    '- kesehatan: kondisi fisik/mental, epilepsi, gizi, akses kesehatan, perawatan diri, toilet training\n' +
-    '- sosial: pendidikan, komunikasi, interaksi, pengasuhan, stigma, partisipasi adat/gereja\n' +
-    '- ekonomi: ekonomi keluarga, PKH/BLT/BPJS, kondisi rumah, pekerjaan pengasuh, alat bantu\n' +
-    'Aturan output:\n' +
-    '- Jika tidak ada temuan di satu kategori, beri temuan string kosong ""\n' +
-    '- temuan: fakta spesifik dari data, singkat (1-2 kalimat)\n' +
-    '- rtl: rekomendasi konkret + target waktu (1-2 kalimat)\n' +
-    '- pihak: kode dari daftar ini saja: ' + Object.keys(AKTOR_LABEL_REKO).join(', ') + '\n' +
-    '- Hanya dari data yang ada, jangan mengarang\n' +
-    '- Bahasa Indonesia';
-
-  try {
-    console.log('[RekoAI] Total prompt length:', prompt.length);
-    var res = await fetch(_REKO_AI_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + _REKO_AI_KEY
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: [{role: 'user', content: prompt}],
-        temperature: 0.2,
-        max_tokens: 600
-      })
-    });
-    var data = await res.json();
-    var raw = data?.choices?.[0]?.message?.content || '';
-    console.log('[RekoAI] Raw:', raw.substring(0,200));
-    var cleaned = raw.replace(/```json/g,'').replace(/```/g,'').trim();
-    return JSON.parse(cleaned);
-  } catch(e) {
-    console.warn('[RekoAI] Error:', e.message);
-    return null;
-  }
-}
-
-
-
-
-</script>
-</body>
-</html>
