@@ -925,26 +925,27 @@ function renderDetailAnak(nama) {
 
   el.innerHTML = html;
 
-  // ── AI Rekomendasi: generate setelah render ──
-  const _aiAnakData = ANALISIS.find(x => x.na === nama);
-  if (_aiAnakData) {
-    // Tambah loading box di bawah item pertama
-    const firstItem = el.querySelector('.masalah-item');
-    if (firstItem) {
-      const loadBox = document.createElement('div');
-      loadBox.className = 'ai-reko-box';
-      loadBox.id = 'ai-reko-main';
-      loadBox.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
-        '<div class="ai-reko-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px">Menganalisis...</span></div>';
-      el.appendChild(loadBox);
-    }
-    // Panggil AI (async, tidak block render)
-    generateRekoAI(_aiAnakData.na, _aiAnakData.cb, _aiAnakData.top3, _aiAnakData.awal, _aiAnakData.obs).then(function(aiText) {
-      const box = document.getElementById('ai-reko-main');
+  // ── AI Rekomendasi (langsung, tanpa override) ──
+  var _aiData = ANALISIS.find(function(x){ return x.na === nama; });
+  if (_aiData) {
+    var _aiBox = document.createElement('div');
+    _aiBox.className = 'ai-reko-box';
+    _aiBox.id = 'ai-reko-main';
+    _aiBox.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
+      '<div class="ai-reko-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>' +
+      '<span style="margin-left:6px;font-size:11px">Menganalisis...</span></div>';
+    var _masalahCard = el.querySelector('.masalah-card');
+    if (_masalahCard) _masalahCard.appendChild(_aiBox);
+
+    generateRekoAI(_aiData.na, _aiData.cb, _aiData.top3, _aiData.awal, _aiData.obs).then(function(aiText) {
+      var box = document.getElementById('ai-reko-main');
       if (!box) return;
       if (!aiText) { box.style.display = 'none'; return; }
       box.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
         '<div class="ai-reko-text">' + aiText + '</div>';
+    }).catch(function() {
+      var box = document.getElementById('ai-reko-main');
+      if (box) box.style.display = 'none';
     });
   }
 }
