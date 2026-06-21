@@ -81,6 +81,23 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 .empty h2{font-size:17px;font-weight:700;color:var(--txt)}
 .empty p{font-size:13px;line-height:1.7;max-width:360px}
 
+
+/* ── Pihak Kategori Chips ── */
+.pihak-kat-wrap{margin-top:8px}
+.pihak-kat-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;flex-wrap:wrap}
+.pihak-kat-label{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:1px}
+.pihak-chips{display:flex;flex-wrap:wrap;gap:4px}
+.pihak-chip{font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:8px;border:1px solid transparent}
+/* AI Rekomendasi Box */
+.ai-reko-box{margin-top:10px;background:linear-gradient(135deg,rgba(6,182,212,.06),rgba(79,142,247,.04));border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:10px 13px;position:relative;overflow:hidden}
+.ai-reko-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#06b6d4,#4f8ef7)}
+.ai-reko-label{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#06b6d4;margin-bottom:5px}
+.ai-reko-text{font-size:11px;line-height:1.7;color:var(--txt)}
+.ai-reko-loading{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--mut)}
+.ai-dot{width:4px;height:4px;border-radius:50%;background:#06b6d4;animation:aidot 1.2s ease-in-out infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes aidot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
 /* ── DETAIL PANEL ── */
 .detail-hdr{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.05));border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:22px;margin-bottom:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
 .d-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex-shrink:0}
@@ -321,49 +338,49 @@ const THEMES_ICF = {
       pos:['mental baik','daya ingat baik','intelektual baik','memori baik','tidur teratur','paham instruksi','mengerti perintah','kognitif baik','aktif berpikir'],
       neg:['mental rendah','intelektual rendah','memori rendah','gangguan mental','tidur terganggu','cerebral palsy','down syndrome','autisme','keterlambatan','hambatan intelektual','tidak paham','tidak mengerti','kognitif terganggu','cp ','gangguan belajar','kesulitan belajar','tidak fokus','hiperaktif'],
       rencana:'Jadwalkan pemeriksaan ke Puskesmas untuk asesmen lebih lanjut, dan diskusikan dengan keluarga latihan stimulasi sederhana yang bisa dilakukan di rumah.',
-      pihak:['Puskesmas'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Mental & Saraf'] },
     { label:'Fungsi Indra (Penglihatan)', domain:'Struktur Tubuh',
       pos:['penglihatan baik','melihat dengan baik','mata baik','melihat normal','bisa melihat','penglihatan bekerja','melihat jelas'],
       neg:['gangguan penglihatan','tidak bisa melihat','buta','tunanetra','netra','low vision','penglihatan terbatas','juling','rabun','sisa penglihatan'],
       rencana:'Rujuk untuk pemeriksaan mata, dan jika belum punya alat bantu (kacamata/tongkat), ajukan melalui Puskesmas.',
-      pihak:['Puskesmas'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Indra (Penglihatan)'] },
     { label:'Fungsi Indra (Pendengaran)', domain:'Struktur Tubuh',
       pos:['pendengaran baik','mendengar dengan baik','telinga baik','bisa mendengar','pendengaran normal','mendengar normal'],
       neg:['gangguan pendengaran','tidak bisa mendengar','tuli','tunarungu','rungu','tidak mendengar','kurang dengar'],
       rencana:'Rujuk untuk pemeriksaan THT, dan cek kemungkinan kebutuhan alat bantu dengar.',
-      pihak:['Puskesmas'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Indra (Pendengaran)'] },
     { label:'Fungsi Suara & Komunikasi', domain:'Struktur Tubuh',
       pos:['bicara lancar','bicara jelas','komunikasi baik','suara baik','bisa berbicara','bicara baik','berbicara lancar','ucapan jelas'],
       neg:['tidak bisa bicara','bicara tidak jelas','bicara kurang jelas','gangguan bicara','tidak lancar','bisu','wicara','belum bisa bicara','cadel','pelo'],
       rencana:'Latih komunikasi sederhana bersama keluarga di rumah (gestur, kartu gambar, atau kata kunci), dan pertimbangkan rujukan terapi wicara jika tidak ada kemajuan dalam 3 bulan.',
-      pihak:null },
+      pihak:TEMA_PIHAK_MAP['Fungsi Suara & Komunikasi'] },
     { label:'Fungsi Gerak & Motorik', domain:'Struktur Tubuh',
       pos:['bisa berjalan','berjalan normal','gerak baik','motorik baik','bergerak bebas','bisa bergerak','bisa berdiri','berjalan sendiri','aktif bergerak'],
       neg:['tidak bisa berjalan','lumpuh','kelumpuhan','kaku','otot kaku','tidak bisa berdiri','merangkak','kursi roda','motorik terganggu','pincang','bengkok','deformitas','tidak dapat berjalan'],
       rencana:'Cek kebutuhan alat bantu gerak (kursi roda/tongkat) dan ajukan ke Dinas Sosial jika belum tersedia.',
-      pihak:['Dinas Sosial'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Gerak & Motorik'] },
     { label:'Fungsi Jantung & Pernafasan', domain:'Struktur Tubuh',
       pos:['jantung baik','jantung sehat','pernafasan baik','napas normal','tidak ada masalah jantung','berfungsi dengan baik','tidak ada gangguan'],
       neg:['jantung bermasalah','gangguan jantung','jantung lemah','pernafasan terganggu','epilepsi','kejang','sesak','asma','gangguan napas'],
       rencana:'Jadwalkan pemeriksaan medis lanjutan ke Puskesmas dalam waktu dekat.',
-      pihak:['Puskesmas'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Jantung & Pernafasan'] },
     { label:'Fungsi Pencernaan & Nutrisi', domain:'Struktur Tubuh',
       pos:['pencernaan baik','bab lancar','bak lancar','makan dengan baik','nafsu makan baik','gizi baik','makan normal','makan sendiri'],
       neg:['gangguan pencernaan','stunting','tidak bisa menelan','tidak bisa mengunyah','masalah makan','sulit makan','tidak mau makan','disuapi','makan dibantu'],
       rencana:'Konsultasikan pola makan dan tumbuh kembang anak ke Posyandu/Puskesmas terdekat.',
-      pihak:['Puskesmas'] },
+      pihak:TEMA_PIHAK_MAP['Fungsi Pencernaan & Nutrisi'] },
   ],
   kegiatan: [
     { label:'Pendidikan & Belajar', domain:'Kegiatan & Partisipasi',
       pos:['bersekolah','sekolah','belajar','kelas','sd','smp','sma','paud','slb','lulus','ikut sekolah'],
       neg:['tidak sekolah','belum sekolah','putus sekolah','tidak pernah sekolah','tidak bisa sekolah','keluar sekolah','drop out'],
       rencana:'Diskusikan bersama keluarga kemungkinan akses sekolah inklusif atau SLB terdekat, dan jadikan ini target konkret 3 bulan ke depan.',
-      pihak:['Sekolah/SLB','Dinas Pendidikan'] },
+      pihak:TEMA_PIHAK_MAP['Pendidikan & Belajar'] },
     { label:'Mobilitas & Perpindahan', domain:'Kegiatan & Partisipasi',
       pos:['bisa berjalan','berjalan mandiri','bergerak mandiri','mobilitas baik','bisa bergerak sendiri','bisa berdiri','bisa berlari'],
       neg:['tidak bisa berjalan','membutuhkan bantuan berjalan','kursi roda','merangkak','mobilitas terbatas','digendong','didorong kursi'],
       rencana:'Cek kebutuhan alat bantu mobilitas dan kondisi akses rumah (jalan masuk, kamar mandi).',
-      pihak:['Dinas Sosial'] },
+      pihak:TEMA_PIHAK_MAP['Mobilitas & Perpindahan'] },
     { label:'Perawatan Diri', domain:'Kegiatan & Partisipasi',
       pos:['mandiri mandi','bisa mandi sendiri','bisa berpakaian','bisa makan sendiri','mengurus diri','mandi sendiri','makan sendiri','berpakaian sendiri'],
       neg:['semua dibantu','bantuan total','tidak bisa mandi','tidak bisa berpakaian','tidak bisa makan sendiri','disuapi','diurus orang tua','belum mandiri','dimandikan','dipakaikan'],
@@ -405,17 +422,17 @@ const THEMES_ICF = {
       pos:['ekonomi baik','penghasilan cukup','ekonomi cukup','cukup mampu','ekonomi stabil','pendapatan cukup'],
       neg:['pas-pasan','penghasilan rendah','keluarga miskin','prasejahtera','ekonomi lemah','tidak mampu','penghasilan tidak tetap','kondisi ekonomi memprihatinkan','penghasilan kecil','ekonomi sulit','ekonomi rendah','kekurangan','petani miskin','buruh','tidak punya penghasilan'],
       rencana:'Cek status penerima bantuan sosial keluarga; jika belum terdaftar, dampingi proses pengajuan ke Pemerintah Desa.',
-      pihak:['Pemerintah Desa'] },
+      pihak:TEMA_PIHAK_MAP['Kondisi Ekonomi'] },
     { label:'Kondisi Rumah', domain:'Faktor Lingkungan',
       pos:['rumah permanen','rumah tembok','rumah layak','aksesibel','kondisi rumah baik','lantai keramik','bangunan permanen'],
       neg:['semi permanen','rumah papan','rumah bambu','gubuk','lantai tanah','tidak aksesibel','rumah tidak layak','rumah darurat','rumah rusak'],
       rencana:'Laporkan kondisi rumah ke Pemerintah Desa untuk dipertimbangkan dalam program rehabilitasi rumah tidak layak huni.',
-      pihak:['Pemerintah Desa'] },
+      pihak:TEMA_PIHAK_MAP['Kondisi Rumah'] },
     { label:'Akses Layanan Kesehatan', domain:'Faktor Lingkungan',
       pos:['puskesmas dekat','bpjs aktif','akses layanan mudah','fasilitas kesehatan dekat','mendapat layanan kesehatan','ada puskesmas','ada dokter','posyandu','punya bpjs','memiliki bpjs','layanan kesehatan','dapat layanan','akses ke puskesmas','rumah sakit dekat'],
       neg:['tidak punya bpjs','tidak memiliki bpjs','jauh dari puskesmas','tidak ada dokter','akses sulit','layanan jauh','tidak ada layanan','belum punya bpjs','tidak ada puskesmas'],
       rencana:'Bantu keluarga mendaftarkan BPJS/KIS jika belum punya, agar akses layanan kesehatan ke depan lebih mudah.',
-      pihak:['Pemerintah Desa'] },
+      pihak:TEMA_PIHAK_MAP['Akses Layanan Kesehatan'] },
     { label:'Dukungan Keluarga', domain:'Faktor Lingkungan',
       pos:['keluarga mendukung','keluarga sayang','dukungan keluarga','orang tua mendukung','pengasuh baik','diasuh dengan baik','orang tua peduli','keluarga peduli','ibu mendukung','ayah mendukung','mendukung anak'],
       neg:['tidak mendukung','tidak bertanggung jawab','tidak ada dukungan','diabaikan','kurang perhatian','orang tua abai','tidak peduli'],
@@ -425,17 +442,17 @@ const THEMES_ICF = {
       pos:['diterima masyarakat','tidak ada stigma','lingkungan mendukung','diterima dengan baik','inklusif','diterima tetangga'],
       neg:['stigma','digosipi','dikucilkan','tidak diterima','diskriminasi','bully','diejek','direndahkan','memandang sebelah'],
       rencana:'Diskusikan dengan keluarga apakah perlu pendekatan ke tokoh masyarakat/tetangga sekitar untuk mengurangi stigma terhadap anak.',
-      pihak:['Tokoh Masyarakat/Adat'] },
+      pihak:TEMA_PIHAK_MAP['Sikap Masyarakat'] },
     { label:'Bantuan Pemerintah', domain:'Faktor Lingkungan',
       pos:['pkh','kip','bantuan pemerintah','bpjs','penerima bantuan','mendapat bantuan','bantuan sosial','dapat bantuan'],
       neg:['tidak punya bpjs','tidak menerima bantuan','tidak ada bantuan','belum dapat bantuan','tidak punya kip','belum mendapat bantuan'],
       rencana:'Cek kelayakan keluarga untuk program bantuan sosial pemerintah, dan dampingi proses pendaftaran jika memenuhi syarat.',
-      pihak:['Pemerintah Desa'] },
+      pihak:TEMA_PIHAK_MAP['Bantuan Pemerintah'] },
     { label:'Alat Bantu & Teknologi', domain:'Faktor Lingkungan',
       pos:['kursi roda','alat bantu','hearing aid','tongkat','kruk','alat bantu komunikasi','menggunakan alat bantu','punya alat bantu'],
       neg:['tidak punya alat bantu','tidak ada alat bantu','tidak memiliki alat bantu','tidak ada fasilitas','belum punya alat bantu'],
       rencana:'Identifikasi alat bantu yang paling dibutuhkan anak, lalu ajukan melalui Dinas Sosial.',
-      pihak:['Dinas Sosial'] },
+      pihak:TEMA_PIHAK_MAP['Alat Bantu & Teknologi'] },
   ],
 };
 function detectCondition(text, theme) {
@@ -497,7 +514,7 @@ function runAnalysis() {
         priority: 100 - awal.sp,
         masalah: `Kualitas hidup pengasuh tergolong ${lbl.label.toLowerCase()} (skor ${awal.sp}/10)${awal.tkp ? ', karena: ' + awal.tkp : ''}.`,
         rencana: 'Diskusikan bersama pengasuh apa yang paling bisa membantu meringankan beban saat ini, dan susun langkah kecil yang realistis untuk 3 bulan ke depan.',
-        pihak: null,
+        pihak: TEMA_PIHAK_MAP['skor_pengasuh_rendah'],
       });
     }
 
@@ -508,7 +525,7 @@ function runAnalysis() {
         priority: 99 - awal.sa,
         masalah: `Kualitas hidup anak tergolong ${lbl.label.toLowerCase()} (skor ${awal.sa}/10)${awal.tka ? ', karena: ' + awal.tka : ''}.`,
         rencana: 'Bicarakan bersama anak dan keluarga tentang hal yang membuat hidupnya membaik, lalu jadikan itu fokus utama pendampingan 3 bulan ke depan.',
-        pihak: null,
+        pihak: TEMA_PIHAK_MAP['skor_anak_rendah'],
       });
     }
 
@@ -518,7 +535,7 @@ function runAnalysis() {
         priority: 85,
         masalah: 'Anak memiliki riwayat epilepsi/kejang.',
         rencana: 'Pastikan ketersediaan obat rutin tidak putus, dan jadwalkan kontrol ke layanan kesehatan jika belum dilakukan dalam 3 bulan terakhir.',
-        pihak: ['Puskesmas'],
+        pihak: TEMA_PIHAK_MAP['epilepsi'],
       });
     }
 
@@ -898,10 +915,8 @@ function renderDetailAnak(nama) {
           <div class="masalah-body">
             <div class="masalah-text"><strong>Temuan:</strong> ${s.masalah}</div>
             <div class="masalah-text" style="margin-top:6px"><strong>Rencana:</strong> ${s.rencana}</div>
-            ${s.pihak && s.pihak.length ? `<div class="masalah-pihak">
-              <span style="font-size:10px;color:var(--mut);margin-right:4px">Perlu melibatkan:</span>
-              ${s.pihak.map(p => `<span class="pihak-tag">${p}</span>`).join('')}
-            </div>` : ''}
+            ${s.pihak && s.pihak.length ? renderPihakChips(s.pihak) : ''}
+            ${s.aiReko ? `<div class="ai-reko-box"><div class="ai-reko-label">✦ Analisis AI</div><div class="ai-reko-text">${s.aiReko}</div></div>` : ''}
           </div>
         </div>
       `).join('')}
@@ -1140,6 +1155,163 @@ function exportOnePDF(nama) {
   doc.save('Rencana-' + safeName + '-' + new Date().toISOString().slice(0,10) + '.pdf');
 }
 
+
+
+// ════ AKTOR DATA ════
+const AKTOR_LABEL_REKO = {"ayah": "Ayah", "ibu": "Ibu", "saudara_kandung": "Saudara Kandung", "kakek_nenek_serumah": "Kakek/Nenek (serumah)", "paman_bibi": "Paman/Bibi", "kakek_nenek_luar": "Kakek/Nenek (luar)", "sepupu": "Sepupu", "keluarga_besar_lain": "Keluarga Besar", "tetangga": "Tetangga", "teman_sebaya": "Teman Sebaya", "kelompok_bermain": "Kelompok Bermain", "warga_kampung": "Warga Kampung", "tua_golo": "Tu"a Golo", "tua_teno": "Tu"a Teno", "tokoh_adat": "Tokoh Adat", "wau": "Wa"u", "pastor": "Pastor/Romo", "suster_bruder": "Suster/Bruder", "katekis": "Katekis", "prodiakon": "Prodiakon", "kelompok_doa": "Kelompok Doa/Legio Maria", "pengurus_gereja": "Pengurus Gereja", "guru_agama": "Guru Agama", "guru_kelas": "Guru Kelas", "wali_kelas": "Wali Kelas", "kepala_sekolah": "Kepala Sekolah", "gpk": "Guru Pendamping Khusus", "guru_paud": "Guru PAUD/TK", "pengelola_paud": "Pengelola PAUD", "teman_sekelas": "Teman Sekelas", "bidan_desa": "Bidan Desa", "perawat_puskesmas": "Perawat Puskesmas", "dokter_puskesmas": "Dokter Puskesmas", "kader_posyandu": "Kader Posyandu", "kader_posbindu": "Kader Posbindu", "dukun_beranak": "Dukun Beranak", "fisioterapis": "Fisioterapis", "kepala_desa": "Kepala Desa", "sekdes": "Sekretaris Desa", "rt_rw": "Ketua RT/RW", "kasi_kesra": "Kasi Kesejahteraan", "pkk_desa": "PKK Desa", "karang_taruna": "Karang Taruna", "bpd": "BPD", "dinsos": "Dinas Sosial", "dinkes": "Dinas Kesehatan", "dindik": "Dinas Pendidikan", "uptd_sosial": "UPTD Sosial", "p2tp2a": "P2TP2A", "scn": "Sub Cluster Network", "cbr_worker_lain": "CBR Worker Lain", "kader_disabilitas": "Kader Disabilitas", "kelompok_tani": "Kelompok Tani", "koperasi": "Koperasi", "omk": "OMK", "org_perempuan": "Org. Perempuan", "cbm_global": "CBM Global", "ayo_indonesia": "Ayo Indonesia", "jpm_kupang": "JPM Kupang", "lsm_lokal": "LSM Lokal", "yayasan_mitra": "Yayasan Mitra", "radio_lokal": "Radio Lokal", "tokoh_medsos": "Tokoh Media Sosial", "pkh_officer": "Petugas PKH"};
+
+const TEMA_PIHAK_MAP = {"Fungsi Mental & Saraf": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "gpk", "guru_kelas", "kader_posyandu"], "Fungsi Indra (Penglihatan)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Indra (Pendengaran)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Suara & Komunikasi": ["guru_kelas", "gpk", "bidan_desa", "dokter_puskesmas", "kelompok_doa"], "Fungsi Gerak & Motorik": ["fisioterapis", "dokter_puskesmas", "dinsos", "uptd_sosial", "cbm_global"], "Fungsi Jantung & Pernafasan": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "kader_posyandu"], "Fungsi Pencernaan & Nutrisi": ["bidan_desa", "kader_posyandu", "dokter_puskesmas", "ibu", "ayah"], "Pendidikan & Belajar": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "dindik", "ayo_indonesia"], "Mobilitas & Perpindahan": ["fisioterapis", "dinsos", "uptd_sosial", "ayah", "ibu", "cbm_global"], "Perawatan Diri": ["ibu", "ayah", "saudara_kandung", "bidan_desa", "gpk"], "Komunikasi & Interaksi": ["guru_kelas", "gpk", "ibu", "ayah", "teman_sekelas", "kelompok_bermain"], "Pekerjaan Rumah Tangga": ["ibu", "ayah", "saudara_kandung", "keluarga_besar_lain"], "Interaksi Sosial & Bermain": ["teman_sebaya", "teman_sekelas", "kelompok_bermain", "warga_kampung", "tetangga"], "Partisipasi Komunitas": ["tokoh_adat", "tua_golo", "pastor", "katekis", "kelompok_doa", "karang_taruna", "omk", "rt_rw"], "Hambatan Emosional": ["ibu", "ayah", "pastor", "katekis", "guru_kelas", "bidan_desa"], "Kepercayaan Diri Rendah": ["ibu", "ayah", "guru_kelas", "teman_sebaya", "kelompok_bermain", "pastor"], "Kondisi Ekonomi": ["kepala_desa", "kasi_kesra", "pkk_desa", "dinsos", "pkh_officer", "rt_rw"], "Kondisi Rumah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "karang_taruna"], "Akses Layanan Kesehatan": ["kepala_desa", "kasi_kesra", "bidan_desa", "kader_posyandu", "dinkes"], "Dukungan Keluarga": ["ibu", "ayah", "paman_bibi", "kakek_nenek_serumah", "tua_golo", "pastor"], "Sikap Masyarakat": ["tua_golo", "tokoh_adat", "pastor", "kepala_desa", "rt_rw", "warga_kampung"], "Bantuan Pemerintah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "p2tp2a", "pkk_desa"], "Alat Bantu & Teknologi": ["dinsos", "uptd_sosial", "cbm_global", "ayo_indonesia", "fisioterapis"], "skor_anak_rendah": ["ibu", "ayah", "cbr_worker_lain", "scn", "ayo_indonesia", "bidan_desa"], "skor_pengasuh_rendah": ["ibu", "ayah", "pastor", "tua_golo", "pkk_desa", "bidan_desa", "scn"], "epilepsi": ["dokter_puskesmas", "bidan_desa", "dinkes", "ibu", "ayah"]};
+
+const AKTOR_KAT_REKO = {"Keluarga": ["ayah", "ibu", "saudara_kandung", "kakek_nenek_serumah", "paman_bibi", "kakek_nenek_luar", "sepupu", "keluarga_besar_lain"], "Komunitas": ["tetangga", "teman_sebaya", "kelompok_bermain", "warga_kampung"], "Adat": ["tua_golo", "tua_teno", "tokoh_adat", "wau"], "Keagamaan": ["pastor", "suster_bruder", "katekis", "prodiakon", "kelompok_doa", "pengurus_gereja", "guru_agama"], "Pendidikan": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "pengelola_paud", "teman_sekelas"], "Kesehatan": ["bidan_desa", "perawat_puskesmas", "dokter_puskesmas", "kader_posyandu", "kader_posbindu", "fisioterapis"], "Pemerintah Desa": ["kepala_desa", "sekdes", "rt_rw", "kasi_kesra", "pkk_desa", "karang_taruna", "bpd"], "Pemerintah Kab": ["dinsos", "dinkes", "dindik", "uptd_sosial", "p2tp2a"], "Organisasi": ["scn", "cbr_worker_lain", "kader_disabilitas", "omk", "org_perempuan"], "Mitra": ["cbm_global", "ayo_indonesia", "jpm_kupang", "lsm_lokal", "yayasan_mitra"]};
+
+
+const AKTOR_KAT_COLORS = {
+  'Keluarga':       {color:'#f97316', bg:'rgba(249,115,22,.1)'},
+  'Komunitas':      {color:'#06b6d4', bg:'rgba(6,182,212,.1)'},
+  'Adat':           {color:'#a16207', bg:'rgba(161,98,7,.1)'},
+  'Keagamaan':      {color:'#8b5cf6', bg:'rgba(139,92,246,.1)'},
+  'Pendidikan':     {color:'#3b82f6', bg:'rgba(59,130,246,.1)'},
+  'Kesehatan':      {color:'#22c55e', bg:'rgba(34,197,94,.1)'},
+  'Pemerintah Desa':{color:'#eab308', bg:'rgba(234,179,8,.1)'},
+  'Pemerintah Kab': {color:'#f59e0b', bg:'rgba(245,158,11,.1)'},
+  'Organisasi':     {color:'#10b981', bg:'rgba(16,185,129,.1)'},
+  'Mitra':          {color:'#6366f1', bg:'rgba(99,102,241,.1)'},
+};
+
+function getAktorKategori(aktorKey) {
+  for (const [kat, list] of Object.entries(AKTOR_KAT_REKO)) {
+    if (list.includes(aktorKey)) return kat;
+  }
+  return 'Lainnya';
+}
+
+function renderPihakChips(pihakList) {
+  if (!pihakList || !pihakList.length) return '';
+  // Kelompokkan per kategori
+  const byKat = {};
+  pihakList.forEach(key => {
+    const kat = getAktorKategori(key);
+    if (!byKat[kat]) byKat[kat] = [];
+    byKat[kat].push(key);
+  });
+  const rows = Object.entries(byKat).map(([kat, keys]) => {
+    const colInfo = AKTOR_KAT_COLORS[kat] || {color:'#7a8faf', bg:'rgba(122,143,175,.1)'};
+    const chips = keys.map(k => {
+      const label = AKTOR_LABEL_REKO[k] || k;
+      return `<span class="pihak-chip" style="color:${colInfo.color};background:${colInfo.bg};border-color:${colInfo.color}40">${label}</span>`;
+    }).join('');
+    return `<div class="pihak-kat-row">
+      <span class="pihak-kat-label" style="color:${colInfo.color};background:${colInfo.bg};border:1px solid ${colInfo.color}40">${kat}</span>
+      <div class="pihak-chips">${chips}</div>
+    </div>`;
+  }).join('');
+  return `<div class="pihak-kat-wrap">
+    <div style="font-size:10px;color:var(--mut);margin-bottom:4px;font-weight:600">Pihak yang perlu dilibatkan:</div>
+    ${rows}
+  </div>`;
+}
+
+// ════ AI REKOMENDASI ════
+const _REKO_AI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const _REKO_AI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + _REKO_AI_KEY;
+
+async function generateRekoAI(nama, cb, top3, awal, obs) {
+  // Siapkan konteks data anak
+  const konteks = [
+    `Nama: ${nama}`,
+    `CBR Worker: ${cb}`,
+    awal ? `Ragam Disabilitas: ${awal.rg || '-'}` : '',
+    awal ? `Skor Anak: ${awal.sa !== null ? awal.sa + '/10' : '-'}` : '',
+    awal ? `Skor Pengasuh: ${awal.sp !== null ? awal.sp + '/10' : '-'}` : '',
+    awal && awal.tka ? `Faktor turun tangga anak: ${awal.tka}` : '',
+    awal && awal.nka ? `Faktor naik tangga anak: ${awal.nka}` : '',
+    obs ? `Observasi struktur tubuh: ${(obs.st||'').slice(0,200)}` : '',
+    obs ? `Observasi lingkungan: ${(obs.lg||'').slice(0,200)}` : '',
+  ].filter(Boolean).join('\n');
+
+  const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
+  const pihakAll = [...new Set(top3.flatMap(s => s.pihak || []))];
+  const pihakLabels = pihakAll.map(k => AKTOR_LABEL_REKO[k] || k).join(', ');
+
+  const prompt = `Kamu adalah supervisor program CBR (rehabilitasi berbasis komunitas) di Manggarai, NTT, Indonesia.
+
+Data anak:
+${konteks}
+
+Temuan prioritas:
+${temuan}
+
+Pihak yang akan dilibatkan: ${pihakLabels || 'belum ditentukan'}
+
+Buatkan kesimpulan rekomendasi dan tindak lanjut yang:
+1. Ringkas tapi bermakna (3-4 kalimat)
+2. Spesifik dan actionable untuk CBR Worker dan supervisor
+3. Kontekstual dengan situasi Manggarai (komunitas adat, gereja, pertanian)
+4. Menyebutkan pihak kunci yang perlu dilibatkan
+5. Memiliki target waktu yang realistis (1-3 bulan)
+
+Tulis dalam bahasa Indonesia yang natural dan langsung ke poin.`;
+
+  try {
+    const res = await fetch(_REKO_AI_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        contents: [{parts: [{text: prompt}]}],
+        generationConfig: {temperature: 0.4, maxOutputTokens: 400}
+      })
+    });
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch(e) {
+    console.warn('AI reko error:', e);
+    return '';
+  }
+}
+
+// Patch renderDetailAnak untuk tambah AI setelah render
+const _origRenderDetailAnak = renderDetailAnak;
+async function renderDetailAnakWithAI(nama) {
+  _origRenderDetailAnak(nama);
+  // Cari data anak
+  const a = ANALISIS.find(x => x.na === nama);
+  if (!a) return;
+  // Tambah loading indicator di setiap masalah-item
+  const items = document.querySelectorAll('.masalah-item');
+  items.forEach(item => {
+    const existing = item.querySelector('.ai-reko-box');
+    if (!existing) {
+      const loadDiv = document.createElement('div');
+      loadDiv.className = 'ai-reko-box';
+      loadDiv.innerHTML = `<div class="ai-reko-label">✦ Analisis AI</div>
+        <div class="ai-reko-loading">
+          <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+          <span>Menganalisis...</span>
+        </div>`;
+      item.appendChild(loadDiv);
+    }
+  });
+  // Generate AI untuk keseluruhan anak (1 request)
+  const aiText = await generateRekoAI(a.na, a.cb, a.top3, a.awal, a.obs);
+  if (!aiText) {
+    document.querySelectorAll('.ai-reko-loading').forEach(el => {
+      el.closest('.ai-reko-box').style.display = 'none';
+    });
+    return;
+  }
+  // Tampilkan di item pertama, sembunyikan di item lain
+  const allBoxes = document.querySelectorAll('.ai-reko-box');
+  allBoxes.forEach((box, i) => {
+    if (i === 0) {
+      box.innerHTML = `<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>
+        <div class="ai-reko-text">${aiText}</div>`;
+    } else {
+      box.style.display = 'none';
+    }
+  });
+}
+// Override fungsi
+window.renderDetailAnak = renderDetailAnakWithAI;
 
 </script>
 </body>
