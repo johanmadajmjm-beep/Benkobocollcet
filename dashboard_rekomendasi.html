@@ -351,11 +351,11 @@ async function fetchAllData() {
       if (r.na) acc[r.na] = r; return acc;
     }, {});
     var nKompres = Object.keys(DATA_AWAL_KOMPRES).length;
-    if (nKompres > 0) {
-      console.log('[Kompres] DataAwalKompres:', nKompres, 'anak | DataObsKompres:', Object.keys(DATA_OBS_KOMPRES).length);
-    } else {
-      console.warn('[Kompres] Sheet kompres belum ada. Jalankan compressAll() di Apps Script dulu.');
-    }
+    console.log('[Kompres] DataAwalKompres:', nKompres, '| DataObsKompres:', Object.keys(DATA_OBS_KOMPRES).length);
+
+    runAnalysis();
+    document.getElementById('loadingState').style.display = 'none';
+    initView();
 
     try {
       localStorage.setItem('reko_data_awal', JSON.stringify(DATA_AWAL));
