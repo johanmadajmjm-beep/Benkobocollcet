@@ -283,7 +283,7 @@ async function fetchAllData() {
       ep: r.ep||'Tidak', ob: r.ob||'Tidak', tr: r.tr||'Tidak',
       sp: r.sp !== null && r.sp !== '' ? Number(r.sp) : null,
       sa: r.sa !== null && r.sa !== '' ? Number(r.sa) : null,
-      nkp: String(r.nkp||'').replace(/\n/g,' ').trim(), tkp: String(r.tkp||'').replace(/\n/g,' ').trim(), nka: String(r.nka||'').replace(/\n/g,' ').trim(), tka: String(r.tka||'').replace(/\n/g,' ').trim(),
+      nkp: (r.nkp||'').replace(/\n/g,' ').trim(), tkp: (r.tkp||'').replace(/\n/g,' ').trim(), nka: (r.nka||'').replace(/\n/g,' ').trim(), tka: (r.tka||'').replace(/\n/g,' ').trim(),
       lat: r.lat !== null ? Number(r.lat) : null,
       lon: r.lon !== null ? Number(r.lon) : null,
     })).filter(r => r.na);
@@ -1249,10 +1249,14 @@ async function generateRekoAI(nama, cb, top3, awal, obs) {
     awal ? `Ragam Disabilitas: ${awal.rg || '-'}` : '',
     awal ? `Skor Anak: ${awal.sa !== null ? awal.sa + '/10' : '-'}` : '',
     awal ? `Skor Pengasuh: ${awal.sp !== null ? awal.sp + '/10' : '-'}` : '',
-    awal && awal.tka ? `Faktor turun tangga anak: ${awal.tka}` : '',
     awal && awal.nka ? `Faktor naik tangga anak: ${awal.nka}` : '',
-    obs ? `Observasi struktur tubuh: ${(obs.st||'').slice(0,200)}` : '',
-    obs ? `Observasi lingkungan: ${(obs.lg||'').slice(0,200)}` : '',
+    awal && awal.tka ? `Faktor turun tangga anak: ${awal.tka}` : '',
+    awal && awal.nkp ? `Faktor naik tangga pengasuh: ${awal.nkp}` : '',
+    awal && awal.tkp ? `Faktor turun tangga pengasuh: ${awal.tkp}` : '',
+    obs && obs.st ? `Observasi Struktur & Fungsi Tubuh: ${String(obs.st).replace(/\n/g,' ')}` : '',
+    obs && obs.kg ? `Observasi Kegiatan & Partisipasi: ${String(obs.kg).replace(/\n/g,' ')}` : '',
+    obs && obs.pf ? `Observasi Faktor Personal: ${String(obs.pf).replace(/\n/g,' ')}` : '',
+    obs && obs.lg ? `Observasi Faktor Lingkungan: ${String(obs.lg).replace(/\n/g,' ')}` : '',
   ].filter(Boolean).join('\n');
 
   const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
