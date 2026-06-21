@@ -144,8 +144,11 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Detail Mode Layout ── */
-#cbr-detail-mode { padding: 0; height: 100%; overflow-y: auto; }
-#cbr-detail-content { padding: 16px; max-width: 900px; margin: 0 auto; }
+#cbr-detail-mode { flex: 1; overflow-y: auto; background: var(--bg); }
+#cbr-detail-content { padding: 16px; max-width: 860px; margin: 0 auto; }
+#cbr-list-mode { flex: 1; overflow-y: auto; }
+#view-cbr { display: flex; flex-direction: column; height: 100%; }
+#view-cbr.with-detail { flex-direction: row; }
 
 /* Detail Header */
 .detail-header { display: flex; align-items: flex-start; gap: 14px; background: var(--card); border: 1px solid var(--bdr); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
@@ -928,7 +931,8 @@ function showList() {
 function openDetail(nama) {
   activeAnak = nama;
   document.getElementById('cbr-list-mode').style.display = 'none';
-  document.getElementById('cbr-detail-mode').style.display = '';
+  document.getElementById('cbr-detail-mode').style.display = 'flex';
+  document.getElementById('cbr-detail-mode').style.flexDirection = 'column';
   document.getElementById('namaPanel').classList.add('open');
   populateNamaPanelCBR();
   renderNamaPanel();
