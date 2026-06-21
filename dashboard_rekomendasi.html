@@ -250,13 +250,15 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Plus Ja
 // Ganti URL di sini saja jika Apps Script di-deploy ulang.
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxSE2RBgBb7v-hWeYYa_1olFwQDPFktPJIMyiSPlY-vLwSG5Oe2LS5xiSdyDXbPllLiGg/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyjYrc98mbsBZQ6HIJEJNkGTd2i9m4UV5-7ef_Qw6JeUnzFlgvHdMwWY1wbDTL0pzPAFQ/exec',
 };
 const APPS_SCRIPT_URL = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode di bawah
 
 var DATA_AWAL = [];
 var DATA_OBS  = [];
 var SEMUA_ANAK = [];
+var DATA_AWAL_KOMPRES = {};
+var DATA_OBS_KOMPRES  = {};
 var ANALISIS = []; // hasil analisis lengkap per anak
 var activeAnak = null;
 var filteredReko = [];
@@ -268,12 +270,14 @@ var filteredReko = [];
 // selama Apps Script bisa diakses.
 async function fetchAllData() {
   try {
-    const [r1, r2, r3] = await Promise.all([
+    const [r1, r2, r3, r4, r5] = await Promise.all([
       fetch(APPS_SCRIPT_URL + '?sheet=DataAwal'),
       fetch(APPS_SCRIPT_URL + '?sheet=DataObs'),
       fetch(APPS_SCRIPT_URL + '?sheet=SemuaAnak'),
+      fetch(APPS_SCRIPT_URL + '?sheet=DataAwalKompres'),
+      fetch(APPS_SCRIPT_URL + '?sheet=DataObsKompres'),
     ]);
-    const [j1, j2, j3] = await Promise.all([r1.json(), r2.json(), r3.json()]);
+    const [j1, j2, j3, j4, j5] = await Promise.all([r1.json(), r2.json(), r3.json(), r4.json(), r5.json()]);
 
     DATA_AWAL = (j1.data || []).map(r => ({
       na: r.na||'', np: r.np||'',
@@ -294,6 +298,20 @@ async function fetchAllData() {
     })).filter(r => r.na);
 
     SEMUA_ANAK = j3.data || [];
+
+    // Parse data kompres → lookup by nama
+    DATA_AWAL_KOMPRES = (j4.data || []).reduce(function(acc, r) {
+      if (r.na) acc[r.na] = r; return acc;
+    }, {});
+    DATA_OBS_KOMPRES = (j5.data || []).reduce(function(acc, r) {
+      if (r.na) acc[r.na] = r; return acc;
+    }, {});
+    var nKompres = Object.keys(DATA_AWAL_KOMPRES).length;
+    if (nKompres > 0) {
+      console.log('[Kompres] DataAwalKompres:', nKompres, 'anak | DataObsKompres:', Object.keys(DATA_OBS_KOMPRES).length);
+    } else {
+      console.warn('[Kompres] Sheet kompres belum ada. Jalankan compressAll() di Apps Script dulu.');
+    }
 
     try {
       localStorage.setItem('reko_data_awal', JSON.stringify(DATA_AWAL));
@@ -1282,20 +1300,26 @@ function extractKeyPoints(text, maxChars) {
 
 async function generateRekoAI(nama, cb, top3, awal, obs) {
   // Siapkan konteks data anak
+  // Ambil data kompres jika tersedia
+  var awalK = DATA_AWAL_KOMPRES[nama] || null;
+  var obsK  = DATA_OBS_KOMPRES[nama]  || null;
+  if (awalK || obsK) {
+    console.log('[RekoAI] Pakai data kompres untuk:', nama);
+  } else {
+    console.log('[RekoAI] Fallback ke extractKeyPoints untuk:', nama);
+  }
+
   const konteks = [
-    `Nama: ${nama}`,
-    `CBR Worker: ${cb}`,
-    awal ? `Ragam Disabilitas: ${awal.rg || '-'}` : '',
-    awal ? `Skor Anak: ${awal.sa !== null ? awal.sa + '/10' : '-'}` : '',
-    awal ? `Skor Pengasuh: ${awal.sp !== null ? awal.sp + '/10' : '-'}` : '',
-    awal && awal.nka ? `Faktor naik tangga anak: ${extractKeyPoints(awal.nka, 300)}` : '',
-    awal && awal.tka ? `Faktor turun tangga anak: ${extractKeyPoints(awal.tka, 300)}` : '',
-    awal && awal.nkp ? `Faktor naik tangga pengasuh: ${extractKeyPoints(awal.nkp, 300)}` : '',
-    awal && awal.tkp ? `Faktor turun tangga pengasuh: ${extractKeyPoints(awal.tkp, 300)}` : '',
-    obs && obs.st ? `Observasi Struktur Tubuh: ${extractKeyPoints(obs.st, 500)}` : '',
-    obs && obs.kg ? `Observasi Kegiatan & Partisipasi: ${extractKeyPoints(obs.kg, 500)}` : '',
-    obs && obs.pf ? `Observasi Faktor Personal: ${extractKeyPoints(obs.pf, 500)}` : '',
-    obs && obs.lg ? `Observasi Faktor Lingkungan: ${extractKeyPoints(obs.lg, 500)}` : '',
+    `Nama: ${nama} | CBR Worker: ${cb}`,
+    awal ? `Ragam: ${awal.rg || '-'} | Skor Anak: ${awal.sa !== null ? awal.sa+'/10' : '-'} | Skor Pengasuh: ${awal.sp !== null ? awal.sp+'/10' : '-'}` : '',
+    (awalK && awalK.nka) ? `Naik tangga anak: ${awalK.nka}` : (awal && awal.nka ? `Naik tangga anak: ${extractKeyPoints(awal.nka, 200)}` : ''),
+    (awalK && awalK.tka) ? `Turun tangga anak: ${awalK.tka}` : (awal && awal.tka ? `Turun tangga anak: ${extractKeyPoints(awal.tka, 200)}` : ''),
+    (awalK && awalK.nkp) ? `Naik tangga pengasuh: ${awalK.nkp}` : (awal && awal.nkp ? `Naik tangga pengasuh: ${extractKeyPoints(awal.nkp, 200)}` : ''),
+    (awalK && awalK.tkp) ? `Turun tangga pengasuh: ${awalK.tkp}` : (awal && awal.tkp ? `Turun tangga pengasuh: ${extractKeyPoints(awal.tkp, 200)}` : ''),
+    (obsK && obsK.st) ? `Obs Struktur Tubuh: ${obsK.st}` : (obs && obs.st ? `Obs Struktur Tubuh: ${extractKeyPoints(obs.st, 300)}` : ''),
+    (obsK && obsK.kg) ? `Obs Kegiatan: ${obsK.kg}` : (obs && obs.kg ? `Obs Kegiatan: ${extractKeyPoints(obs.kg, 300)}` : ''),
+    (obsK && obsK.pf) ? `Obs Personal: ${obsK.pf}` : (obs && obs.pf ? `Obs Personal: ${extractKeyPoints(obs.pf, 300)}` : ''),
+    (obsK && obsK.lg) ? `Obs Lingkungan: ${obsK.lg}` : (obs && obs.lg ? `Obs Lingkungan: ${extractKeyPoints(obs.lg, 300)}` : ''),
   ].filter(Boolean).join('\n');
 
   const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
@@ -1328,12 +1352,13 @@ Format — 4 sampai 6 poin singkat:
 Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
 
   try {
+    console.log('[RekoAI] Prompt length:', prompt.length, 'chars');
     const res = await fetch(_REKO_AI_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.3, maxOutputTokens: 700}
+        generationConfig: {temperature: 0.3, maxOutputTokens: 600}
       })
     });
     const data = await res.json();
