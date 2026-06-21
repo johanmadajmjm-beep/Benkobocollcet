@@ -1241,6 +1241,45 @@ function exportOnePDF(nama) {
 
 
 
+
+// ── Preprocessing: ekstrak poin kunci dari teks observasi ──
+function extractKeyPoints(text, maxChars) {
+  if (!text) return '';
+  var t = String(text);
+
+  // Split per newline dan kalimat
+  var parts = t.split(/\n+/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 10; });
+
+  // Jika tidak ada newline, split per kalimat
+  if (parts.length <= 2) {
+    parts = t.split(/\.\s+/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 10; });
+  }
+
+  // Hapus label/header di awal setiap poin (misal "Fungsi Mental:" atau "Faktor Pendukung:")
+  parts = parts.map(function(p) {
+    return p.replace(/^[A-Za-z\s&,()\/]{3,40}:\s*/u, '').replace(/^[-•*]\s*/, '').trim();
+  }).filter(function(p){ return p.length > 10; });
+
+  // Score setiap poin - utamakan yang paling informatif
+  var scored = parts.map(function(p) {
+    var score = 0;
+    if (/\d/.test(p)) score += 30;
+    if (/belum|tidak bisa|tidak mampu|sulit|hambatan|masalah|butuh|perlu|bantuan|kurang/i.test(p)) score += 25;
+    if (/bisa|mampu|mandiri|sudah|berhasil|aktif/i.test(p)) score += 15;
+    if (/sekolah|toilet|rumah|ekonomi|bantuan|terapi|alat bantu|BPJS|PKH/i.test(p)) score += 20;
+    if (p.length > 30 && p.length < 200) score += 10;
+    return { p: p, score: score };
+  });
+  scored.sort(function(a,b){ return b.score - a.score; });
+
+  var result = '';
+  for (var i = 0; i < scored.length; i++) {
+    if ((result.length + scored[i].p.length + 3) > maxChars) break;
+    result += (result ? '. ' : '') + scored[i].p;
+  }
+  return result || t.substring(0, maxChars);
+}
+
 async function generateRekoAI(nama, cb, top3, awal, obs) {
   // Siapkan konteks data anak
   const konteks = [
@@ -1249,14 +1288,14 @@ async function generateRekoAI(nama, cb, top3, awal, obs) {
     awal ? `Ragam Disabilitas: ${awal.rg || '-'}` : '',
     awal ? `Skor Anak: ${awal.sa !== null ? awal.sa + '/10' : '-'}` : '',
     awal ? `Skor Pengasuh: ${awal.sp !== null ? awal.sp + '/10' : '-'}` : '',
-    awal && awal.nka ? `Faktor naik tangga anak: ${awal.nka}` : '',
-    awal && awal.tka ? `Faktor turun tangga anak: ${awal.tka}` : '',
-    awal && awal.nkp ? `Faktor naik tangga pengasuh: ${awal.nkp}` : '',
-    awal && awal.tkp ? `Faktor turun tangga pengasuh: ${awal.tkp}` : '',
-    obs && obs.st ? `Observasi Struktur & Fungsi Tubuh: ${String(obs.st).replace(/\n/g,' ')}` : '',
-    obs && obs.kg ? `Observasi Kegiatan & Partisipasi: ${String(obs.kg).replace(/\n/g,' ')}` : '',
-    obs && obs.pf ? `Observasi Faktor Personal: ${String(obs.pf).replace(/\n/g,' ')}` : '',
-    obs && obs.lg ? `Observasi Faktor Lingkungan: ${String(obs.lg).replace(/\n/g,' ')}` : '',
+    awal && awal.nka ? `Faktor naik tangga anak: ${extractKeyPoints(awal.nka, 300)}` : '',
+    awal && awal.tka ? `Faktor turun tangga anak: ${extractKeyPoints(awal.tka, 300)}` : '',
+    awal && awal.nkp ? `Faktor naik tangga pengasuh: ${extractKeyPoints(awal.nkp, 300)}` : '',
+    awal && awal.tkp ? `Faktor turun tangga pengasuh: ${extractKeyPoints(awal.tkp, 300)}` : '',
+    obs && obs.st ? `Observasi Struktur Tubuh: ${extractKeyPoints(obs.st, 500)}` : '',
+    obs && obs.kg ? `Observasi Kegiatan & Partisipasi: ${extractKeyPoints(obs.kg, 500)}` : '',
+    obs && obs.pf ? `Observasi Faktor Personal: ${extractKeyPoints(obs.pf, 500)}` : '',
+    obs && obs.lg ? `Observasi Faktor Lingkungan: ${extractKeyPoints(obs.lg, 500)}` : '',
   ].filter(Boolean).join('\n');
 
   const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
@@ -1274,17 +1313,19 @@ ${temuan}
 PIHAK YANG AKAN DILIBATKAN: ${pihakLabels || 'belum ditentukan'}
 
 TUGAS KAMU:
-Baca semua data di atas dengan teliti — terutama hasil observasi lapangan dari CBR Worker. Identifikasi SEMUA isu konkret dan spesifik yang ditemukan, lalu buat rekomendasi tindak lanjut yang:
+Berdasarkan HANYA fakta yang ada di data di atas, buat rekomendasi tindak lanjut.
 
-1. SPESIFIK — sebutkan isu nyata dari observasi (contoh: toilet training, belum sekolah, rumah tidak layak, pengawasan minim, bantuan sosial terhenti, perilaku stereotipe, akses layanan, kondisi fisik rumah, dll)
-2. ACTIONABLE — langkah yang bisa langsung dilakukan CBR Worker dan pihak terkait
-3. KONTEKSTUAL — sesuai situasi Manggarai (adat, gereja, pertanian, kondisi geografis)
-4. ADA TARGET WAKTU — setiap poin ada rentang waktu (minggu ini / 1 bulan / 3 bulan)
+ATURAN:
+- Hanya gunakan informasi yang tersedia — jangan mengarang atau menambah fakta baru
+- Sebutkan isu spesifik nyata (toilet training, belum sekolah, rumah tidak layak, pengawasan minim, bantuan terhenti, perilaku stereotipe, alat bantu, dsb)
+- Setiap poin harus actionable dan bisa dilakukan CBR Worker atau pihak terkait
+- Kontekstual Manggarai (adat, gereja, pertanian, kondisi geografis)
+- Sertakan target waktu per poin
 
-Format jawaban dalam poin-poin singkat:
-• [Isu spesifik] → [Tindak lanjut konkret] — [Target waktu]
+Format — 4 sampai 6 poin singkat:
+• [Isu dari data] → [Tindak lanjut] — [Target waktu]
 
-Jangan lewatkan isu penting dari data observasi! Tulis dalam bahasa Indonesia yang natural.`;
+Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
 
   try {
     const res = await fetch(_REKO_AI_URL, {
