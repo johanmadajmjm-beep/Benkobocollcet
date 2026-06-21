@@ -1379,7 +1379,7 @@ async function generateRekoAI(nama, cb, awal, obs) {
 
   console.log('[RekoAI] Prompt konteks length:', konteks.length);
 
-  var pihakKodeList = Object.keys(AKTOR_LABEL).join(', ');
+  var pihakKodeList = Object.keys(AKTOR_LABEL_REKO).join(', ');
 
   var prompt = 'Kamu supervisor program CBR anak disabilitas di Manggarai, NTT.\n\n' +
     'DATA ANAK:\n' + konteks + '\n\n' +
@@ -1397,7 +1397,7 @@ async function generateRekoAI(nama, cb, awal, obs) {
     '- Jika tidak ada temuan di satu kategori, beri temuan string kosong ""\n' +
     '- temuan: fakta spesifik dari data, singkat (1-2 kalimat)\n' +
     '- rtl: rekomendasi konkret + target waktu (1-2 kalimat)\n' +
-    '- pihak: kode dari daftar ini saja: ' + Object.keys(AKTOR_LABEL).join(', ') + '\n' +
+    '- pihak: kode dari daftar ini saja: ' + Object.keys(AKTOR_LABEL_REKO).join(', ') + '\n' +
     '- Hanya dari data yang ada, jangan mengarang\n' +
     '- Bahasa Indonesia';
 
