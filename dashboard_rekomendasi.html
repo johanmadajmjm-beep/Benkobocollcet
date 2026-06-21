@@ -406,8 +406,8 @@ function renderPihakChips(pihakList) {
 }
 
 // ════ AI REKOMENDASI ════
-const _REKO_AI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
-const _REKO_AI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + _REKO_AI_KEY;
+const _REKO_AI_KEY = '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';
+const _REKO_AI_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const THEMES_ICF = {
   struktur: [
@@ -1002,7 +1002,7 @@ function renderDetailAnak(nama) {
 
   el.innerHTML = html;
 
-  // ── AI Rekomendasi (langsung, tanpa override) ──
+  // ── AI Rekomendasi — tracking anak aktif ──
   var _aiData = ANALISIS.find(function(x){ return x.na === nama; });
   if (_aiData) {
     var _aiBox = document.createElement('div');
@@ -1014,7 +1014,10 @@ function renderDetailAnak(nama) {
     var _masalahCard = el.querySelector('.masalah-card');
     if (_masalahCard) _masalahCard.appendChild(_aiBox);
 
+    var _targetNama = nama;
     generateRekoAI(_aiData.na, _aiData.cb, _aiData.top3, _aiData.awal, _aiData.obs).then(function(aiText) {
+      // Hanya tampilkan jika masih di halaman anak yang sama
+      if (activeAnak !== _targetNama) return;
       var box = document.getElementById('ai-reko-main');
       if (!box) return;
       if (!aiText) { box.style.display = 'none'; return; }
@@ -1357,14 +1360,19 @@ Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
     console.log('[RekoAI] Prompt length:', prompt.length, 'chars | konteks:', konteks.length, 'chars');
     const res = await fetch(_REKO_AI_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _REKO_AI_KEY
+      },
       body: JSON.stringify({
-        contents: [{parts: [{text: prompt}]}],
-        generationConfig: {temperature: 0.3, maxOutputTokens: 600}
+        model: 'llama-3.1-8b-instant',
+        messages: [{role: 'user', content: prompt}],
+        temperature: 0.3,
+        max_tokens: 600
       })
     });
     const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return data?.choices?.[0]?.message?.content || '';
   } catch(e) {
     console.warn('AI reko error:', e);
     return '';
