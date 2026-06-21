@@ -924,6 +924,29 @@ function renderDetailAnak(nama) {
   `;
 
   el.innerHTML = html;
+
+  // ── AI Rekomendasi: generate setelah render ──
+  const _aiAnakData = ANALISIS.find(x => x.na === nama);
+  if (_aiAnakData) {
+    // Tambah loading box di bawah item pertama
+    const firstItem = el.querySelector('.masalah-item');
+    if (firstItem) {
+      const loadBox = document.createElement('div');
+      loadBox.className = 'ai-reko-box';
+      loadBox.id = 'ai-reko-main';
+      loadBox.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
+        '<div class="ai-reko-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="margin-left:6px">Menganalisis...</span></div>';
+      el.appendChild(loadBox);
+    }
+    // Panggil AI (async, tidak block render)
+    generateRekoAI(_aiAnakData.na, _aiAnakData.cb, _aiAnakData.top3, _aiAnakData.awal, _aiAnakData.obs).then(function(aiText) {
+      const box = document.getElementById('ai-reko-main');
+      if (!box) return;
+      if (!aiText) { box.style.display = 'none'; return; }
+      box.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
+        '<div class="ai-reko-text">' + aiText + '</div>';
+    });
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1269,49 +1292,7 @@ Tulis dalam bahasa Indonesia yang natural dan langsung ke poin.`;
   }
 }
 
-// Patch renderDetailAnak untuk tambah AI setelah render
-const _origRenderDetailAnak = renderDetailAnak;
-async function renderDetailAnakWithAI(nama) {
-  _origRenderDetailAnak(nama);
-  // Cari data anak
-  const a = ANALISIS.find(x => x.na === nama);
-  if (!a) return;
-  // Tambah loading indicator di setiap masalah-item
-  const items = document.querySelectorAll('.masalah-item');
-  items.forEach(item => {
-    const existing = item.querySelector('.ai-reko-box');
-    if (!existing) {
-      const loadDiv = document.createElement('div');
-      loadDiv.className = 'ai-reko-box';
-      loadDiv.innerHTML = `<div class="ai-reko-label">✦ Analisis AI</div>
-        <div class="ai-reko-loading">
-          <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
-          <span>Menganalisis...</span>
-        </div>`;
-      item.appendChild(loadDiv);
-    }
-  });
-  // Generate AI untuk keseluruhan anak (1 request)
-  const aiText = await generateRekoAI(a.na, a.cb, a.top3, a.awal, a.obs);
-  if (!aiText) {
-    document.querySelectorAll('.ai-reko-loading').forEach(el => {
-      el.closest('.ai-reko-box').style.display = 'none';
-    });
-    return;
-  }
-  // Tampilkan di item pertama, sembunyikan di item lain
-  const allBoxes = document.querySelectorAll('.ai-reko-box');
-  allBoxes.forEach((box, i) => {
-    if (i === 0) {
-      box.innerHTML = `<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>
-        <div class="ai-reko-text">${aiText}</div>`;
-    } else {
-      box.style.display = 'none';
-    }
-  });
-}
-// Override fungsi
-window.renderDetailAnak = renderDetailAnakWithAI;
+
 
 </script>
 </body>
