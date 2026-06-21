@@ -1309,17 +1309,19 @@ async function generateRekoAI(nama, cb, top3, awal, obs) {
     console.log('[RekoAI] Fallback ke extractKeyPoints untuk:', nama);
   }
 
+  // Batasi setiap field ke max chars
+  function cap(str, max) { return str ? String(str).substring(0, max) : ''; }
+
   const konteks = [
-    `Nama: ${nama} | CBR Worker: ${cb}`,
-    awal ? `Ragam: ${awal.rg || '-'} | Skor Anak: ${awal.sa !== null ? awal.sa+'/10' : '-'} | Skor Pengasuh: ${awal.sp !== null ? awal.sp+'/10' : '-'}` : '',
-    (awalK && awalK.nka) ? `Naik tangga anak: ${awalK.nka}` : (awal && awal.nka ? `Naik tangga anak: ${extractKeyPoints(awal.nka, 200)}` : ''),
-    (awalK && awalK.tka) ? `Turun tangga anak: ${awalK.tka}` : (awal && awal.tka ? `Turun tangga anak: ${extractKeyPoints(awal.tka, 200)}` : ''),
-    (awalK && awalK.nkp) ? `Naik tangga pengasuh: ${awalK.nkp}` : (awal && awal.nkp ? `Naik tangga pengasuh: ${extractKeyPoints(awal.nkp, 200)}` : ''),
-    (awalK && awalK.tkp) ? `Turun tangga pengasuh: ${awalK.tkp}` : (awal && awal.tkp ? `Turun tangga pengasuh: ${extractKeyPoints(awal.tkp, 200)}` : ''),
-    (obsK && obsK.st) ? `Obs Struktur Tubuh: ${obsK.st}` : (obs && obs.st ? `Obs Struktur Tubuh: ${extractKeyPoints(obs.st, 300)}` : ''),
-    (obsK && obsK.kg) ? `Obs Kegiatan: ${obsK.kg}` : (obs && obs.kg ? `Obs Kegiatan: ${extractKeyPoints(obs.kg, 300)}` : ''),
-    (obsK && obsK.pf) ? `Obs Personal: ${obsK.pf}` : (obs && obs.pf ? `Obs Personal: ${extractKeyPoints(obs.pf, 300)}` : ''),
-    (obsK && obsK.lg) ? `Obs Lingkungan: ${obsK.lg}` : (obs && obs.lg ? `Obs Lingkungan: ${extractKeyPoints(obs.lg, 300)}` : ''),
+    `Nama: ${nama} | CBR: ${cb} | Ragam: ${awal ? awal.rg||'-' : '-'} | Skor Anak: ${awal && awal.sa !== null ? awal.sa+'/10' : '-'} | Skor Pengasuh: ${awal && awal.sp !== null ? awal.sp+'/10' : '-'}`,
+    (awalK && awalK.nka) ? `Naik anak: ${cap(awalK.nka,150)}` : (awal && awal.nka ? `Naik anak: ${cap(extractKeyPoints(awal.nka,150),150)}` : ''),
+    (awalK && awalK.tka) ? `Turun anak: ${cap(awalK.tka,150)}` : (awal && awal.tka ? `Turun anak: ${cap(extractKeyPoints(awal.tka,150),150)}` : ''),
+    (awalK && awalK.nkp) ? `Naik pengasuh: ${cap(awalK.nkp,150)}` : (awal && awal.nkp ? `Naik pengasuh: ${cap(extractKeyPoints(awal.nkp,150),150)}` : ''),
+    (awalK && awalK.tkp) ? `Turun pengasuh: ${cap(awalK.tkp,150)}` : (awal && awal.tkp ? `Turun pengasuh: ${cap(extractKeyPoints(awal.tkp,150),150)}` : ''),
+    (obsK && obsK.st) ? `Tubuh: ${cap(obsK.st,200)}` : (obs && obs.st ? `Tubuh: ${cap(extractKeyPoints(obs.st,200),200)}` : ''),
+    (obsK && obsK.kg) ? `Kegiatan: ${cap(obsK.kg,200)}` : (obs && obs.kg ? `Kegiatan: ${cap(extractKeyPoints(obs.kg,200),200)}` : ''),
+    (obsK && obsK.pf) ? `Personal: ${cap(obsK.pf,150)}` : (obs && obs.pf ? `Personal: ${cap(extractKeyPoints(obs.pf,150),150)}` : ''),
+    (obsK && obsK.lg) ? `Lingkungan: ${cap(obsK.lg,200)}` : (obs && obs.lg ? `Lingkungan: ${cap(extractKeyPoints(obs.lg,200),200)}` : ''),
   ].filter(Boolean).join('\n');
 
   const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
@@ -1352,7 +1354,7 @@ Format — 4 sampai 6 poin singkat:
 Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
 
   try {
-    console.log('[RekoAI] Prompt length:', prompt.length, 'chars');
+    console.log('[RekoAI] Prompt length:', prompt.length, 'chars | konteks:', konteks.length, 'chars');
     const res = await fetch(_REKO_AI_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
