@@ -332,6 +332,65 @@ window.addEventListener('DOMContentLoaded', fetchAllData);
 // ═══════════════════════════════════════════════════════════
 // ENGINE ANALISIS — sama dengan sistem ICF di dashboard Observasi
 // ═══════════════════════════════════════════════════════════
+// ════ AKTOR DATA ════
+const AKTOR_LABEL_REKO = {"ayah": "Ayah", "ibu": "Ibu", "saudara_kandung": "Saudara Kandung", "kakek_nenek_serumah": "Kakek/Nenek (serumah)", "paman_bibi": "Paman/Bibi", "kakek_nenek_luar": "Kakek/Nenek (luar)", "sepupu": "Sepupu", "keluarga_besar_lain": "Keluarga Besar", "tetangga": "Tetangga", "teman_sebaya": "Teman Sebaya", "kelompok_bermain": "Kelompok Bermain", "warga_kampung": "Warga Kampung", "tua_golo": "Tua Golo", "tua_teno": "Tua Teno", "tokoh_adat": "Tokoh Adat", "wau": "Wau", "pastor": "Pastor/Romo", "suster_bruder": "Suster/Bruder", "katekis": "Katekis", "prodiakon": "Prodiakon", "kelompok_doa": "Kelompok Doa/Legio Maria", "pengurus_gereja": "Pengurus Gereja", "guru_agama": "Guru Agama", "guru_kelas": "Guru Kelas", "wali_kelas": "Wali Kelas", "kepala_sekolah": "Kepala Sekolah", "gpk": "Guru Pendamping Khusus", "guru_paud": "Guru PAUD/TK", "pengelola_paud": "Pengelola PAUD", "teman_sekelas": "Teman Sekelas", "bidan_desa": "Bidan Desa", "perawat_puskesmas": "Perawat Puskesmas", "dokter_puskesmas": "Dokter Puskesmas", "kader_posyandu": "Kader Posyandu", "kader_posbindu": "Kader Posbindu", "dukun_beranak": "Dukun Beranak", "fisioterapis": "Fisioterapis", "kepala_desa": "Kepala Desa", "sekdes": "Sekretaris Desa", "rt_rw": "Ketua RT/RW", "kasi_kesra": "Kasi Kesejahteraan", "pkk_desa": "PKK Desa", "karang_taruna": "Karang Taruna", "bpd": "BPD", "dinsos": "Dinas Sosial", "dinkes": "Dinas Kesehatan", "dindik": "Dinas Pendidikan", "uptd_sosial": "UPTD Sosial", "p2tp2a": "P2TP2A", "scn": "Sub Cluster Network", "cbr_worker_lain": "CBR Worker Lain", "kader_disabilitas": "Kader Disabilitas", "kelompok_tani": "Kelompok Tani", "koperasi": "Koperasi", "omk": "OMK", "org_perempuan": "Org. Perempuan", "cbm_global": "CBM Global", "ayo_indonesia": "Ayo Indonesia", "jpm_kupang": "JPM Kupang", "lsm_lokal": "LSM Lokal", "yayasan_mitra": "Yayasan Mitra", "radio_lokal": "Radio Lokal", "tokoh_medsos": "Tokoh Media Sosial", "pkh_officer": "Petugas PKH"};
+
+const TEMA_PIHAK_MAP = {"Fungsi Mental & Saraf": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "gpk", "guru_kelas", "kader_posyandu"], "Fungsi Indra (Penglihatan)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Indra (Pendengaran)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Suara & Komunikasi": ["guru_kelas", "gpk", "bidan_desa", "dokter_puskesmas", "kelompok_doa"], "Fungsi Gerak & Motorik": ["fisioterapis", "dokter_puskesmas", "dinsos", "uptd_sosial", "cbm_global"], "Fungsi Jantung & Pernafasan": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "kader_posyandu"], "Fungsi Pencernaan & Nutrisi": ["bidan_desa", "kader_posyandu", "dokter_puskesmas", "ibu", "ayah"], "Pendidikan & Belajar": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "dindik", "ayo_indonesia"], "Mobilitas & Perpindahan": ["fisioterapis", "dinsos", "uptd_sosial", "ayah", "ibu", "cbm_global"], "Perawatan Diri": ["ibu", "ayah", "saudara_kandung", "bidan_desa", "gpk"], "Komunikasi & Interaksi": ["guru_kelas", "gpk", "ibu", "ayah", "teman_sekelas", "kelompok_bermain"], "Pekerjaan Rumah Tangga": ["ibu", "ayah", "saudara_kandung", "keluarga_besar_lain"], "Interaksi Sosial & Bermain": ["teman_sebaya", "teman_sekelas", "kelompok_bermain", "warga_kampung", "tetangga"], "Partisipasi Komunitas": ["tokoh_adat", "tua_golo", "pastor", "katekis", "kelompok_doa", "karang_taruna", "omk", "rt_rw"], "Hambatan Emosional": ["ibu", "ayah", "pastor", "katekis", "guru_kelas", "bidan_desa"], "Kepercayaan Diri Rendah": ["ibu", "ayah", "guru_kelas", "teman_sebaya", "kelompok_bermain", "pastor"], "Kondisi Ekonomi": ["kepala_desa", "kasi_kesra", "pkk_desa", "dinsos", "pkh_officer", "rt_rw"], "Kondisi Rumah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "karang_taruna"], "Akses Layanan Kesehatan": ["kepala_desa", "kasi_kesra", "bidan_desa", "kader_posyandu", "dinkes"], "Dukungan Keluarga": ["ibu", "ayah", "paman_bibi", "kakek_nenek_serumah", "tua_golo", "pastor"], "Sikap Masyarakat": ["tua_golo", "tokoh_adat", "pastor", "kepala_desa", "rt_rw", "warga_kampung"], "Bantuan Pemerintah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "p2tp2a", "pkk_desa"], "Alat Bantu & Teknologi": ["dinsos", "uptd_sosial", "cbm_global", "ayo_indonesia", "fisioterapis"], "skor_anak_rendah": ["ibu", "ayah", "cbr_worker_lain", "scn", "ayo_indonesia", "bidan_desa"], "skor_pengasuh_rendah": ["ibu", "ayah", "pastor", "tua_golo", "pkk_desa", "bidan_desa", "scn"], "epilepsi": ["dokter_puskesmas", "bidan_desa", "dinkes", "ibu", "ayah"]};
+
+const AKTOR_KAT_REKO = {"Keluarga": ["ayah", "ibu", "saudara_kandung", "kakek_nenek_serumah", "paman_bibi", "kakek_nenek_luar", "sepupu", "keluarga_besar_lain"], "Komunitas": ["tetangga", "teman_sebaya", "kelompok_bermain", "warga_kampung"], "Adat": ["tua_golo", "tua_teno", "tokoh_adat", "wau"], "Keagamaan": ["pastor", "suster_bruder", "katekis", "prodiakon", "kelompok_doa", "pengurus_gereja", "guru_agama"], "Pendidikan": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "pengelola_paud", "teman_sekelas"], "Kesehatan": ["bidan_desa", "perawat_puskesmas", "dokter_puskesmas", "kader_posyandu", "kader_posbindu", "fisioterapis"], "Pemerintah Desa": ["kepala_desa", "sekdes", "rt_rw", "kasi_kesra", "pkk_desa", "karang_taruna", "bpd"], "Pemerintah Kab": ["dinsos", "dinkes", "dindik", "uptd_sosial", "p2tp2a"], "Organisasi": ["scn", "cbr_worker_lain", "kader_disabilitas", "omk", "org_perempuan"], "Mitra": ["cbm_global", "ayo_indonesia", "jpm_kupang", "lsm_lokal", "yayasan_mitra"]};
+
+
+const AKTOR_KAT_COLORS = {
+  "Keluarga":        {color:"#f97316", bg:"rgba(249,115,22,.1)"},
+  "Komunitas":       {color:"#06b6d4", bg:"rgba(6,182,212,.1)"},
+  "Adat":            {color:"#a16207", bg:"rgba(161,98,7,.1)"},
+  "Keagamaan":       {color:"#8b5cf6", bg:"rgba(139,92,246,.1)"},
+  "Pendidikan":      {color:"#3b82f6", bg:"rgba(59,130,246,.1)"},
+  "Kesehatan":       {color:"#22c55e", bg:"rgba(34,197,94,.1)"},
+  "Pemerintah Desa": {color:"#eab308", bg:"rgba(234,179,8,.1)"},
+  "Pemerintah Kab":  {color:"#f59e0b", bg:"rgba(245,158,11,.1)"},
+  "Organisasi":      {color:"#10b981", bg:"rgba(16,185,129,.1)"},
+  "Mitra":           {color:"#6366f1", bg:"rgba(99,102,241,.1)"},
+  "Lainnya":         {color:"#7a8faf", bg:"rgba(122,143,175,.1)"},
+};
+
+function getAktorKategori(aktorKey) {
+  for (const [kat, list] of Object.entries(AKTOR_KAT_REKO)) {
+    if (list.includes(aktorKey)) return kat;
+  }
+  return "Lainnya";
+}
+
+function renderPihakChips(pihakList) {
+  if (!pihakList || !pihakList.length) return '';
+  // Kelompokkan per kategori
+  const byKat = {};
+  pihakList.forEach(key => {
+    const kat = getAktorKategori(key);
+    if (!byKat[kat]) byKat[kat] = [];
+    byKat[kat].push(key);
+  });
+  const rows = Object.entries(byKat).map(([kat, keys]) => {
+    const colInfo = AKTOR_KAT_COLORS[kat] || {color:'#7a8faf', bg:'rgba(122,143,175,.1)'};
+    const chips = keys.map(k => {
+      const label = AKTOR_LABEL_REKO[k] || k;
+      return `<span class="pihak-chip" style="color:${colInfo.color};background:${colInfo.bg};border-color:${colInfo.color}40">${label}</span>`;
+    }).join('');
+    return `<div class="pihak-kat-row">
+      <span class="pihak-kat-label" style="color:${colInfo.color};background:${colInfo.bg};border:1px solid ${colInfo.color}40">${kat}</span>
+      <div class="pihak-chips">${chips}</div>
+    </div>`;
+  }).join('');
+  return `<div class="pihak-kat-wrap">
+    <div style="font-size:10px;color:var(--mut);margin-bottom:4px;font-weight:600">Pihak yang perlu dilibatkan:</div>
+    ${rows}
+  </div>`;
+}
+
+// ════ AI REKOMENDASI ════
+const _REKO_AI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const _REKO_AI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + _REKO_AI_KEY;
+
 const THEMES_ICF = {
   struktur: [
     { label:'Fungsi Mental & Saraf', domain:'Struktur Tubuh',
@@ -916,7 +975,7 @@ function renderDetailAnak(nama) {
             <div class="masalah-text"><strong>Temuan:</strong> ${s.masalah}</div>
             <div class="masalah-text" style="margin-top:6px"><strong>Rencana:</strong> ${s.rencana}</div>
             ${s.pihak && s.pihak.length ? renderPihakChips(s.pihak) : ''}
-            ${s.aiReko ? `<div class="ai-reko-box"><div class="ai-reko-label">✦ Analisis AI</div><div class="ai-reko-text">${s.aiReko}</div></div>` : ''}
+
           </div>
         </div>
       `).join('')}
@@ -1181,63 +1240,6 @@ function exportOnePDF(nama) {
 
 
 
-// ════ AKTOR DATA ════
-const AKTOR_LABEL_REKO = {"ayah": "Ayah", "ibu": "Ibu", "saudara_kandung": "Saudara Kandung", "kakek_nenek_serumah": "Kakek/Nenek (serumah)", "paman_bibi": "Paman/Bibi", "kakek_nenek_luar": "Kakek/Nenek (luar)", "sepupu": "Sepupu", "keluarga_besar_lain": "Keluarga Besar", "tetangga": "Tetangga", "teman_sebaya": "Teman Sebaya", "kelompok_bermain": "Kelompok Bermain", "warga_kampung": "Warga Kampung", "tua_golo": "Tu"a Golo", "tua_teno": "Tu"a Teno", "tokoh_adat": "Tokoh Adat", "wau": "Wa"u", "pastor": "Pastor/Romo", "suster_bruder": "Suster/Bruder", "katekis": "Katekis", "prodiakon": "Prodiakon", "kelompok_doa": "Kelompok Doa/Legio Maria", "pengurus_gereja": "Pengurus Gereja", "guru_agama": "Guru Agama", "guru_kelas": "Guru Kelas", "wali_kelas": "Wali Kelas", "kepala_sekolah": "Kepala Sekolah", "gpk": "Guru Pendamping Khusus", "guru_paud": "Guru PAUD/TK", "pengelola_paud": "Pengelola PAUD", "teman_sekelas": "Teman Sekelas", "bidan_desa": "Bidan Desa", "perawat_puskesmas": "Perawat Puskesmas", "dokter_puskesmas": "Dokter Puskesmas", "kader_posyandu": "Kader Posyandu", "kader_posbindu": "Kader Posbindu", "dukun_beranak": "Dukun Beranak", "fisioterapis": "Fisioterapis", "kepala_desa": "Kepala Desa", "sekdes": "Sekretaris Desa", "rt_rw": "Ketua RT/RW", "kasi_kesra": "Kasi Kesejahteraan", "pkk_desa": "PKK Desa", "karang_taruna": "Karang Taruna", "bpd": "BPD", "dinsos": "Dinas Sosial", "dinkes": "Dinas Kesehatan", "dindik": "Dinas Pendidikan", "uptd_sosial": "UPTD Sosial", "p2tp2a": "P2TP2A", "scn": "Sub Cluster Network", "cbr_worker_lain": "CBR Worker Lain", "kader_disabilitas": "Kader Disabilitas", "kelompok_tani": "Kelompok Tani", "koperasi": "Koperasi", "omk": "OMK", "org_perempuan": "Org. Perempuan", "cbm_global": "CBM Global", "ayo_indonesia": "Ayo Indonesia", "jpm_kupang": "JPM Kupang", "lsm_lokal": "LSM Lokal", "yayasan_mitra": "Yayasan Mitra", "radio_lokal": "Radio Lokal", "tokoh_medsos": "Tokoh Media Sosial", "pkh_officer": "Petugas PKH"};
-
-const TEMA_PIHAK_MAP = {"Fungsi Mental & Saraf": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "gpk", "guru_kelas", "kader_posyandu"], "Fungsi Indra (Penglihatan)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Indra (Pendengaran)": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "dinkes"], "Fungsi Suara & Komunikasi": ["guru_kelas", "gpk", "bidan_desa", "dokter_puskesmas", "kelompok_doa"], "Fungsi Gerak & Motorik": ["fisioterapis", "dokter_puskesmas", "dinsos", "uptd_sosial", "cbm_global"], "Fungsi Jantung & Pernafasan": ["dokter_puskesmas", "perawat_puskesmas", "bidan_desa", "kader_posyandu"], "Fungsi Pencernaan & Nutrisi": ["bidan_desa", "kader_posyandu", "dokter_puskesmas", "ibu", "ayah"], "Pendidikan & Belajar": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "dindik", "ayo_indonesia"], "Mobilitas & Perpindahan": ["fisioterapis", "dinsos", "uptd_sosial", "ayah", "ibu", "cbm_global"], "Perawatan Diri": ["ibu", "ayah", "saudara_kandung", "bidan_desa", "gpk"], "Komunikasi & Interaksi": ["guru_kelas", "gpk", "ibu", "ayah", "teman_sekelas", "kelompok_bermain"], "Pekerjaan Rumah Tangga": ["ibu", "ayah", "saudara_kandung", "keluarga_besar_lain"], "Interaksi Sosial & Bermain": ["teman_sebaya", "teman_sekelas", "kelompok_bermain", "warga_kampung", "tetangga"], "Partisipasi Komunitas": ["tokoh_adat", "tua_golo", "pastor", "katekis", "kelompok_doa", "karang_taruna", "omk", "rt_rw"], "Hambatan Emosional": ["ibu", "ayah", "pastor", "katekis", "guru_kelas", "bidan_desa"], "Kepercayaan Diri Rendah": ["ibu", "ayah", "guru_kelas", "teman_sebaya", "kelompok_bermain", "pastor"], "Kondisi Ekonomi": ["kepala_desa", "kasi_kesra", "pkk_desa", "dinsos", "pkh_officer", "rt_rw"], "Kondisi Rumah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "karang_taruna"], "Akses Layanan Kesehatan": ["kepala_desa", "kasi_kesra", "bidan_desa", "kader_posyandu", "dinkes"], "Dukungan Keluarga": ["ibu", "ayah", "paman_bibi", "kakek_nenek_serumah", "tua_golo", "pastor"], "Sikap Masyarakat": ["tua_golo", "tokoh_adat", "pastor", "kepala_desa", "rt_rw", "warga_kampung"], "Bantuan Pemerintah": ["kepala_desa", "kasi_kesra", "dinsos", "uptd_sosial", "p2tp2a", "pkk_desa"], "Alat Bantu & Teknologi": ["dinsos", "uptd_sosial", "cbm_global", "ayo_indonesia", "fisioterapis"], "skor_anak_rendah": ["ibu", "ayah", "cbr_worker_lain", "scn", "ayo_indonesia", "bidan_desa"], "skor_pengasuh_rendah": ["ibu", "ayah", "pastor", "tua_golo", "pkk_desa", "bidan_desa", "scn"], "epilepsi": ["dokter_puskesmas", "bidan_desa", "dinkes", "ibu", "ayah"]};
-
-const AKTOR_KAT_REKO = {"Keluarga": ["ayah", "ibu", "saudara_kandung", "kakek_nenek_serumah", "paman_bibi", "kakek_nenek_luar", "sepupu", "keluarga_besar_lain"], "Komunitas": ["tetangga", "teman_sebaya", "kelompok_bermain", "warga_kampung"], "Adat": ["tua_golo", "tua_teno", "tokoh_adat", "wau"], "Keagamaan": ["pastor", "suster_bruder", "katekis", "prodiakon", "kelompok_doa", "pengurus_gereja", "guru_agama"], "Pendidikan": ["guru_kelas", "wali_kelas", "kepala_sekolah", "gpk", "guru_paud", "pengelola_paud", "teman_sekelas"], "Kesehatan": ["bidan_desa", "perawat_puskesmas", "dokter_puskesmas", "kader_posyandu", "kader_posbindu", "fisioterapis"], "Pemerintah Desa": ["kepala_desa", "sekdes", "rt_rw", "kasi_kesra", "pkk_desa", "karang_taruna", "bpd"], "Pemerintah Kab": ["dinsos", "dinkes", "dindik", "uptd_sosial", "p2tp2a"], "Organisasi": ["scn", "cbr_worker_lain", "kader_disabilitas", "omk", "org_perempuan"], "Mitra": ["cbm_global", "ayo_indonesia", "jpm_kupang", "lsm_lokal", "yayasan_mitra"]};
-
-
-const AKTOR_KAT_COLORS = {
-  'Keluarga':       {color:'#f97316', bg:'rgba(249,115,22,.1)'},
-  'Komunitas':      {color:'#06b6d4', bg:'rgba(6,182,212,.1)'},
-  'Adat':           {color:'#a16207', bg:'rgba(161,98,7,.1)'},
-  'Keagamaan':      {color:'#8b5cf6', bg:'rgba(139,92,246,.1)'},
-  'Pendidikan':     {color:'#3b82f6', bg:'rgba(59,130,246,.1)'},
-  'Kesehatan':      {color:'#22c55e', bg:'rgba(34,197,94,.1)'},
-  'Pemerintah Desa':{color:'#eab308', bg:'rgba(234,179,8,.1)'},
-  'Pemerintah Kab': {color:'#f59e0b', bg:'rgba(245,158,11,.1)'},
-  'Organisasi':     {color:'#10b981', bg:'rgba(16,185,129,.1)'},
-  'Mitra':          {color:'#6366f1', bg:'rgba(99,102,241,.1)'},
-};
-
-function getAktorKategori(aktorKey) {
-  for (const [kat, list] of Object.entries(AKTOR_KAT_REKO)) {
-    if (list.includes(aktorKey)) return kat;
-  }
-  return 'Lainnya';
-}
-
-function renderPihakChips(pihakList) {
-  if (!pihakList || !pihakList.length) return '';
-  // Kelompokkan per kategori
-  const byKat = {};
-  pihakList.forEach(key => {
-    const kat = getAktorKategori(key);
-    if (!byKat[kat]) byKat[kat] = [];
-    byKat[kat].push(key);
-  });
-  const rows = Object.entries(byKat).map(([kat, keys]) => {
-    const colInfo = AKTOR_KAT_COLORS[kat] || {color:'#7a8faf', bg:'rgba(122,143,175,.1)'};
-    const chips = keys.map(k => {
-      const label = AKTOR_LABEL_REKO[k] || k;
-      return `<span class="pihak-chip" style="color:${colInfo.color};background:${colInfo.bg};border-color:${colInfo.color}40">${label}</span>`;
-    }).join('');
-    return `<div class="pihak-kat-row">
-      <span class="pihak-kat-label" style="color:${colInfo.color};background:${colInfo.bg};border:1px solid ${colInfo.color}40">${kat}</span>
-      <div class="pihak-chips">${chips}</div>
-    </div>`;
-  }).join('');
-  return `<div class="pihak-kat-wrap">
-    <div style="font-size:10px;color:var(--mut);margin-bottom:4px;font-weight:600">Pihak yang perlu dilibatkan:</div>
-    ${rows}
-  </div>`;
-}
-
-// ════ AI REKOMENDASI ════
-const _REKO_AI_KEY = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
-const _REKO_AI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + _REKO_AI_KEY;
 
 async function generateRekoAI(nama, cb, top3, awal, obs) {
   // Siapkan konteks data anak
