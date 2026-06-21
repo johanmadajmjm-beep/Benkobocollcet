@@ -949,86 +949,90 @@ function filterNamaPanel() {
 
 function renderDetailAnak(nama) {
   const a = ANALISIS.find(x => x.na === nama);
-  const el = document.getElementById('cbr-detail-mode');
-  if (!a) { el.innerHTML = '<div class="empty"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 4"/><path d="M12 17h.01"/></svg></div><h2>Data tidak ditemukan</h2></div>'; return; }
+  const el = document.getElementById('cbr-detail-content');
+  if (!el || !a) return;
 
-  const color = avatarColor(a.na);
-  const DOT_RED = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--red);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const DOT_AMB = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--amb);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const DOT_GRN = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:8px;height:8px;color:var(--grn);vertical-align:1px;margin-right:4px"><circle cx="12" cy="12" r="10"/></svg>';
-  const priLabel = { tinggi:DOT_RED+'Prioritas Tinggi', sedang:DOT_AMB+'Prioritas Sedang', rendah:DOT_GRN+'Prioritas Rendah' };
-  const priBg = { tinggi:'rgba(239,68,68,.12)', sedang:'rgba(245,158,11,.12)', rendah:'rgba(34,197,94,.12)' };
-  const priColor2 = { tinggi:'var(--red)', sedang:'var(--amb)', rendah:'var(--grn)' };
   const awal = a.awal;
+  const obs  = a.obs;
+  const initials = nama.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
 
-  let html = `
-    <button onclick="showList()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--faint);border:1px solid var(--bdr);color:var(--mut2);font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Kembali ke Daftar</button>
-    <div class="detail-hdr">
-      <div class="d-avatar" style="background:${color}22;color:${color}">${initials(a.na)}</div>
-      <div style="flex:1;min-width:200px">
-        <div class="d-name">${a.na}</div>
-        <div class="d-cbr">${a.cb} · CBR Worker</div>
-        <div class="d-meta">
-          ${awal && awal.u !== null ? `<span class="dm">Usia: <span>${awal.u} th</span></span>` : ''}
-          ${awal && awal.j ? `<span class="dm">Jenis Kelamin: <span>${awal.j}</span></span>` : ''}
-          ${awal && awal.rg ? `<span class="dm">Ragam: <span>${awal.rg}</span></span>` : ''}
-          ${awal && awal.d ? `<span class="dm">Desa: <span>${awal.d}</span></span>` : ''}
-        </div>
+  el.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-avatar">${initials}</div>
+      <div class="detail-info">
+        <div class="detail-nama">${nama}</div>
+        <div class="detail-sub">${a.cb} &middot; CBR Worker</div>
+        ${awal ? `<div class="detail-meta" style="margin-top:6px">
+          ${awal.u ? `<span class="chip">Usia ${awal.u} th</span>` : ''}
+          ${awal.j ? `<span class="chip">JK: ${awal.j}</span>` : ''}
+          ${awal.k ? `<span class="chip">Kampung: ${awal.k}</span>` : ''}
+          ${awal.d ? `<span class="chip">Desa: ${awal.d}</span>` : ''}
+          ${awal.rg ? `<span class="chip">Ragam: ${awal.rg}</span>` : ''}
+          ${awal.lv ? `<span class="chip">Level: ${awal.lv}</span>` : ''}
+          ${awal.ep === 'Ya' ? `<span class="chip" style="color:#ef4444">Epilepsi: Ya</span>` : ''}
+          ${awal.ob ? `<span class="chip">Pengobatan: ${awal.ob}</span>` : ''}
+          ${awal.tr ? `<span class="chip">Terapi: ${awal.tr}</span>` : ''}
+        </div>` : ''}
       </div>
-      <div class="d-priority-box" style="background:${priBg[a.priorityLevel]};border:1px solid ${priColor2[a.priorityLevel]}">
-        <div class="dp-val" style="color:${priColor2[a.priorityLevel]}">${priLabel[a.priorityLevel]}</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:flex-start">
-        <button class="back-btn" onclick="exportOneExcel('${a.na.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 19V5M4 19h16M8 19v-6M12 19v-9M16 19v-4"/></svg></button>
-        <button class="back-btn" onclick="exportOnePDF('${a.na.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
-      </div>
+      ${awal ? `<div style="text-align:right;flex-shrink:0">
+        <div style="font-size:28px;font-weight:900;color:${a.sa<=4?'var(--red)':a.sa<=6?'#f59e0b':'#22c55e'}">${a.sa !== null ? a.sa : '-'}</div>
+        <div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div>
+        <div style="font-size:22px;font-weight:800;color:${a.sp<=4?'var(--red)':a.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${a.sp !== null ? a.sp : '-'}</div>
+        <div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div>
+      </div>` : ''}
     </div>
 
-    <div class="masalah-card">
-      <div class="masalah-hd"><div class="dot"></div>Bahan Diskusi Rencana Anak — 3 Bulan Ke Depan</div>
-      ${a.top3.map((s, i) => `
-        <div class="masalah-item">
-          <div class="masalah-num">${i+1}</div>
-          <div class="masalah-body">
-            <div class="masalah-text"><strong>Temuan:</strong> ${s.masalah}</div>
-            <div class="masalah-text" style="margin-top:6px"><strong>Rencana:</strong> ${s.rencana}</div>
-            ${s.pihak && s.pihak.length ? renderPihakChips(s.pihak) : ''}
+    <div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div>
 
-          </div>
-        </div>
-      `).join('')}
+    <div id="kat-container">
+      <div class="kat-loading">
+        <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+        <span style="margin-left:8px;font-size:12px">AI sedang menganalisis data anak...</span>
+      </div>
     </div>
   `;
 
-  el.innerHTML = html;
+  // Panggil AI
+  var _targetNama = nama;
+  generateRekoAI(nama, a.cb, awal, obs).then(function(result) {
+    if (activeAnak !== _targetNama) return;
+    var container = document.getElementById('kat-container');
+    if (!container) return;
+    if (!result) {
+      container.innerHTML = '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada hasil analisis.</div>';
+      return;
+    }
 
-  // ── AI Rekomendasi — tracking anak aktif ──
-  var _aiData = ANALISIS.find(function(x){ return x.na === nama; });
-  if (_aiData) {
-    var _aiBox = document.createElement('div');
-    _aiBox.className = 'ai-reko-box';
-    _aiBox.id = 'ai-reko-main';
-    _aiBox.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
-      '<div class="ai-reko-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>' +
-      '<span style="margin-left:6px;font-size:11px">Menganalisis...</span></div>';
-    var _masalahCard = el.querySelector('.masalah-card');
-    if (_masalahCard) _masalahCard.appendChild(_aiBox);
+    var katConfig = {
+      kesehatan: { label: '&#128680; Kesehatan', cls: 'kat-kesehatan' },
+      sosial:    { label: '&#128101; Sosial',    cls: 'kat-sosial'    },
+      ekonomi:   { label: '&#128176; Ekonomi',   cls: 'kat-ekonomi'   },
+    };
 
-    var _targetNama = nama;
-    generateRekoAI(_aiData.na, _aiData.cb, _aiData.top3, _aiData.awal, _aiData.obs).then(function(aiText) {
-      // Hanya tampilkan jika masih di halaman anak yang sama
-      if (activeAnak !== _targetNama) return;
-      var box = document.getElementById('ai-reko-main');
-      if (!box) return;
-      if (!aiText) { box.style.display = 'none'; return; }
-      box.innerHTML = '<div class="ai-reko-label">✦ Rekomendasi & Tindak Lanjut (AI)</div>' +
-        '<div class="ai-reko-text">' + aiText + '</div>';
-    }).catch(function() {
-      var box = document.getElementById('ai-reko-main');
-      if (box) box.style.display = 'none';
+    var html = '';
+    ['kesehatan','sosial','ekonomi'].forEach(function(kat) {
+      var d = result[kat];
+      if (!d || !d.temuan) return;
+      var cfg = katConfig[kat];
+      var pihakHtml = (d.pihak && d.pihak.length) ? renderPihak(d.pihak) : '';
+      html += '<div class="kat-block ' + cfg.cls + '">' +
+        '<div class="kat-header">' + cfg.label + '</div>' +
+        '<div class="kat-body">' +
+          '<div class="kat-label">Temuan</div>' +
+          '<div class="kat-temuan">' + d.temuan + '</div>' +
+          '<div class="kat-label">Rekomendasi &amp; Tindak Lanjut</div>' +
+          '<div class="kat-rtl">' + d.rtl + '</div>' +
+          (pihakHtml ? '<div class="kat-label" style="margin-top:8px">Pihak yang perlu dilibatkan</div>' + pihakHtml : '') +
+        '</div></div>';
     });
-  }
+
+    container.innerHTML = html || '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada temuan signifikan.</div>';
+  }).catch(function() {
+    var container = document.getElementById('kat-container');
+    if (container) container.innerHTML = '<div style="color:var(--red);padding:20px;font-size:12px">Gagal memuat analisis AI.</div>';
+  });
 }
+
 
 // ═══════════════════════════════════════════════════════════
 // EXPORT EXCEL — format tabel (bukan range biasa)
@@ -1301,64 +1305,55 @@ function extractKeyPoints(text, maxChars) {
   return result || t.substring(0, maxChars);
 }
 
-async function generateRekoAI(nama, cb, top3, awal, obs) {
-  // Siapkan konteks data anak
-  // Ambil data kompres jika tersedia
+async function generateRekoAI(nama, cb, awal, obs) {
   var awalK = DATA_AWAL_KOMPRES[nama] || null;
   var obsK  = DATA_OBS_KOMPRES[nama]  || null;
-  if (awalK || obsK) {
-    console.log('[RekoAI] Pakai data kompres untuk:', nama);
-  } else {
-    console.log('[RekoAI] Fallback ke extractKeyPoints untuk:', nama);
-  }
+  console.log('[RekoAI] Pakai data kompres untuk:', nama);
 
-  // Batasi setiap field ke max chars
-  function cap(str, max) { return str ? String(str).substring(0, max) : ''; }
+  function cap(s, n) { return s ? String(s).substring(0, n) : ''; }
 
-  const konteks = [
-    `Nama: ${nama} | CBR: ${cb} | Ragam: ${awal ? awal.rg||'-' : '-'} | Skor Anak: ${awal && awal.sa !== null ? awal.sa+'/10' : '-'} | Skor Pengasuh: ${awal && awal.sp !== null ? awal.sp+'/10' : '-'}`,
-    (awalK && awalK.nka) ? `Naik anak: ${cap(awalK.nka,150)}` : (awal && awal.nka ? `Naik anak: ${cap(extractKeyPoints(awal.nka,150),150)}` : ''),
-    (awalK && awalK.tka) ? `Turun anak: ${cap(awalK.tka,150)}` : (awal && awal.tka ? `Turun anak: ${cap(extractKeyPoints(awal.tka,150),150)}` : ''),
-    (awalK && awalK.nkp) ? `Naik pengasuh: ${cap(awalK.nkp,150)}` : (awal && awal.nkp ? `Naik pengasuh: ${cap(extractKeyPoints(awal.nkp,150),150)}` : ''),
-    (awalK && awalK.tkp) ? `Turun pengasuh: ${cap(awalK.tkp,150)}` : (awal && awal.tkp ? `Turun pengasuh: ${cap(extractKeyPoints(awal.tkp,150),150)}` : ''),
-    (obsK && obsK.st) ? `Tubuh: ${cap(obsK.st,200)}` : (obs && obs.st ? `Tubuh: ${cap(extractKeyPoints(obs.st,200),200)}` : ''),
-    (obsK && obsK.kg) ? `Kegiatan: ${cap(obsK.kg,200)}` : (obs && obs.kg ? `Kegiatan: ${cap(extractKeyPoints(obs.kg,200),200)}` : ''),
-    (obsK && obsK.pf) ? `Personal: ${cap(obsK.pf,150)}` : (obs && obs.pf ? `Personal: ${cap(extractKeyPoints(obs.pf,150),150)}` : ''),
-    (obsK && obsK.lg) ? `Lingkungan: ${cap(obsK.lg,200)}` : (obs && obs.lg ? `Lingkungan: ${cap(extractKeyPoints(obs.lg,200),200)}` : ''),
+  var konteks = [
+    'Nama: ' + nama + ' | CBR: ' + cb +
+    ' | Ragam: ' + (awal ? awal.rg||'-' : '-') +
+    ' | Skor Anak: ' + (awal && awal.sa !== null ? awal.sa+'/10' : '-') +
+    ' | Skor Pengasuh: ' + (awal && awal.sp !== null ? awal.sp+'/10' : '-'),
+    awalK && awalK.nka ? 'Naik anak: ' + cap(awalK.nka,150) : (awal && awal.nka ? 'Naik anak: ' + cap(awal.nka,150) : ''),
+    awalK && awalK.tka ? 'Turun anak: ' + cap(awalK.tka,150) : (awal && awal.tka ? 'Turun anak: ' + cap(awal.tka,150) : ''),
+    awalK && awalK.nkp ? 'Naik pengasuh: ' + cap(awalK.nkp,150) : (awal && awal.nkp ? 'Naik pengasuh: ' + cap(awal.nkp,150) : ''),
+    awalK && awalK.tkp ? 'Turun pengasuh: ' + cap(awalK.tkp,150) : (awal && awal.tkp ? 'Turun pengasuh: ' + cap(awal.tkp,150) : ''),
+    obsK && obsK.st ? 'Tubuh: ' + cap(obsK.st,200) : (obs && obs.st ? 'Tubuh: ' + cap(obs.st,200) : ''),
+    obsK && obsK.kg ? 'Kegiatan: ' + cap(obsK.kg,200) : (obs && obs.kg ? 'Kegiatan: ' + cap(obs.kg,200) : ''),
+    obsK && obsK.pf ? 'Personal: ' + cap(obsK.pf,150) : (obs && obs.pf ? 'Personal: ' + cap(obs.pf,150) : ''),
+    obsK && obsK.lg ? 'Lingkungan: ' + cap(obsK.lg,200) : (obs && obs.lg ? 'Lingkungan: ' + cap(obs.lg,200) : ''),
   ].filter(Boolean).join('\n');
 
-  const temuan = top3.map((s,i) => `${i+1}. ${s.masalah}`).join('\n');
-  const pihakAll = [...new Set(top3.flatMap(s => s.pihak || []))];
-  const pihakLabels = pihakAll.map(k => AKTOR_LABEL_REKO[k] || k).join(', ');
+  console.log('[RekoAI] Prompt konteks length:', konteks.length);
 
-  const prompt = `Kamu adalah supervisor program CBR (rehabilitasi berbasis komunitas) di Manggarai, NTT, Indonesia.
+  var pihakKodeList = Object.keys(AKTOR_LABEL).join(', ');
 
-DATA ANAK:
-${konteks}
-
-TEMUAN PRIORITAS (dari sistem analisis):
-${temuan}
-
-PIHAK YANG AKAN DILIBATKAN: ${pihakLabels || 'belum ditentukan'}
-
-TUGAS KAMU:
-Berdasarkan HANYA fakta yang ada di data di atas, buat rekomendasi tindak lanjut.
-
-ATURAN:
-- Hanya gunakan informasi yang tersedia — jangan mengarang atau menambah fakta baru
-- Sebutkan isu spesifik nyata (toilet training, belum sekolah, rumah tidak layak, pengawasan minim, bantuan terhenti, perilaku stereotipe, alat bantu, dsb)
-- Setiap poin harus actionable dan bisa dilakukan CBR Worker atau pihak terkait
-- Kontekstual Manggarai (adat, gereja, pertanian, kondisi geografis)
-- Sertakan target waktu per poin
-
-Format — 4 sampai 6 poin singkat:
-• [Isu dari data] → [Tindak lanjut] — [Target waktu]
-
-Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
+  var prompt = 'Kamu supervisor program CBR anak disabilitas di Manggarai, NTT.\n\n' +
+    'DATA ANAK:\n' + konteks + '\n\n' +
+    'Analisis data dan return JSON (HANYA JSON tanpa teks lain):\n' +
+    '{\n' +
+    '  "kesehatan": {"temuan":"...","rtl":"...","pihak":["kode1","kode2"]},\n' +
+    '  "sosial": {"temuan":"...","rtl":"...","pihak":["kode1"]},\n' +
+    '  "ekonomi": {"temuan":"...","rtl":"...","pihak":["kode1"]}\n' +
+    '}\n\n' +
+    'Aturan kategori:\n' +
+    '- kesehatan: kondisi fisik/mental, epilepsi, gizi, akses kesehatan, perawatan diri, toilet training\n' +
+    '- sosial: pendidikan, komunikasi, interaksi, pengasuhan, stigma, partisipasi adat/gereja\n' +
+    '- ekonomi: ekonomi keluarga, PKH/BLT/BPJS, kondisi rumah, pekerjaan pengasuh, alat bantu\n' +
+    'Aturan output:\n' +
+    '- Jika tidak ada temuan di satu kategori, beri temuan string kosong ""\n' +
+    '- temuan: fakta spesifik dari data, singkat (1-2 kalimat)\n' +
+    '- rtl: rekomendasi konkret + target waktu (1-2 kalimat)\n' +
+    '- pihak: kode dari daftar ini saja: ' + Object.keys(AKTOR_LABEL).join(', ') + '\n' +
+    '- Hanya dari data yang ada, jangan mengarang\n' +
+    '- Bahasa Indonesia';
 
   try {
-    console.log('[RekoAI] Prompt length:', prompt.length, 'chars | konteks:', konteks.length, 'chars');
-    const res = await fetch(_REKO_AI_URL, {
+    console.log('[RekoAI] Total prompt length:', prompt.length);
+    var res = await fetch(_REKO_AI_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1367,17 +1362,21 @@ Bahasa Indonesia natural. Hanya dari data yang diberikan.`;
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [{role: 'user', content: prompt}],
-        temperature: 0.3,
+        temperature: 0.2,
         max_tokens: 600
       })
     });
-    const data = await res.json();
-    return data?.choices?.[0]?.message?.content || '';
+    var data = await res.json();
+    var raw = data?.choices?.[0]?.message?.content || '';
+    console.log('[RekoAI] Raw:', raw.substring(0,200));
+    var cleaned = raw.replace(/```json/g,'').replace(/```/g,'').trim();
+    return JSON.parse(cleaned);
   } catch(e) {
-    console.warn('AI reko error:', e);
-    return '';
+    console.warn('[RekoAI] Error:', e.message);
+    return null;
   }
 }
+
 
 
 
