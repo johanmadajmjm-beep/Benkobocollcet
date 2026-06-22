@@ -5,152 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard BEN – SCN Manggarai</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
-// ── Export PDF Dashboard BEN SCN Manggarai ──────────────────
-function exportBenPDF() {
-  if (!D || !D.length) { alert('Belum ada data untuk diekspor.'); return; }
-  var { jsPDF } = window.jspdf;
-  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  var W = doc.internal.pageSize.getWidth();
-  var H = doc.internal.pageSize.getHeight();
-  var M = 14;
-  var y = 20;
+// ════ QUAL CARDS + AI ════
+const GEMINI_KEY_BEN = 'AIzaSyAQ-Ab8RN6Jc0Pz4APMqvH97q7FfCCnWHkNqfMrRvAW_gGkhhoDtyg';
+const GEMINI_URL_BEN = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY_BEN;
 
-  // Header
-  doc.setFillColor(20,28,46);
-  doc.rect(0, 0, W, 16, 'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(12);
-  doc.setTextColor(255,255,255);
-  doc.text('BEN SCN Manggarai', M, 10);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('Profil Anak Dampingan · ' + new Date().toLocaleDateString('id-ID'), W-M, 10, {align:'right'});
-  doc.setTextColor(0,0,0);
-
-  // Ringkasan Eksekutif
-  y = 22;
-  doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.text('Ringkasan Eksekutif', M, y); y += 6;
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  var valid = V();
-  var totalAnak = D.length;
-  var avgSa = avg(valid.map(function(r){return r.sa;})).toFixed(1);
-  var avgSp = avg(valid.map(function(r){return r.sp;})).toFixed(1);
-  var ringkasan = 'Total ' + totalAnak + ' anak terdaftar dalam program BEN SCN Manggarai. Rata-rata skor kualitas hidup anak: ' + avgSa + '/10, rata-rata skor pengasuh: ' + avgSp + '/10.';
-  var wrp = doc.splitTextToSize(ringkasan, W-2*M);
-  doc.text(wrp, M, y); y += wrp.length*4.5 + 6;
-
-  // 1. Tabel Jumlah Anak per Jenis Kelamin
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('1. Jumlah Anak per Jenis Kelamin', M, y); y += 3;
-  var jkCount = cnt(D, 'j');
-  doc.autoTable({
-    startY: y,
-    head: [['Jenis Kelamin','Jumlah','Persentase']],
-    body: Object.entries(jkCount).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // 2. Tabel Jumlah Anak per Level Disabilitas
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('2. Jumlah Anak per Level Disabilitas', M, y); y += 3;
-  var lvCount = cnt(D, 'lv');
-  doc.autoTable({
-    startY: y,
-    head: [['Level Disabilitas','Jumlah','Persentase']],
-    body: Object.entries(lvCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // 3. Tabel Jumlah Anak per Ragam Disabilitas
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('3. Jumlah Anak per Ragam Disabilitas', M, y); y += 3;
-  var rgCount = cnt(D, 'rg');
-  doc.autoTable({
-    startY: y,
-    head: [['Ragam Disabilitas','Jumlah','Persentase']],
-    body: Object.entries(rgCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // 4. Tabel Kondisi Epilepsi dan Pengobatan
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('4. Kondisi Epilepsi dan Pengobatan', M, y); y += 3;
-  var epYa = D.filter(function(r){return r.ep==='Ya';}).length;
-  var epTidak = D.filter(function(r){return r.ep==='Tidak';}).length;
-  var obYa = D.filter(function(r){return r.ob==='Ya';}).length;
-  var obTidak = D.filter(function(r){return r.ob==='Tidak';}).length;
-  var trYa = D.filter(function(r){return r.tr==='Ya';}).length;
-  var trTidak = D.filter(function(r){return r.tr==='Tidak';}).length;
-  doc.autoTable({
-    startY: y,
-    head: [['Kondisi','Ya','% Ya','Tidak','% Tidak']],
-    body: [
-      ['Epilepsi', String(epYa), Math.round(epYa/totalAnak*100)+'%', String(epTidak), Math.round(epTidak/totalAnak*100)+'%'],
-      ['Pengobatan Rutin', String(obYa), Math.round(obYa/totalAnak*100)+'%', String(obTidak), Math.round(obTidak/totalAnak*100)+'%'],
-      ['Pernah Terapi', String(trYa), Math.round(trYa/totalAnak*100)+'%', String(trTidak), Math.round(trTidak/totalAnak*100)+'%'],
-    ],
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // 5. Tabel Jumlah Anak per Kondisi (Prioritas)
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('5. Jumlah Anak per Kondisi Prioritas', M, y); y += 3;
-  var saRendah = valid.filter(function(r){return r.sa!==null&&r.sa<=4;}).length;
-  var saSedang = valid.filter(function(r){return r.sa!==null&&r.sa>=5&&r.sa<=6;}).length;
-  var saBaik   = valid.filter(function(r){return r.sa!==null&&r.sa>=7;}).length;
-  var spRendah = valid.filter(function(r){return r.sp!==null&&r.sp<=4;}).length;
-  var spSedang = valid.filter(function(r){return r.sp!==null&&r.sp>=5&&r.sp<=6;}).length;
-  var spBaik   = valid.filter(function(r){return r.sp!==null&&r.sp>=7;}).length;
-  doc.autoTable({
-    startY: y,
-    head: [['Kondisi Prioritas','Anak','% Anak','Pengasuh','% Pengasuh']],
-    body: [
-      ['Prioritas Tinggi (1-4)', String(saRendah), Math.round(saRendah/valid.length*100)+'%', String(spRendah), Math.round(spRendah/valid.length*100)+'%'],
-      ['Prioritas Sedang (5-6)', String(saSedang), Math.round(saSedang/valid.length*100)+'%', String(spSedang), Math.round(spSedang/valid.length*100)+'%'],
-      ['Prioritas Rendah (7-10)', String(saBaik),  Math.round(saBaik/valid.length*100)+'%',   String(spBaik),   Math.round(spBaik/valid.length*100)+'%'],
-    ],
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-  y = doc.lastAutoTable.finalY + 8;
-
-  // 6. Tabel Jumlah Anak per CBR Worker
-  if (y > H-60) { doc.addPage(); y=20; }
-  doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('6. Jumlah Anak per CBR Worker', M, y); y += 3;
-  var cbCount = cnt(D, 'cb');
-  doc.autoTable({
-    startY: y,
-    head: [['CBR Worker','Jumlah Anak','Persentase']],
-    body: Object.entries(cbCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
-    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
-  });
-
-  // Footer
-  var pageCount = doc.internal.getNumberOfPages();
-  for (var i=1; i<=pageCount; i++) {
-    doc.setPage(i);
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
-    doc.setTextColor(150,150,150);
-    doc.text('BEN SCN Manggarai · Dicetak: ' + new Date().toLocaleDateString('id-ID'), M, H-6);
-    doc.text('Halaman '+i+' dari '+pageCount, W-M, H-6, {align:'right'});
-    doc.setTextColor(0,0,0);
+function renderQualCards(items, containerId, color, bgColor) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  if (!items.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mut);font-size:12px">Tidak ada data</div>';
+    return;
   }
-
-  doc.save('Profil-Anak-BEN-SCN-Manggarai-' + new Date().toISOString().slice(0,10) + '.pdf');
+  el.innerHTML = items.slice(0,6).map(function(item) {
+    var kutipanHtml = (item.samples||[]).slice(0,2).map(function(k) {
+      return '<div class="qual-quote" style="border-left-color:'+color+'">'+k+'</div>';
+    }).join('');
+    return '<div class="qual-card">' +
+      '<div class="qual-card-hd">' +
+        '<div class="qual-card-tema">'+item.label+'</div>' +
+        '<div class="qual-card-count" style="background:'+bgColor+';color:'+color+'">'+item.count+' anak</div>' +
+      '</div>' +
+      '<div class="qual-card-body">' + (kutipanHtml||'<div style="font-size:11px;color:var(--mut);padding:4px 0">–</div>') + '</div>' +
+    '</div>';
+  }).join('');
 }
 
+async function enrichWithAI(containerId, items, color, bgColor, konteks, tipe) {
+  if (!items.length) return;
+  var el = document.getElementById(containerId);
+  if (!el) return;
+
+  var temaData = items.slice(0,6).map(function(item) {
+    return item.label + ' (' + item.count + ' org): "' +
+      (item.rawTexts||[]).slice(0,3).map(function(t){return t.slice(0,200);}).join(' | ') + '"';
+  }).join('\n\n');
+
+  var prompt = 'Kamu analis program CBR anak disabilitas di Manggarai NTT.\n' +
+    'Konteks: ' + konteks + '\n' +
+    'Tipe: ' + (tipe==='naik'?'Faktor MEMBANTU':'Faktor MENGHAMBAT') + '\n\n' +
+    'Tema & sampel jawaban:\n' + temaData + '\n\n' +
+    'Untuk setiap tema, pilih 2 kalimat terbaik dari teks asli yang paling menggambarkan tema. Kalimat harus utuh dan bermakna.\n' +
+    'Balas HANYA JSON:\n[{"tema":"nama","kutipan":["kalimat 1","kalimat 2"]},...]';
+
+  try {
+    var res = await fetch(GEMINI_URL_BEN, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents: [{parts:[{text:prompt}]}],
+        generationConfig: {temperature:0.2, maxOutputTokens:2000}
+      })
+    });
+    var data = await res.json();
+    var text = (data.candidates||[])[0]?.content?.parts?.[0]?.text||'';
+    var clean = text.replace(/```json|```/g,'').trim();
+    var parsed = JSON.parse(clean);
+
+    // Update kutipan di kartu yang sudah render
+    var cards = el.querySelectorAll('.qual-card');
+    parsed.forEach(function(t, i) {
+      if (!cards[i]) return;
+      var body = cards[i].querySelector('.qual-card-body');
+      if (!body) return;
+      var kutipanHtml = (t.kutipan||[]).map(function(k) {
+        return '<div class="qual-quote" style="border-left-color:'+color+'">'+k+'</div>';
+      }).join('');
+      if (kutipanHtml) body.innerHTML = kutipanHtml;
+    });
+  } catch(e) {
+    // Tetap tampilkan sampel keyword — tidak perlu update
+    console.warn('AI enrich error:', e);
+  }
+}
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -367,6 +295,24 @@ tr:hover td{background:rgba(79,142,247,.03)}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* ── QUAL CARDS BARU ── */
+.qual-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+@media(max-width:700px){.qual-grid{grid-template-columns:1fr}}
+.qual-col-hd{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;padding:10px 12px;border-radius:8px 8px 0 0;margin-bottom:4px}
+.qual-cards{display:flex;flex-direction:column;gap:10px}
+.qual-card{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
+.qual-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bdr)}
+.qual-card-tema{font-size:12px;font-weight:800;color:var(--txt)}
+.qual-card-count{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.qual-card-body{padding:10px 14px;display:flex;flex-direction:column;gap:7px}
+.qual-quote{background:var(--faint);border-radius:7px;padding:9px 12px;border-left:3px solid transparent;font-size:11px;line-height:1.7;color:var(--txt)}
+.qual-loading{display:flex;align-items:center;gap:8px;padding:20px 14px;color:var(--mut);font-size:12px}
+.qual-dots{display:flex;gap:3px}
+.qual-dot{width:5px;height:5px;border-radius:50%;animation:qdot 1.2s ease-in-out infinite}
+.qual-dot:nth-child(2){animation-delay:.2s}
+.qual-dot:nth-child(3){animation-delay:.4s}
+@keyframes qdot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -386,7 +332,6 @@ tr:hover td{background:rgba(79,142,247,.03)}
     <button class="hbtn hbtn-upload" onclick="openUpload()" style="display:none">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </button>
-    <button class="hbtn hbtn-pdf" onclick="exportBenPDF()" title="Export PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
     <button class="hbtn hbtn-clear" onclick="openClearConfirm()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg></button>
   </div>
 </header>
@@ -496,12 +441,23 @@ tr:hover td{background:rgba(79,142,247,.03)}
 
   <div class="sec">Apa yang Membantu Anak Naik Tangga?</div>
   <div class="card" style="margin-bottom:12px">
-    <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi anak (frekuensi)</div>
-    <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualAnak('naik_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor Naik Tangga</button>
-      <button class="qtab red" onclick="showQualAnak('turun_anak',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor Turun Tangga</button>
+    <div class="card-hd">Faktor pendukung &amp; penghambat — kutipan dari jawaban pengasuh (AI)</div>
+    <div class="qual-grid">
+      <div>
+        <div class="qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          Faktor Naik Tangga
+        </div>
+        <div class="qual-cards" id="qual-anak-naik"></div>
+      </div>
+      <div>
+        <div class="qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Faktor Turun Tangga
+        </div>
+        <div class="qual-cards" id="qual-anak-turun"></div>
+      </div>
     </div>
-    <div id="qualAnakBars"></div>
   </div>
 
 
@@ -522,12 +478,23 @@ tr:hover td{background:rgba(79,142,247,.03)}
 
   <div class="sec">Apa yang Membantu Pengasuh Naik Tangga?</div>
   <div class="card" style="margin-bottom:12px">
-    <div class="card-hd">Tema dari jawaban pengasuh tentang kondisi mereka sendiri (frekuensi)</div>
-    <div class="qtabs">
-      <button class="qtab grn act" onclick="showQualPeng('naik_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Faktor yang Membantu</button>
-      <button class="qtab red" onclick="showQualPeng('turun_pengasuh',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Faktor yang Menghambat</button>
+    <div class="card-hd">Faktor pendukung &amp; penghambat — kutipan dari jawaban pengasuh (AI)</div>
+    <div class="qual-grid">
+      <div>
+        <div class="qual-col-hd" style="background:rgba(34,197,94,.08);color:#22c55e">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          Faktor yang Membantu
+        </div>
+        <div class="qual-cards" id="qual-peng-naik"></div>
+      </div>
+      <div>
+        <div class="qual-col-hd" style="background:rgba(239,68,68,.08);color:#ef4444">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Faktor yang Menghambat
+        </div>
+        <div class="qual-cards" id="qual-peng-turun"></div>
+      </div>
     </div>
-    <div id="qualPengBars"></div>
   </div>
 
   <div class="sec">Kutipan Pengasuh – Suara dari Lapangan</div>
@@ -618,7 +585,7 @@ tr:hover td{background:rgba(79,142,247,.03)}
 // Ganti URL di sini saja jika Apps Script di-deploy ulang.
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyjYrc98mbsBZQ6HIJEJNkGTd2i9m4UV5-7ef_Qw6JeUnzFlgvHdMwWY1wbDTL0pzPAFQ/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxSE2RBgBb7v-hWeYYa_1olFwQDPFktPJIMyiSPlY-vLwSG5Oe2LS5xiSdyDXbPllLiGg/exec',
 };
 const APPS_SCRIPT_URL = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode di bawah
 
@@ -968,14 +935,17 @@ function renderSkor(){
   });
 
   // Qual anak
-  showQualAnak('naik_anak', document.querySelector('.qtab.grn'));
+  showQualAnak('naik_anak', null);
 
 }
 
 function showQualAnak(key,btn){
-  document.querySelectorAll('#pg-skor .qtab').forEach(t=>t.classList.remove('act'));
-  if(btn)btn.classList.add('act');
-  renderBars(QUAL[key]||[], document.getElementById('qualAnakBars'), key.includes('naik')?'#22c55e':'#ef4444');
+  // dipanggil dari renderSkor, render kedua kolom sekaligus
+  renderQualCards(QUAL.naik_anak||[], 'qual-anak-naik', '#22c55e', 'rgba(34,197,94,.1)');
+  renderQualCards(QUAL.turun_anak||[], 'qual-anak-turun', '#ef4444', 'rgba(239,68,68,.1)');
+  // async AI kutipan
+  enrichWithAI('qual-anak-naik', QUAL.naik_anak||[], '#22c55e', 'rgba(34,197,94,.1)', 'Jawaban tentang kondisi ANAK', 'naik');
+  enrichWithAI('qual-anak-turun', QUAL.turun_anak||[], '#ef4444', 'rgba(239,68,68,.1)', 'Jawaban tentang kondisi ANAK', 'turun');
 }
 
 // ════════════════════════════════════════════════════
@@ -1017,7 +987,7 @@ function renderPengasuh(){
   });
 
   // Qual pengasuh
-  showQualPeng('naik_pengasuh', document.querySelector('#pg-pengasuh .qtab.grn'));
+  showQualPeng('naik_pengasuh', null);
 
   // Quotes naik dan turun
   const nkpSamples=d.filter(r=>r.nkp&&r.nkp.length>20).slice(0,4);
@@ -1034,9 +1004,10 @@ function renderPengasuh(){
 }
 
 function showQualPeng(key,btn){
-  document.querySelectorAll('#pg-pengasuh .qtab').forEach(t=>t.classList.remove('act'));
-  if(btn)btn.classList.add('act');
-  renderBars(QUAL[key]||[], document.getElementById('qualPengBars'), key.includes('naik')?'#22c55e':'#ef4444');
+  renderQualCards(QUAL.naik_pengasuh||[], 'qual-peng-naik', '#22c55e', 'rgba(34,197,94,.1)');
+  renderQualCards(QUAL.turun_pengasuh||[], 'qual-peng-turun', '#ef4444', 'rgba(239,68,68,.1)');
+  enrichWithAI('qual-peng-naik', QUAL.naik_pengasuh||[], '#22c55e', 'rgba(34,197,94,.1)', 'Jawaban tentang kondisi PENGASUH', 'naik');
+  enrichWithAI('qual-peng-turun', QUAL.turun_pengasuh||[], '#ef4444', 'rgba(239,68,68,.1)', 'Jawaban tentang kondisi PENGASUH', 'turun');
 }
 
 function renderBars(items, container, color){
@@ -1401,15 +1372,45 @@ function parseUpload(headers,rows){
 }
 
 function rebuildQual(parsed){
-  const kwN=[['ekonomi|uang|penghasilan|nafkah|bantuan|modal','Dukungan Ekonomi'],['sehat|kesehatan|terapi|fisioterapi','Kesehatan & Terapi'],['sekolah|pendidikan|belajar','Akses Pendidikan'],['dukungan|keluarga|sosial|komunitas|masyarakat','Dukungan Sosial'],['mandiri|keterampilan|kerja','Kemandirian & Keterampilan'],['pemerintah|desa|pkh|blt|dtks','Program Pemerintah']];
-  const kwT=[['sakit|drop|kondisi','Sakit/Kesehatan Memburuk'],['ekonomi|uang|panen|penghasilan','Tekanan Ekonomi'],['stigma|bullying|dikucilkan|malu','Stigma & Diskriminasi'],['lelah|capek|kelelahan|menyerah','Kelelahan Pengasuh'],['meninggal|tiada|tidak ada yang','Kehilangan Pengasuh'],['tidak ada dukungan|tidak ada pihak','Minimnya Dukungan']];
-  const ck=(texts,kws)=>kws.map(([p,l])=>({label:l,count:texts.filter(t=>t&&new RegExp(p,'i').test(t)).length})).sort((a,b)=>b.count-a.count);
+  const kwN=[
+    ['keluarga|orang tua|ibu|ayah|pengasuh|sayang|peduli|mendukung','Dukungan Keluarga'],
+    ['bpjs|puskesmas|posyandu|kesehatan|berobat|dokter','Akses Kesehatan'],
+    ['slb|sekolah|belajar|guru|pendidikan|paud','Akses Pendidikan'],
+    ['pkh|blt|bantuan|sembako|desa|dtks|kip|pemerintah','Bantuan Pemerintah'],
+    ['gereja|pastor|romo|suster|doa|katolik|misa|tu.a golo|adat|komunitas','Gereja & Komunitas Adat'],
+    ['tetangga|masyarakat|diterima|lingkungan|kampung','Dukungan Masyarakat'],
+    ['mandiri|keterampilan|bisa sendiri|aktif|berkembang','Kemandirian Anak'],
+    ['tembok|permanen|listrik|air bersih|layak','Rumah Layak'],
+    ['cbr|petugas|pendamping|rehabilitasi','Pendampingan CBR'],
+  ];
+  const kwT=[
+    ['ekonomi|penghasilan|miskin|pas-pasan|tidak mampu|petani|buruh|kekurangan','Ekonomi Lemah'],
+    ['jauh|jalan rusak|tidak ada kendaraan|ojek|transportasi|akses sulit','Jarak & Akses Sulit'],
+    ['tidak punya bpjs|belum punya bpjs|tidak ada bpjs','Tidak Ada BPJS'],
+    ['janda|ayah meninggal|ibu meninggal|single parent|orang tua tunggal','Orang Tua Tunggal'],
+    ['papan|bambu|semi permanen|lantai tanah|tidak layak|rusak','Rumah Tidak Layak'],
+    ['stigma|dikucilkan|diejek|malu|tidak diterima|diskriminasi','Stigma Sosial'],
+    ['tidak dapat bantuan|tidak terdaftar|tidak ada bantuan|belum dapat','Tidak Ada Bantuan'],
+    ['lelah|capek|kelelahan|menyerah|beban|kewalahan','Kelelahan Pengasuh'],
+    ['sakit|drop|memburuk|kondisi menurun|semakin parah','Kondisi Memburuk'],
+  ];
+  const ck=(texts,kws)=>kws.map(([p,l])=>{
+    const matched=texts.filter(t=>t&&new RegExp(p,'i').test(t));
+    const samples=matched.slice(0,5).map(t=>{
+      const kw=p.split('|')[0];
+      const sentences=t.split(/[.!?\n]+/).filter(s=>s.trim().length>10);
+      const found=sentences.find(s=>new RegExp(kw,'i').test(s));
+      return (found||sentences[0]||t.slice(0,120)).trim();
+    });
+    return {label:l,count:matched.length,samples,rawTexts:matched};
+  }).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
   QUAL={
     naik_pengasuh:ck(parsed.map(r=>r.nkp),kwN),
     turun_pengasuh:ck(parsed.map(r=>r.tkp),kwT),
     naik_anak:ck(parsed.map(r=>r.nka),kwN),
     turun_anak:ck(parsed.map(r=>r.tka),kwT),
   };
+  window.PARSED_DATA=parsed;
 }
 
 
