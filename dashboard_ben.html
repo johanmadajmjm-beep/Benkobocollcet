@@ -8,14 +8,14 @@
 // ── Export PDF Dashboard BEN SCN Manggarai ──────────────────
 function exportBenPDF() {
   if (!D || !D.length) { alert('Belum ada data untuk diekspor.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const M = 14;
-  let y = 20;
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+  var M = 14;
+  var y = 20;
 
-  // ── Header ──
+  // Header
   doc.setFillColor(20,28,46);
   doc.rect(0, 0, W, 16, 'F');
   doc.setFont('helvetica','bold'); doc.setFontSize(12);
@@ -25,148 +25,122 @@ function exportBenPDF() {
   doc.text('Profil Anak Dampingan · ' + new Date().toLocaleDateString('id-ID'), W-M, 10, {align:'right'});
   doc.setTextColor(0,0,0);
 
-  // ── Ringkasan Eksekutif ──
+  // Ringkasan Eksekutif
   y = 22;
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Ringkasan Eksekutif', M, y); y += 6;
   doc.setFont('helvetica','normal'); doc.setFontSize(9);
   var valid = V();
   var totalAnak = D.length;
-  var avgSa = avg(valid.map(r=>r.sa)).toFixed(1);
-  var avgSp = avg(valid.map(r=>r.sp)).toFixed(1);
+  var avgSa = avg(valid.map(function(r){return r.sa;})).toFixed(1);
+  var avgSp = avg(valid.map(function(r){return r.sp;})).toFixed(1);
   var ringkasan = 'Total ' + totalAnak + ' anak terdaftar dalam program BEN SCN Manggarai. Rata-rata skor kualitas hidup anak: ' + avgSa + '/10, rata-rata skor pengasuh: ' + avgSp + '/10.';
   var wrp = doc.splitTextToSize(ringkasan, W-2*M);
   doc.text(wrp, M, y); y += wrp.length*4.5 + 6;
 
-  // ── 1. Tabel Jumlah Anak per Jenis Kelamin ──
+  // 1. Tabel Jumlah Anak per Jenis Kelamin
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.text('1. Jumlah Anak per Jenis Kelamin', M, y); y += 3;
   var jkCount = cnt(D, 'j');
   doc.autoTable({
     startY: y,
-    head: [['Jenis Kelamin', 'Jumlah', 'Persentase']],
-    body: Object.entries(jkCount).map(function([k,v]) {
-      return [k, String(v), Math.round(v/totalAnak*100)+'%'];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    head: [['Jenis Kelamin','Jumlah','Persentase']],
+    body: Object.entries(jkCount).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
   y = doc.lastAutoTable.finalY + 8;
 
-  // ── 2. Tabel Jumlah Anak per Level Disabilitas ──
+  // 2. Tabel Jumlah Anak per Level Disabilitas
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.text('2. Jumlah Anak per Level Disabilitas', M, y); y += 3;
   var lvCount = cnt(D, 'lv');
   doc.autoTable({
     startY: y,
-    head: [['Level Disabilitas', 'Jumlah', 'Persentase']],
-    body: Object.entries(lvCount).sort(function(a,b){return b[1]-a[1];}).map(function([k,v]) {
-      return [k, String(v), Math.round(v/totalAnak*100)+'%'];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    head: [['Level Disabilitas','Jumlah','Persentase']],
+    body: Object.entries(lvCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
   y = doc.lastAutoTable.finalY + 8;
 
-  // ── 3. Tabel Jumlah Anak per Ragam Disabilitas ──
+  // 3. Tabel Jumlah Anak per Ragam Disabilitas
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.text('3. Jumlah Anak per Ragam Disabilitas', M, y); y += 3;
   var rgCount = cnt(D, 'rg');
   doc.autoTable({
     startY: y,
-    head: [['Ragam Disabilitas', 'Jumlah', 'Persentase']],
-    body: Object.entries(rgCount).sort(function(a,b){return b[1]-a[1];}).map(function([k,v]) {
-      return [k, String(v), Math.round(v/totalAnak*100)+'%'];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    head: [['Ragam Disabilitas','Jumlah','Persentase']],
+    body: Object.entries(rgCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
   y = doc.lastAutoTable.finalY + 8;
 
-  // ── 4. Tabel Epilepsi dan Pengobatan ──
+  // 4. Tabel Kondisi Epilepsi dan Pengobatan
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.text('4. Kondisi Epilepsi dan Pengobatan', M, y); y += 3;
-  var epYa    = D.filter(r=>r.ep==='Ya').length;
-  var epTidak = D.filter(r=>r.ep==='Tidak').length;
-  var obYa    = D.filter(r=>r.ob==='Ya').length;
-  var obTidak = D.filter(r=>r.ob==='Tidak').length;
-  var trYa    = D.filter(r=>r.tr==='Ya').length;
-  var trTidak = D.filter(r=>r.tr==='Tidak').length;
+  var epYa = D.filter(function(r){return r.ep==='Ya';}).length;
+  var epTidak = D.filter(function(r){return r.ep==='Tidak';}).length;
+  var obYa = D.filter(function(r){return r.ob==='Ya';}).length;
+  var obTidak = D.filter(function(r){return r.ob==='Tidak';}).length;
+  var trYa = D.filter(function(r){return r.tr==='Ya';}).length;
+  var trTidak = D.filter(function(r){return r.tr==='Tidak';}).length;
   doc.autoTable({
     startY: y,
-    head: [['Kondisi', 'Ya', '% Ya', 'Tidak', '% Tidak']],
+    head: [['Kondisi','Ya','% Ya','Tidak','% Tidak']],
     body: [
       ['Epilepsi', String(epYa), Math.round(epYa/totalAnak*100)+'%', String(epTidak), Math.round(epTidak/totalAnak*100)+'%'],
       ['Pengobatan Rutin', String(obYa), Math.round(obYa/totalAnak*100)+'%', String(obTidak), Math.round(obTidak/totalAnak*100)+'%'],
       ['Pernah Terapi', String(trYa), Math.round(trYa/totalAnak*100)+'%', String(trTidak), Math.round(trTidak/totalAnak*100)+'%'],
     ],
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
   y = doc.lastAutoTable.finalY + 8;
 
-  // ── 5. Tabel Skor Kualitas Hidup ──
+  // 5. Tabel Jumlah Anak per Kondisi (Prioritas)
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('5. Distribusi Skor Kualitas Hidup Anak', M, y); y += 3;
-  var saKritis  = valid.filter(r=>r.sa!==null&&r.sa<=4).length;
-  var saSedang  = valid.filter(r=>r.sa!==null&&r.sa>=5&&r.sa<=6).length;
-  var saBaik    = valid.filter(r=>r.sa!==null&&r.sa>=7).length;
-  var spKritis  = valid.filter(r=>r.sp!==null&&r.sp<=4).length;
-  var spSedang  = valid.filter(r=>r.sp!==null&&r.sp>=5&&r.sp<=6).length;
-  var spBaik    = valid.filter(r=>r.sp!==null&&r.sp>=7).length;
+  doc.text('5. Jumlah Anak per Kondisi Prioritas', M, y); y += 3;
+  var saRendah = valid.filter(function(r){return r.sa!==null&&r.sa<=4;}).length;
+  var saSedang = valid.filter(function(r){return r.sa!==null&&r.sa>=5&&r.sa<=6;}).length;
+  var saBaik   = valid.filter(function(r){return r.sa!==null&&r.sa>=7;}).length;
+  var spRendah = valid.filter(function(r){return r.sp!==null&&r.sp<=4;}).length;
+  var spSedang = valid.filter(function(r){return r.sp!==null&&r.sp>=5&&r.sp<=6;}).length;
+  var spBaik   = valid.filter(function(r){return r.sp!==null&&r.sp>=7;}).length;
   doc.autoTable({
     startY: y,
-    head: [['Kategori Skor', 'Anak (1-4)', '% Anak', 'Pengasuh (1-4)', '% Pengasuh']],
+    head: [['Kondisi Prioritas','Anak','% Anak','Pengasuh','% Pengasuh']],
     body: [
-      ['Kritis (1-4)', String(saKritis), Math.round(saKritis/valid.length*100)+'%', String(spKritis), Math.round(spKritis/valid.length*100)+'%'],
-      ['Sedang (5-6)', String(saSedang), Math.round(saSedang/valid.length*100)+'%', String(spSedang), Math.round(spSedang/valid.length*100)+'%'],
-      ['Baik (7-10)',  String(saBaik),   Math.round(saBaik/valid.length*100)+'%',   String(spBaik),   Math.round(spBaik/valid.length*100)+'%'],
+      ['Prioritas Tinggi (1-4)', String(saRendah), Math.round(saRendah/valid.length*100)+'%', String(spRendah), Math.round(spRendah/valid.length*100)+'%'],
+      ['Prioritas Sedang (5-6)', String(saSedang), Math.round(saSedang/valid.length*100)+'%', String(spSedang), Math.round(spSedang/valid.length*100)+'%'],
+      ['Prioritas Rendah (7-10)', String(saBaik),  Math.round(saBaik/valid.length*100)+'%',   String(spBaik),   Math.round(spBaik/valid.length*100)+'%'],
     ],
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
   y = doc.lastAutoTable.finalY + 8;
 
-  // ── 6. Tabel Jumlah Anak per CBR Worker ──
+  // 6. Tabel Jumlah Anak per CBR Worker
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(10);
   doc.text('6. Jumlah Anak per CBR Worker', M, y); y += 3;
   var cbCount = cnt(D, 'cb');
   doc.autoTable({
     startY: y,
-    head: [['CBR Worker', 'Jumlah Anak', 'Persentase']],
-    body: Object.entries(cbCount).sort(function(a,b){return b[1]-a[1];}).map(function([k,v]) {
-      return [k, String(v), Math.round(v/totalAnak*100)+'%'];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
+    head: [['CBR Worker','Jumlah Anak','Persentase']],
+    body: Object.entries(cbCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/totalAnak*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
 
-  // ── Footer ──
+  // Footer
   var pageCount = doc.internal.getNumberOfPages();
   for (var i=1; i<=pageCount; i++) {
     doc.setPage(i);
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
     doc.setTextColor(150,150,150);
     doc.text('BEN SCN Manggarai · Dicetak: ' + new Date().toLocaleDateString('id-ID'), M, H-6);
-    doc.text('Halaman ' + i + ' dari ' + pageCount, W-M, H-6, {align:'right'});
+    doc.text('Halaman '+i+' dari '+pageCount, W-M, H-6, {align:'right'});
     doc.setTextColor(0,0,0);
   }
 
