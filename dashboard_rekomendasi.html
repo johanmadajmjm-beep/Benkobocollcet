@@ -1048,7 +1048,7 @@ function renderDetailAnak(nama) {
     katHtml += '<div class="kat-block '+cfg.cls+'"><div class="kat-header">'+cfg.label+'</div><div class="kat-body"><div class="kat-label">Temuan</div><div class="kat-temuan">'+d.temuan+'</div><div class="kat-label">Rekomendasi &amp; Tindak Lanjut</div><div class="kat-rtl">'+d.rtl+'</div>'+(ph?'<div class="kat-label" style="margin-top:8px">Pihak yang perlu dilibatkan</div>'+ph:'')+'</div></div>';
   });
   if (!katHtml) katHtml = '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada temuan dari data yang tersedia.</div>';
-  el.innerHTML = `<div class="detail-header"><div class="detail-avatar">${initials}</div><div class="detail-info"><div class="detail-nama">${nama}</div><div class="detail-sub">${a.cb} &middot; CBR Worker</div>${awal?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${awal.u?`<span class="chip">Usia ${awal.u} th</span>`:''} ${awal.j?`<span class="chip">JK: ${awal.j}</span>`:''} ${awal.k?`<span class="chip">Kampung: ${awal.k}</span>`:''} ${awal.d?`<span class="chip">Desa: ${awal.d}</span>`:''} ${awal.rg?`<span class="chip">Ragam: ${awal.rg}</span>`:''} ${awal.lv?`<span class="chip">Level: ${awal.lv}</span>`:''} ${awal.ep==='Ya'?`<span class="chip" style="color:#ef4444">Epilepsi: Ya</span>`:''} ${awal.ob?`<span class="chip">Pengobatan: ${awal.ob}</span>`:''} ${awal.tr?`<span class="chip">Terapi: ${awal.tr}</span>`:''}</div>`:''}</div>${awal?`<div style="text-align:right;flex-shrink:0"><div style="font-size:28px;font-weight:900;color:${awal.sa<=4?'var(--red)':awal.sa<=6?'#f59e0b':'#22c55e'}">${awal.sa!==null?awal.sa:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div><div style="font-size:22px;font-weight:800;color:${awal.sp<=4?'var(--red)':awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal.sp!==null?awal.sp:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div></div>`:''}</div><div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div><div id="kat-container">${katHtml}</div>`;
+  el.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button onclick="exportAnakPDF('${nama}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">&#128196; Export PDF</button></div><div class="detail-header"><div class="detail-avatar">${initials}</div><div class="detail-info"><div class="detail-nama">${nama}</div><div class="detail-sub">${a.cb} &middot; CBR Worker</div>${awal?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${awal.u?`<span class="chip">Usia ${awal.u} th</span>`:''} ${awal.j?`<span class="chip">JK: ${awal.j}</span>`:''} ${awal.k?`<span class="chip">Kampung: ${awal.k}</span>`:''} ${awal.d?`<span class="chip">Desa: ${awal.d}</span>`:''} ${awal.rg?`<span class="chip">Ragam: ${awal.rg}</span>`:''} ${awal.lv?`<span class="chip">Level: ${awal.lv}</span>`:''} ${awal.ep==='Ya'?`<span class="chip" style="color:#ef4444">Epilepsi: Ya</span>`:''} ${awal.ob?`<span class="chip">Pengobatan: ${awal.ob}</span>`:''} ${awal.tr?`<span class="chip">Terapi: ${awal.tr}</span>`:''}</div>`:''}</div>${awal?`<div style="text-align:right;flex-shrink:0"><div style="font-size:28px;font-weight:900;color:${awal.sa<=4?'var(--red)':awal.sa<=6?'#f59e0b':'#22c55e'}">${awal.sa!==null?awal.sa:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div><div style="font-size:22px;font-weight:800;color:${awal.sp<=4?'var(--red)':awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal.sp!==null?awal.sp:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div></div>`:''}</div><div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div><div id="kat-container">${katHtml}</div>`;
   document.getElementById('cbr-detail-mode').style.display = 'block';
 }
 
@@ -1148,6 +1148,102 @@ function pdfFooter(doc, W, H, M) {
     doc.text(tgl, W - M, H - 3, { align: 'right' });
     doc.setTextColor(0, 0, 0);
   }
+}
+
+
+// ── Export PDF per Anak ──────────────────────────────────────
+function exportAnakPDF(nama) {
+  var a = ANALISIS.find(function(x){ return x.na === nama; });
+  if (!a) return;
+  var awal = a.awal;
+  var obs  = a.obs;
+  var hasil = analyzeKategori5(awal, obs);
+  var katKeys = ['kesehatan','pendidikan','penghidupan','sosial','pemberdayaan'];
+  var katLabels = {kesehatan:'Kesehatan',pendidikan:'Pendidikan',penghidupan:'Penghidupan',sosial:'Sosial',pemberdayaan:'Pemberdayaan'};
+
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+  var M = 14;
+  var y = 20;
+
+  // Header
+  doc.setFillColor(20,28,46);
+  doc.rect(0, 0, W, 16, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.setTextColor(255,255,255);
+  doc.text('BEN SCN Manggarai', M, 10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('Bahan Diskusi Rencana Anak', W-M, 10, {align:'right'});
+  doc.setTextColor(0,0,0);
+
+  // Profil anak
+  y = 23;
+  doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text(nama, M, y); y += 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(100,100,100);
+  var profil = [a.cb + ' · CBR Worker'];
+  if (awal) {
+    if (awal.u) profil.push('Usia: ' + awal.u + ' th');
+    if (awal.j) profil.push('JK: ' + awal.j);
+    if (awal.d) profil.push('Desa: ' + awal.d);
+    if (awal.rg) profil.push('Ragam: ' + awal.rg);
+    if (awal.lv) profil.push('Level: ' + awal.lv);
+    if (awal.ep === 'Ya') profil.push('Epilepsi: Ya');
+  }
+  var profilWrapped = doc.splitTextToSize(profil.join('  |  '), W-2*M);
+  doc.text(profilWrapped, M, y); y += profilWrapped.length * 4 + 2;
+  if (awal) {
+    doc.text('Skor Anak: ' + (awal.sa !== null ? awal.sa+'/10' : '-') + '   |   Skor Pengasuh: ' + (awal.sp !== null ? awal.sp+'/10' : '-'), M, y);
+    y += 2;
+  }
+  doc.setTextColor(0,0,0);
+  doc.setDrawColor(200,200,200);
+  doc.line(M, y, W-M, y); y += 5;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('Bahan Diskusi Rencana Anak - 3 Bulan ke Depan', M, y); y += 4;
+
+  // Tabel 3 kolom
+  var tableBody = [];
+  katKeys.forEach(function(kat) {
+    var d = hasil[kat];
+    if (!d) return;
+    var pihakStr = (d.pihak || []).map(function(k){ return AKTOR_LABEL_REKO[k]||k; }).join(', ');
+    tableBody.push([katLabels[kat] + ': ' + d.temuan, d.rtl, pihakStr]);
+  });
+
+  if (!tableBody.length) {
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.text('Tidak ada temuan yang ditemukan.', M, y);
+  } else {
+    doc.autoTable({
+      startY: y,
+      head: [['Bahan Diskusi / Temuan', 'Rekomendasi & Tindak Lanjut', 'Pihak yang Dilibatkan']],
+      body: tableBody,
+      theme: 'grid',
+      headStyles: {fillColor:[20,28,46], fontSize:8.5, fontStyle:'bold', cellPadding:3},
+      bodyStyles: {fontSize:8, cellPadding:3, valign:'top'},
+      columnStyles: {0:{cellWidth:55}, 1:{cellWidth:65}, 2:{cellWidth:55}},
+      margin: {left:M, right:M},
+    });
+  }
+
+  // Footer
+  var pageCount = doc.internal.getNumberOfPages();
+  for (var i=1; i<=pageCount; i++) {
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(150,150,150);
+    doc.text('BEN SCN Manggarai · Dicetak: ' + new Date().toLocaleDateString('id-ID'), M, H-6);
+    doc.text('Halaman '+i+' dari '+pageCount, W-M, H-6, {align:'right'});
+    doc.setTextColor(0,0,0);
+  }
+
+  var safeName = nama.replace(/[^a-zA-Z0-9]/g,'_');
+  doc.save('RTL_' + safeName + '_' + new Date().toISOString().slice(0,10) + '.pdf');
 }
 
 function exportAllPDF() {
