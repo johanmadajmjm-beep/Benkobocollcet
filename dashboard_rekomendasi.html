@@ -1248,82 +1248,101 @@ function exportAnakPDF(nama) {
 
 function exportAllPDF() {
   if (!ANALISIS.length) { alert('Belum ada data untuk diekspor.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const M = 14;
-  let y = 36;
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  var W = doc.internal.pageSize.getWidth();
+  var H = doc.internal.pageSize.getHeight();
+  var M = 14;
+  var y = 36;
 
   pdfHeader(doc, 'Ringkasan Rekomendasi & Tindak Lanjut', 'BEN SCN Manggarai · Seluruh Anak Dampingan', W, M);
 
-  const tinggi = ANALISIS.filter(a => a.priorityLevel === 'tinggi').length;
-  const sedang = ANALISIS.filter(a => a.priorityLevel === 'sedang').length;
-  const rendah = ANALISIS.filter(a => a.priorityLevel === 'rendah').length;
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  // Ringkasan eksekutif
+  var tinggi = ANALISIS.filter(function(a){return a.priorityLevel==='tinggi';}).length;
+  var sedang = ANALISIS.filter(function(a){return a.priorityLevel==='sedang';}).length;
+  var rendah = ANALISIS.filter(function(a){return a.priorityLevel==='rendah';}).length;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Ringkasan Eksekutif', M, y); y += 6;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
-  const ringkasanText = `Dari total ${ANALISIS.length} anak yang dipantau, ${tinggi} anak (${Math.round(tinggi/ANALISIS.length*100)}%) berada pada prioritas tinggi dan memerlukan tindak lanjut segera, ${sedang} anak pada prioritas sedang, dan ${rendah} anak pada prioritas rendah. Rekomendasi berikut disusun berdasarkan hasil analisis Data Awal dan Observasi lapangan oleh CBR Worker.`;
-  const wrapped = doc.splitTextToSize(ringkasanText, W - 2*M);
-  doc.text(wrapped, M, y); y += wrapped.length * 4.6 + 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  var teks = 'Dari total ' + ANALISIS.length + ' anak yang dipantau, ' + tinggi + ' anak (' + Math.round(tinggi/ANALISIS.length*100) + '%) prioritas tinggi, ' + sedang + ' anak prioritas sedang, dan ' + rendah + ' anak prioritas rendah.';
+  var wrapped = doc.splitTextToSize(teks, W-2*M);
+  doc.text(wrapped, M, y); y += wrapped.length*4.6 + 6;
 
-  // Tabel ringkasan per kategori prioritas
+  // ── Tabel Distribusi 5 Kategori Bahan Diskusi ──
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Distribusi Bahan Diskusi Perencanaan Anak', M, y); y += 4;
+  var katLabels = {kesehatan:'Kesehatan',pendidikan:'Pendidikan',penghidupan:'Penghidupan',sosial:'Sosial',pemberdayaan:'Pemberdayaan'};
+  var katCount = {kesehatan:0,pendidikan:0,penghidupan:0,sosial:0,pemberdayaan:0};
+  ANALISIS.forEach(function(a) {
+    var hasil = analyzeKategori5(a.awal, a.obs);
+    Object.keys(katCount).forEach(function(kat){ if(hasil[kat]) katCount[kat]++; });
+  });
   doc.autoTable({
     startY: y,
-    head: [['Kategori Prioritas', 'Jumlah Anak', 'Persentase']],
-    body: [
-      ['Tinggi', String(tinggi), Math.round(tinggi/ANALISIS.length*100) + '%'],
-      ['Sedang', String(sedang), Math.round(sedang/ANALISIS.length*100) + '%'],
-      ['Rendah', String(rendah), Math.round(rendah/ANALISIS.length*100) + '%'],
-    ],
+    head: [['Kategori Bahan Diskusi','Jumlah Anak','Persentase']],
+    body: Object.keys(katCount).map(function(kat){
+      return [katLabels[kat], String(katCount[kat]), Math.round(katCount[kat]/ANALISIS.length*100)+'%'];
+    }),
     theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    margin: { left: M, right: M },
+    headStyles: {fillColor:[20,28,46], fontSize:9},
+    bodyStyles: {fontSize:9},
+    margin: {left:M, right:M},
   });
   y = doc.lastAutoTable.finalY + 10;
 
-  // Daftar anak prioritas tinggi — ini bagian aksi nyata, bukan dump semua field
-  const tinggiList = ANALISIS.filter(a => a.priorityLevel === 'tinggi');
-  if (tinggiList.length) {
-    if (y > H - 50) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-    doc.text('Anak Prioritas Tinggi — Perlu Tindak Lanjut Segera', M, y); y += 4;
-    doc.autoTable({
-      startY: y,
-      head: [['Nama Anak', 'CBR Worker', 'Desa', 'Temuan Utama']],
-      body: tinggiList.map(a => [a.na, a.cb, (a.awal && a.awal.d) || '-', a.top3[0] ? a.top3[0].masalah : '-']),
-      theme: 'striped',
-      headStyles: { fillColor: [220,38,38], fontSize: 8.5 },
-      bodyStyles: { fontSize: 8.5 },
-      columnStyles: { 3: { cellWidth: 70 } },
-      margin: { left: M, right: M },
+  // ── Tabel Pihak yang Paling Banyak Dilibatkan ──
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Pihak yang Paling Banyak Dilibatkan', M, y); y += 4;
+  var pihakCount = {};
+  ANALISIS.forEach(function(a) {
+    var hasil = analyzeKategori5(a.awal, a.obs);
+    var seen = {};
+    Object.keys(hasil).forEach(function(kat){
+      if(!hasil[kat]) return;
+      (hasil[kat].pihak||[]).forEach(function(k){
+        if(!seen[k]){ seen[k]=true; pihakCount[k]=(pihakCount[k]||0)+1; }
+      });
     });
-    y = doc.lastAutoTable.finalY + 10;
-  }
-
-  // Ringkasan per CBR Worker
-  const cbrSet = [...new Set(ANALISIS.map(a => a.cb))].sort();
-  if (y > H - 50) { doc.addPage(); y = 20; }
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
+  });
+  var pihakSorted = Object.keys(pihakCount).sort(function(a,b){return pihakCount[b]-pihakCount[a];}).slice(0,20);
   doc.autoTable({
     startY: y,
-    head: [['CBR Worker', 'Jumlah Dampingan', 'Prioritas Tinggi', 'Prioritas Sedang', 'Prioritas Rendah']],
-    body: cbrSet.map(cb => {
-      const g = ANALISIS.filter(a => a.cb === cb);
-      return [cb, g.length, g.filter(a=>a.priorityLevel==='tinggi').length, g.filter(a=>a.priorityLevel==='sedang').length, g.filter(a=>a.priorityLevel==='rendah').length];
+    head: [['Pihak yang Dilibatkan','Jumlah Anak','Persentase']],
+    body: pihakSorted.map(function(k){
+      return [AKTOR_LABEL_REKO[k]||k, String(pihakCount[k]), Math.round(pihakCount[k]/ANALISIS.length*100)+'%'];
+    }),
+    theme: 'striped',
+    headStyles: {fillColor:[20,28,46], fontSize:9},
+    bodyStyles: {fontSize:9},
+    margin: {left:M, right:M},
+  });
+  y = doc.lastAutoTable.finalY + 10;
+
+  // ── Ringkasan per CBR Worker ──
+  if (y > H-50) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
+  var cbrSet = [...new Set(ANALISIS.map(function(a){return a.cb;}))].sort();
+  doc.autoTable({
+    startY: y,
+    head: [['CBR Worker','Jumlah Anak','Prioritas Tinggi','Prioritas Sedang','Prioritas Rendah']],
+    body: cbrSet.map(function(cb){
+      var g = ANALISIS.filter(function(a){return a.cb===cb;});
+      return [cb, String(g.length),
+        String(g.filter(function(a){return a.priorityLevel==='tinggi';}).length),
+        String(g.filter(function(a){return a.priorityLevel==='sedang';}).length),
+        String(g.filter(function(a){return a.priorityLevel==='rendah';}).length)];
     }),
     theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
-    bodyStyles: { fontSize: 8.5 },
-    margin: { left: M, right: M },
+    headStyles: {fillColor:[20,28,46], fontSize:8.5},
+    bodyStyles: {fontSize:8.5},
+    margin: {left:M, right:M},
   });
 
   pdfFooter(doc, W, H, M);
-  const now = new Date();
-  doc.save('Ringkasan-Rekomendasi-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.pdf');
+  doc.save('Ringkasan-Rekomendasi-SCN-Manggarai-' + new Date().toISOString().slice(0,10) + '.pdf');
 }
 
 function exportOnePDF(nama) {
