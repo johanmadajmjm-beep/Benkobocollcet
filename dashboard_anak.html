@@ -1116,79 +1116,125 @@ function exportAllPDF() {
 
   anakPdfHeader(doc, 'Ringkasan Profil Anak Benefisiari', 'BEN SCN Manggarai · ' + list.length + ' Anak Dampingan', W, M);
 
-  // Hitung ringkasan
-  var ragamCount = {};
-  list.forEach(function(a){ var r = a.rg || 'Tidak diketahui'; ragamCount[r] = (ragamCount[r]||0)+1; });
+  // Ringkasan Eksekutif
   var levelParah = list.filter(function(a){ return (a.lv||'').toLowerCase().indexOf('parah') > -1; }).length;
-  var epilepsi = list.filter(function(a){ return a.ep === 'Ya'; }).length;
-  var terapi = list.filter(function(a){ return a.tr === 'Ya'; }).length;
-  var kritis = list.filter(function(a){ return a.sa !== null && a.sa !== undefined && a.sa <= 3; }).length;
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  var epilepsi   = list.filter(function(a){ return a.ep === 'Ya'; }).length;
+  var terapi     = list.filter(function(a){ return a.tr === 'Ya'; }).length;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Ringkasan Eksekutif', M, y); y += 6;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
-  var ringkasanText = 'Dari total ' + list.length + ' anak benefisiari yang terdaftar, ' + levelParah + ' anak (' + Math.round(levelParah/list.length*100) + '%) berada pada level disabilitas parah, ' + epilepsi + ' anak memiliki kondisi epilepsi, ' + terapi + ' anak pernah menjalani terapi, dan ' + kritis + ' anak menunjukkan skor kondisi kritis (≤3) yang memerlukan perhatian lebih.';
-  var wrapped = doc.splitTextToSize(ringkasanText, W - 2*M);
-  doc.text(wrapped, M, y); y += wrapped.length * 4.6 + 6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  var ringkasanText = 'Dari total ' + list.length + ' anak benefisiari, ' + levelParah + ' anak (' + Math.round(levelParah/list.length*100) + '%) berada pada level disabilitas parah, ' + epilepsi + ' anak memiliki epilepsi, dan ' + terapi + ' anak pernah menjalani terapi.';
+  var wrapped = doc.splitTextToSize(ringkasanText, W-2*M);
+  doc.text(wrapped, M, y); y += wrapped.length*4.6 + 6;
 
-  // Tabel distribusi ragam disabilitas
+  // 1. Tabel Jumlah Anak per Jenis Kelamin
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('1. Jumlah Anak per Jenis Kelamin', M, y); y += 3;
+  var jkCount = {};
+  list.forEach(function(a){ var v=a.j||'Tidak diketahui'; jkCount[v]=(jkCount[v]||0)+1; });
   doc.autoTable({
     startY: y,
-    head: [['Ragam Disabilitas', 'Jumlah Anak', 'Persentase']],
-    body: Object.keys(ragamCount).sort(function(a,b){return ragamCount[b]-ragamCount[a];}).map(function(r){
-      return [r, String(ragamCount[r]), Math.round(ragamCount[r]/list.length*100) + '%'];
-    }),
-    theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    margin: { left: M, right: M },
+    head: [['Jenis Kelamin','Jumlah Anak','Persentase']],
+    body: Object.entries(jkCount).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/list.length*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
   });
-  y = doc.lastAutoTable.finalY + 10;
+  y = doc.lastAutoTable.finalY + 8;
 
-  // Ringkasan per CBR Worker
+  // 2. Tabel Jumlah Anak per Level Disabilitas
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('2. Jumlah Anak per Level Disabilitas', M, y); y += 3;
+  var lvCount = {};
+  list.forEach(function(a){ var v=a.lv||'Tidak diketahui'; lvCount[v]=(lvCount[v]||0)+1; });
+  doc.autoTable({
+    startY: y,
+    head: [['Level Disabilitas','Jumlah Anak','Persentase']],
+    body: Object.entries(lvCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/list.length*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  // 3. Tabel Jumlah Anak per Ragam Disabilitas
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('3. Jumlah Anak per Ragam Disabilitas', M, y); y += 3;
+  var rgCount = {};
+  list.forEach(function(a){ var v=a.rg||'Tidak diketahui'; rgCount[v]=(rgCount[v]||0)+1; });
+  doc.autoTable({
+    startY: y,
+    head: [['Ragam Disabilitas','Jumlah Anak','Persentase']],
+    body: Object.entries(rgCount).sort(function(a,b){return b[1]-a[1];}).map(function(e){ return [e[0], String(e[1]), Math.round(e[1]/list.length*100)+'%']; }),
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  // 4. Tabel Epilepsi dan Pengobatan
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('4. Kondisi Epilepsi dan Pengobatan', M, y); y += 3;
+  var epYa=list.filter(function(a){return a.ep==='Ya';}).length;
+  var epTdk=list.filter(function(a){return a.ep==='Tidak';}).length;
+  var obYa=list.filter(function(a){return a.ob==='Ya';}).length;
+  var obTdk=list.filter(function(a){return a.ob==='Tidak';}).length;
+  var trYa=list.filter(function(a){return a.tr==='Ya';}).length;
+  var trTdk=list.filter(function(a){return a.tr==='Tidak';}).length;
+  doc.autoTable({
+    startY: y,
+    head: [['Kondisi','Ya','% Ya','Tidak','% Tidak']],
+    body: [
+      ['Epilepsi', String(epYa), Math.round(epYa/list.length*100)+'%', String(epTdk), Math.round(epTdk/list.length*100)+'%'],
+      ['Pengobatan Rutin', String(obYa), Math.round(obYa/list.length*100)+'%', String(obTdk), Math.round(obTdk/list.length*100)+'%'],
+      ['Pernah Terapi', String(trYa), Math.round(trYa/list.length*100)+'%', String(trTdk), Math.round(trTdk/list.length*100)+'%'],
+    ],
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  // 5. Tabel Jumlah Anak per Kondisi Prioritas
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('5. Jumlah Anak per Kondisi Prioritas (Skor)', M, y); y += 3;
+  var saT=list.filter(function(a){return a.sa!==null&&a.sa!==undefined&&a.sa<=4;}).length;
+  var saS=list.filter(function(a){return a.sa!==null&&a.sa!==undefined&&a.sa>=5&&a.sa<=6;}).length;
+  var saR=list.filter(function(a){return a.sa!==null&&a.sa!==undefined&&a.sa>=7;}).length;
+  var spT=list.filter(function(a){return a.sp!==null&&a.sp!==undefined&&a.sp<=4;}).length;
+  var spS=list.filter(function(a){return a.sp!==null&&a.sp!==undefined&&a.sp>=5&&a.sp<=6;}).length;
+  var spR=list.filter(function(a){return a.sp!==null&&a.sp!==undefined&&a.sp>=7;}).length;
+  doc.autoTable({
+    startY: y,
+    head: [['Kondisi Prioritas','Anak (skor)','% Anak','Pengasuh (skor)','% Pengasuh']],
+    body: [
+      ['Prioritas Tinggi (1-4)', String(saT), Math.round(saT/list.length*100)+'%', String(spT), Math.round(spT/list.length*100)+'%'],
+      ['Prioritas Sedang (5-6)', String(saS), Math.round(saS/list.length*100)+'%', String(spS), Math.round(spS/list.length*100)+'%'],
+      ['Prioritas Rendah (7-10)', String(saR), Math.round(saR/list.length*100)+'%', String(spR), Math.round(spR/list.length*100)+'%'],
+    ],
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:9}, bodyStyles: {fontSize:9}, margin: {left:M,right:M},
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  // 6. Ringkasan per CBR Worker
+  if (y > H-60) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('6. Ringkasan per CBR Worker', M, y); y += 3;
   var cbrSet = [];
-  list.forEach(function(a){ if (a.cb && cbrSet.indexOf(a.cb) === -1) cbrSet.push(a.cb); });
+  list.forEach(function(a){ if(a.cb&&cbrSet.indexOf(a.cb)===-1) cbrSet.push(a.cb); });
   cbrSet.sort();
-  if (y > H - 60) { doc.addPage(); y = 20; }
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Ringkasan per CBR Worker', M, y); y += 4;
   doc.autoTable({
     startY: y,
-    head: [['CBR Worker', 'Jumlah Dampingan', 'Level Parah', 'Epilepsi', 'Pernah Terapi']],
+    head: [['CBR Worker','Jumlah','Level Parah','Epilepsi','Pernah Terapi']],
     body: cbrSet.map(function(cb){
-      var g = list.filter(function(a){ return a.cb === cb; });
-      return [cb, g.length,
-        g.filter(function(a){ return (a.lv||'').toLowerCase().indexOf('parah') > -1; }).length,
-        g.filter(function(a){ return a.ep === 'Ya'; }).length,
-        g.filter(function(a){ return a.tr === 'Ya'; }).length];
+      var g=list.filter(function(a){return a.cb===cb;});
+      return [cb, String(g.length),
+        String(g.filter(function(a){return (a.lv||'').toLowerCase().indexOf('parah')>-1;}).length),
+        String(g.filter(function(a){return a.ep==='Ya';}).length),
+        String(g.filter(function(a){return a.tr==='Ya';}).length)];
     }),
-    theme: 'grid',
-    headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
-    bodyStyles: { fontSize: 8.5 },
-    margin: { left: M, right: M },
+    theme: 'grid', headStyles: {fillColor:[20,28,46],fontSize:8.5}, bodyStyles: {fontSize:8.5}, margin: {left:M,right:M},
   });
-  y = doc.lastAutoTable.finalY + 10;
-
-  // Daftar anak kondisi kritis
-  var kritisList = list.filter(function(a){ return a.sa !== null && a.sa !== undefined && a.sa <= 3; });
-  if (kritisList.length) {
-    if (y > H - 50) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-    doc.text('Anak dengan Skor Kondisi Kritis (≤3) — Perlu Perhatian', M, y); y += 4;
-    doc.autoTable({
-      startY: y,
-      head: [['Nama Anak', 'CBR Worker', 'Desa', 'Skor Anak']],
-      body: kritisList.map(function(a){ return [a.na, a.cb || '-', a.d || '-', a.sa]; }),
-      theme: 'striped',
-      headStyles: { fillColor: [220,38,38], fontSize: 8.5 },
-      bodyStyles: { fontSize: 8.5 },
-      margin: { left: M, right: M },
-    });
-  }
 
   anakPdfFooter(doc, W, H, M);
-  var now = new Date();
-  doc.save('Ringkasan-Profil-Anak-SCN-Manggarai-' + now.toISOString().slice(0,10) + '.pdf');
+  doc.save('Ringkasan-Profil-Anak-SCN-Manggarai-' + new Date().toISOString().slice(0,10) + '.pdf');
 }
 
 function exportOnePDF(nama) {
@@ -1204,60 +1250,86 @@ function exportOnePDF(nama) {
   var M = 14;
   var y = 36;
 
-  anakPdfHeader(doc, 'Profil Anak Benefisiari', a.na + ' · ' + (a.cb || '-'), W, M);
+  anakPdfHeader(doc, 'Profil Anak Benefisiari', a.na + ' · ' + (a.cb||'-'), W, M);
 
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+  // Data Diri
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Data Diri', M, y); y += 6;
   doc.autoTable({
     startY: y,
     body: [
-      ['Nama Anak', a.na || '-'],
-      ['Nama Pengasuh', a.np || '-'],
-      ['Usia', a.u !== null && a.u !== undefined ? a.u + ' tahun' : '-'],
-      ['Jenis Kelamin', a.j || '-'],
-      ['Kecamatan', a.k || '-'],
-      ['Desa', a.d || '-'],
-      ['Ragam Disabilitas', a.rg || '-'],
-      ['Level Disabilitas', a.lv || '-'],
-      ['CBR Worker', a.cb || '-'],
-      ['Epilepsi', a.ep || '-'],
-      ['Pengobatan Aktif', a.ob || '-'],
-      ['Pernah Terapi', a.tr || '-'],
-      ['Skor Anak', a.sa !== null && a.sa !== undefined ? a.sa : '-'],
-      ['Skor Pengasuh', a.sp !== null && a.sp !== undefined ? a.sp : '-'],
+      ['Nama Anak', a.na||'-'],
+      ['Nama Pengasuh', a.np||'-'],
+      ['Usia', a.u!==null&&a.u!==undefined ? a.u+' tahun' : '-'],
+      ['Jenis Kelamin', a.j||'-'],
+      ['Kampung/Kecamatan', a.k||'-'],
+      ['Desa', a.d||'-'],
+      ['Ragam Disabilitas', a.rg||'-'],
+      ['Level Disabilitas', a.lv||'-'],
+      ['CBR Worker', a.cb||'-'],
+      ['Epilepsi', a.ep||'-'],
+      ['Pengobatan Aktif', a.ob||'-'],
+      ['Pernah Terapi', a.tr||'-'],
+      ['Skor Kualitas Hidup Anak', a.sa!==null&&a.sa!==undefined ? a.sa+'/10' : '-'],
+      ['Skor Kualitas Hidup Pengasuh', a.sp!==null&&a.sp!==undefined ? a.sp+'/10' : '-'],
     ],
     theme: 'plain',
-    bodyStyles: { fontSize: 9.5 },
-    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
-    margin: { left: M, right: M },
+    bodyStyles: {fontSize:9.5},
+    columnStyles: {0:{fontStyle:'bold',cellWidth:60}},
+    margin: {left:M, right:M},
   });
   y = doc.lastAutoTable.finalY + 10;
 
-  if (y > H - 50) { doc.addPage(); y = 20; }
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-  doc.text('Ringkasan Riwayat Observasi (' + obsData.length + ' kunjungan)', M, y); y += 4;
+  // Faktor Tangga Kehidupan
+  if (y > H-50) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Faktor Tangga Kehidupan', M, y); y += 4;
+
+  var tanggaData = [
+    ['Faktor yang Membantu Anak Naik Tangga', a.nka||'-'],
+    ['Faktor yang Membuat Anak Turun Tangga', a.tka||'-'],
+    ['Faktor yang Membantu Pengasuh Naik Tangga', a.nkp||'-'],
+    ['Faktor yang Membuat Pengasuh Turun Tangga', a.tkp||'-'],
+  ];
+  tanggaData.forEach(function(item) {
+    if (y > H-40) { doc.addPage(); y=20; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.setTextColor(79,142,247);
+    doc.text(item[0], M, y); y += 4;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(0,0,0);
+    var teks = doc.splitTextToSize(item[1], W-2*M);
+    doc.text(teks, M, y); y += teks.length*4.5 + 5;
+  });
+
+  // Riwayat Observasi
+  if (y > H-50) { doc.addPage(); y=20; }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Riwayat Observasi (' + obsData.length + ' kunjungan)', M, y); y += 4;
+
   if (obsData.length) {
     doc.autoTable({
       startY: y,
-      head: [['Tanggal', 'CBR Worker', 'Catatan Utama']],
-      body: obsData.slice(0, 15).map(function(o){
-        var catatan = [o.st, o.kg, o.pf, o.lg].filter(function(s){ return s && s.trim(); })[0] || '-';
-        if (catatan.length > 90) catatan = catatan.slice(0, 90) + '…';
-        return [formatTgl(o.tgl), o.cb || '-', catatan];
+      head: [['Tanggal','CBR Worker','Struktur Tubuh','Kegiatan & Partisipasi','Faktor Personal','Faktor Lingkungan']],
+      body: obsData.slice(0,10).map(function(o){
+        function trunc(s,n){ s=s||'-'; return s.length>n?s.slice(0,n)+'…':s; }
+        return [formatTgl(o.tgl), o.cb||'-', trunc(o.st,60), trunc(o.kg,60), trunc(o.pf,60), trunc(o.lg,60)];
       }),
       theme: 'grid',
-      headStyles: { fillColor: [20,28,46], fontSize: 8.5 },
-      bodyStyles: { fontSize: 8.5 },
-      columnStyles: { 2: { cellWidth: 90 } },
-      margin: { left: M, right: M },
+      headStyles: {fillColor:[20,28,46],fontSize:7.5},
+      bodyStyles: {fontSize:7.5},
+      columnStyles: {0:{cellWidth:18},1:{cellWidth:22},2:{cellWidth:32},3:{cellWidth:32},4:{cellWidth:28},5:{cellWidth:28}},
+      margin: {left:M, right:M},
     });
-    if (obsData.length > 15) {
+    if (obsData.length > 10) {
       y = doc.lastAutoTable.finalY + 4;
-      doc.setFont('helvetica', 'italic'); doc.setFontSize(8);
-      doc.text('Menampilkan 15 dari ' + obsData.length + ' kunjungan terbaru. Gunakan Export Excel untuk riwayat lengkap.', M, y);
+      doc.setFont('helvetica','italic'); doc.setFontSize(8);
+      doc.setTextColor(150,150,150);
+      doc.text('Menampilkan 10 dari ' + obsData.length + ' kunjungan terbaru.', M, y);
+      doc.setTextColor(0,0,0);
     }
   } else {
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
     doc.text('Belum ada data observasi untuk anak ini.', M, y);
   }
 
