@@ -279,8 +279,6 @@ const APPS_SCRIPT_URL = CONFIG.APPS_SCRIPT_URL; // alias, dipakai oleh kode di b
 var DATA_AWAL = [];
 var DATA_OBS  = [];
 var SEMUA_ANAK = [];
-var DATA_AWAL_KOMPRES = {};
-var DATA_OBS_KOMPRES  = {};
 var ANALISIS = []; // hasil analisis lengkap per anak
 var activeAnak = null;
 var filteredReko = [];
@@ -292,14 +290,12 @@ var filteredReko = [];
 // selama Apps Script bisa diakses.
 async function fetchAllData() {
   try {
-    const [r1, r2, r3, r4, r5] = await Promise.all([
+    const [r1, r2, r3] = await Promise.all([
       fetch(APPS_SCRIPT_URL + '?sheet=DataAwal'),
       fetch(APPS_SCRIPT_URL + '?sheet=DataObs'),
       fetch(APPS_SCRIPT_URL + '?sheet=SemuaAnak'),
-      fetch(APPS_SCRIPT_URL + '?sheet=DataAwalKompres'),
-      fetch(APPS_SCRIPT_URL + '?sheet=DataObsKompres'),
     ]);
-    const [j1, j2, j3, j4, j5] = await Promise.all([r1.json(), r2.json(), r3.json(), r4.json(), r5.json()]);
+    const [j1, j2, j3] = await Promise.all([r1.json(), r2.json(), r3.json()]);
 
     DATA_AWAL = (j1.data || []).map(r => ({
       na: r.na||'', np: r.np||'',
@@ -320,14 +316,6 @@ async function fetchAllData() {
     })).filter(r => r.na);
 
     SEMUA_ANAK = j3.data || [];
-
-    DATA_AWAL_KOMPRES = (j4.data || []).reduce(function(acc, r) {
-      if (r.na) acc[r.na] = r; return acc;
-    }, {});
-    DATA_OBS_KOMPRES = (j5.data || []).reduce(function(acc, r) {
-      if (r.na) acc[r.na] = r; return acc;
-    }, {});
-    console.log('[Kompres]', Object.keys(DATA_AWAL_KOMPRES).length, Object.keys(DATA_OBS_KOMPRES).length);
 
     try {
       localStorage.setItem('reko_data_awal', JSON.stringify(DATA_AWAL));
@@ -964,7 +952,7 @@ function filterNamaPanel() {
 }
 
 
-// ════ RULE ENGINE 5 KATEGORI ════
+// ════ RULE ENGINE 5 KATEGORI WHO CBR MATRIX ════
 const RULES_KAT = {
   kesehatan:   {label:'🏥 Kesehatan',   cls:'kat-kesehatan',
     kw:['sakit','epilepsi','kejang','terapi','obat','gizi','nutrisi','susu','pampers','kursi roda','alat bantu','kacamata','alat dengar','standing table','cerebral palsy','kekakuan','otot','saraf','fisioterapi','puskesmas','dokter','bidan','perawat','rujukan','operasi','rawat','low vision','tuli','bisu','gangguan penglihatan','gangguan pendengaran','luka','nyeri','kaku','lemah','baring','tumbuh kembang','berat badan','toilet training','cebok','inkontinensia'],
@@ -991,18 +979,12 @@ const RTL_MAP = {
 };
 function hasKw(text,kws){if(!text)return false;var t=String(text).toLowerCase();return kws.some(function(k){return t.indexOf(k)>=0;});}
 function getAllTeks(awal,obs){
-  var aK=DATA_AWAL_KOMPRES[awal?awal.na:'']||null;
-  var oK=DATA_OBS_KOMPRES[obs?obs.na:'']||null;
   return [awal?awal.tka||'':'',awal?awal.tkp||'':'',awal?awal.nka||'':'',awal?awal.nkp||'':'',
-    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':'',
-    aK?aK.tka||'':'',aK?aK.tkp||'':'',aK?aK.nka||'':'',aK?aK.nkp||'':'',
-    oK?oK.st||'':'',oK?oK.kg||'':'',oK?oK.pf||'':'',oK?oK.lg||'':''].join(' ');
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].join(' ');
 }
 function buildKatTemuan(kat,awal,obs){
   var rule=RULES_KAT[kat];
   var all=getAllTeks(awal,obs);
-  var aK=DATA_AWAL_KOMPRES[awal?awal.na:'']||null;
-  var oK=DATA_OBS_KOMPRES[obs?obs.na:'']||null;
   var facts=[];
   if(kat==='kesehatan'){
     if(awal&&awal.ep==='Ya')facts.push('Epilepsi aktif');
@@ -1010,17 +992,16 @@ function buildKatTemuan(kat,awal,obs){
     if(awal&&awal.tr==='Tidak'&&awal.lv==='Parah (dukungan penuh)')facts.push('Belum mendapat terapi meski level parah');
   }
   if(!hasKw(all,rule.kw)&&!facts.length)return null;
-  var sources=[aK?aK.tka:(awal?awal.tka:''),aK?aK.tkp:(awal?awal.tkp:''),aK?aK.nka:(awal?awal.nka:''),
-    oK?oK.st:(obs?obs.st:''),oK?oK.kg:(obs?obs.kg:''),oK?oK.pf:(obs?obs.pf:''),oK?oK.lg:(obs?obs.lg:'')].filter(Boolean);
+  var sources=[awal?awal.tka||'':'',awal?awal.tkp||'':'',awal?awal.nka||'':'',awal?awal.nkp||'':'',
+    obs?obs.st||'':'',obs?obs.kg||'':'',obs?obs.pf||'':'',obs?obs.lg||'':''].filter(Boolean);
   sources.forEach(function(src){
-    String(src).split(/[.;]|\n/).forEach(function(s){
+    String(src).replace(/\n/g,'.').split(/[.;]/).forEach(function(s){
       s=s.trim();
-      if(s.length>10&&hasKw(s,rule.kw)&&facts.length<3)facts.push(s);
+      if(s.length>10&&hasKw(s,rule.kw)&&facts.length<4)facts.push(s);
     });
   });
   if(!facts.length)return null;
-  var t=facts.slice(0,3).join('; ');
-  return t.length>350?t.substring(0,350)+'...':t;
+  return facts.join('; ');
 }
 function buildKatRTL(kat,temuan,awal){
   var rtl=RTL_MAP[kat];var t=temuan.toLowerCase();
@@ -1032,7 +1013,8 @@ function buildKatRTL(kat,temuan,awal){
   return '';
 }
 function buildKatPihak(kat,temuan,awal,obs){
-  var pihak=RULES_KAT[kat].pb.slice();var all=getAllTeks(awal,obs).toLowerCase();
+  var pihak=RULES_KAT[kat].pb.slice();
+  var all=getAllTeks(awal,obs).toLowerCase();
   if(kat==='kesehatan'){pihak.push('ibu','ayah');if(hasKw(all,['epilepsi','kejang']))pihak.push('dokter_puskesmas','dinkes');if(hasKw(all,['terapi','fisioterapi']))pihak.push('fisioterapis','cbm_global','ayo_indonesia');if(hasKw(all,['kursi roda','alat bantu','standing table']))pihak.push('dinsos','uptd_sosial','cbm_global');if(hasKw(all,['gizi','nutrisi','susu']))pihak.push('kader_posyandu','pkk_desa');if(hasKw(all,['bpjs','kartu']))pihak.push('kepala_desa','kasi_kesra');if(awal&&awal.lv==='Parah (dukungan penuh)')pihak.push('pastor','tua_golo');}
   if(kat==='pendidikan'){pihak.push('ibu','ayah','guru_agama');if(hasKw(all,['belum sekolah','tidak sekolah']))pihak.push('kepala_sekolah','dindik','kasi_kesra','kepala_desa');if(hasKw(all,['slb','sdlb']))pihak.push('dindik','kepala_sekolah','gpk');if(hasKw(all,['paud','tk']))pihak.push('guru_paud','pengelola_paud');if(hasKw(all,['bahasa isyarat','bisindo','braille']))pihak.push('gpk','cbm_global');}
   if(kat==='penghidupan'){pihak.push('ibu','ayah','bpd');if(hasKw(all,['pkh','blt','bantuan','dtks']))pihak.push('pkh_officer','kepala_desa','kasi_kesra','dinsos');if(hasKw(all,['rumah','dinding','lantai','bambu']))pihak.push('dinsos','uptd_sosial','kepala_desa','karang_taruna');if(hasKw(all,['panen','kebun','tani','ternak','usaha']))pihak.push('pkk_desa','kelompok_tani');if(hasKw(all,['bpjs','kartu']))pihak.push('kepala_desa','kasi_kesra','dinkes');}
