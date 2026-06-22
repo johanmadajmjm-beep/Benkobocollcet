@@ -1048,7 +1048,7 @@ function renderDetailAnak(nama) {
     katHtml += '<div class="kat-block '+cfg.cls+'"><div class="kat-header">'+cfg.label+'</div><div class="kat-body"><div class="kat-label">Temuan</div><div class="kat-temuan">'+d.temuan+'</div><div class="kat-label">Rekomendasi &amp; Tindak Lanjut</div><div class="kat-rtl">'+d.rtl+'</div>'+(ph?'<div class="kat-label" style="margin-top:8px">Pihak yang perlu dilibatkan</div>'+ph:'')+'</div></div>';
   });
   if (!katHtml) katHtml = '<div style="color:var(--mut);padding:20px;font-size:12px">Tidak ada temuan dari data yang tersedia.</div>';
-  el.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button onclick="exportAnakPDF('${nama}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">&#128196; Export PDF</button></div><div class="detail-header"><div class="detail-avatar">${initials}</div><div class="detail-info"><div class="detail-nama">${nama}</div><div class="detail-sub">${a.cb} &middot; CBR Worker</div>${awal?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${awal.u?`<span class="chip">Usia ${awal.u} th</span>`:''} ${awal.j?`<span class="chip">JK: ${awal.j}</span>`:''} ${awal.k?`<span class="chip">Kampung: ${awal.k}</span>`:''} ${awal.d?`<span class="chip">Desa: ${awal.d}</span>`:''} ${awal.rg?`<span class="chip">Ragam: ${awal.rg}</span>`:''} ${awal.lv?`<span class="chip">Level: ${awal.lv}</span>`:''} ${awal.ep==='Ya'?`<span class="chip" style="color:#ef4444">Epilepsi: Ya</span>`:''} ${awal.ob?`<span class="chip">Pengobatan: ${awal.ob}</span>`:''} ${awal.tr?`<span class="chip">Terapi: ${awal.tr}</span>`:''}</div>`:''}</div>${awal?`<div style="text-align:right;flex-shrink:0"><div style="font-size:28px;font-weight:900;color:${awal.sa<=4?'var(--red)':awal.sa<=6?'#f59e0b':'#22c55e'}">${awal.sa!==null?awal.sa:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div><div style="font-size:22px;font-weight:800;color:${awal.sp<=4?'var(--red)':awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal.sp!==null?awal.sp:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div></div>`:''}</div><div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div><div id="kat-container">${katHtml}</div>`;
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><button onclick="showList()" style="background:var(--card);color:var(--txt);border:1px solid var(--bdr);border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">&#8592; Kembali ke Daftar</button><button onclick="exportAnakPDF('${nama}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer">&#128196; Export PDF</button></div><div class="detail-header"><div class="detail-avatar">${initials}</div><div class="detail-info"><div class="detail-nama">${nama}</div><div class="detail-sub">${a.cb} &middot; CBR Worker</div>${awal?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${awal.u?`<span class="chip">Usia ${awal.u} th</span>`:''} ${awal.j?`<span class="chip">JK: ${awal.j}</span>`:''} ${awal.k?`<span class="chip">Kampung: ${awal.k}</span>`:''} ${awal.d?`<span class="chip">Desa: ${awal.d}</span>`:''} ${awal.rg?`<span class="chip">Ragam: ${awal.rg}</span>`:''} ${awal.lv?`<span class="chip">Level: ${awal.lv}</span>`:''} ${awal.ep==='Ya'?`<span class="chip" style="color:#ef4444">Epilepsi: Ya</span>`:''} ${awal.ob?`<span class="chip">Pengobatan: ${awal.ob}</span>`:''} ${awal.tr?`<span class="chip">Terapi: ${awal.tr}</span>`:''}</div>`:''}</div>${awal?`<div style="text-align:right;flex-shrink:0"><div style="font-size:28px;font-weight:900;color:${awal.sa<=4?'var(--red)':awal.sa<=6?'#f59e0b':'#22c55e'}">${awal.sa!==null?awal.sa:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR ANAK</div><div style="font-size:22px;font-weight:800;color:${awal.sp<=4?'var(--red)':awal.sp<=6?'#f59e0b':'#22c55e'};margin-top:4px">${awal.sp!==null?awal.sp:'-'}</div><div style="font-size:9px;color:var(--mut);font-weight:600">SKOR PENGASUH</div></div>`:''}</div><div style="margin:14px 0 8px;font-size:10px;font-weight:800;letter-spacing:.6px;color:var(--mut);text-transform:uppercase">&#9679; Bahan Diskusi Rencana Anak &#8212; 3 Bulan ke Depan</div><div id="kat-container">${katHtml}</div>`;
   document.getElementById('cbr-detail-mode').style.display = 'block';
 }
 
@@ -1254,93 +1254,37 @@ function exportAllPDF() {
   var H = doc.internal.pageSize.getHeight();
   var M = 14;
   var y = 36;
-
   pdfHeader(doc, 'Ringkasan Rekomendasi & Tindak Lanjut', 'BEN SCN Manggarai · Seluruh Anak Dampingan', W, M);
-
-  // Ringkasan eksekutif
   var tinggi = ANALISIS.filter(function(a){return a.priorityLevel==='tinggi';}).length;
   var sedang = ANALISIS.filter(function(a){return a.priorityLevel==='sedang';}).length;
   var rendah = ANALISIS.filter(function(a){return a.priorityLevel==='rendah';}).length;
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Ringkasan Eksekutif', M, y); y += 6;
   doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
-  var teks = 'Dari total ' + ANALISIS.length + ' anak yang dipantau, ' + tinggi + ' anak (' + Math.round(tinggi/ANALISIS.length*100) + '%) prioritas tinggi, ' + sedang + ' anak prioritas sedang, dan ' + rendah + ' anak prioritas rendah.';
+  var teks = 'Dari total ' + ANALISIS.length + ' anak, ' + tinggi + ' prioritas tinggi, ' + sedang + ' sedang, ' + rendah + ' rendah.';
   var wrapped = doc.splitTextToSize(teks, W-2*M);
   doc.text(wrapped, M, y); y += wrapped.length*4.6 + 6;
-
-  // ── Tabel Distribusi 5 Kategori Bahan Diskusi ──
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Distribusi Bahan Diskusi Perencanaan Anak', M, y); y += 4;
   var katLabels = {kesehatan:'Kesehatan',pendidikan:'Pendidikan',penghidupan:'Penghidupan',sosial:'Sosial',pemberdayaan:'Pemberdayaan'};
   var katCount = {kesehatan:0,pendidikan:0,penghidupan:0,sosial:0,pemberdayaan:0};
-  ANALISIS.forEach(function(a) {
-    var hasil = analyzeKategori5(a.awal, a.obs);
-    Object.keys(katCount).forEach(function(kat){ if(hasil[kat]) katCount[kat]++; });
-  });
-  doc.autoTable({
-    startY: y,
-    head: [['Kategori Bahan Diskusi','Jumlah Anak','Persentase']],
-    body: Object.keys(katCount).map(function(kat){
-      return [katLabels[kat], String(katCount[kat]), Math.round(katCount[kat]/ANALISIS.length*100)+'%'];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
-  });
+  ANALISIS.forEach(function(a) { var h=analyzeKategori5(a.awal,a.obs); Object.keys(katCount).forEach(function(k){if(h[k])katCount[k]++;}); });
+  doc.autoTable({ startY:y, head:[['Kategori Bahan Diskusi','Jumlah Anak','Persentase']], body:Object.keys(katCount).map(function(k){return[katLabels[k],String(katCount[k]),Math.round(katCount[k]/ANALISIS.length*100)+'%'];}), theme:'grid', headStyles:{fillColor:[20,28,46],fontSize:9}, bodyStyles:{fontSize:9}, margin:{left:M,right:M} });
   y = doc.lastAutoTable.finalY + 10;
-
-  // ── Tabel Pihak yang Paling Banyak Dilibatkan ──
   if (y > H-60) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Pihak yang Paling Banyak Dilibatkan', M, y); y += 4;
   var pihakCount = {};
-  ANALISIS.forEach(function(a) {
-    var hasil = analyzeKategori5(a.awal, a.obs);
-    var seen = {};
-    Object.keys(hasil).forEach(function(kat){
-      if(!hasil[kat]) return;
-      (hasil[kat].pihak||[]).forEach(function(k){
-        if(!seen[k]){ seen[k]=true; pihakCount[k]=(pihakCount[k]||0)+1; }
-      });
-    });
-  });
-  var pihakSorted = Object.keys(pihakCount).sort(function(a,b){return pihakCount[b]-pihakCount[a];}).slice(0,20);
-  doc.autoTable({
-    startY: y,
-    head: [['Pihak yang Dilibatkan','Jumlah Anak','Persentase']],
-    body: pihakSorted.map(function(k){
-      return [AKTOR_LABEL_REKO[k]||k, String(pihakCount[k]), Math.round(pihakCount[k]/ANALISIS.length*100)+'%'];
-    }),
-    theme: 'striped',
-    headStyles: {fillColor:[20,28,46], fontSize:9},
-    bodyStyles: {fontSize:9},
-    margin: {left:M, right:M},
-  });
+  ANALISIS.forEach(function(a) { var h=analyzeKategori5(a.awal,a.obs); var seen={}; Object.keys(h).forEach(function(k){ if(!h[k])return; (h[k].pihak||[]).forEach(function(p){if(!seen[p]){seen[p]=true;pihakCount[p]=(pihakCount[p]||0)+1;}}); }); });
+  var ps = Object.keys(pihakCount).sort(function(a,b){return pihakCount[b]-pihakCount[a];}).slice(0,20);
+  doc.autoTable({ startY:y, head:[['Pihak yang Dilibatkan','Jumlah Anak','Persentase']], body:ps.map(function(k){return[AKTOR_LABEL_REKO[k]||k,String(pihakCount[k]),Math.round(pihakCount[k]/ANALISIS.length*100)+'%'];}), theme:'striped', headStyles:{fillColor:[20,28,46],fontSize:9}, bodyStyles:{fontSize:9}, margin:{left:M,right:M} });
   y = doc.lastAutoTable.finalY + 10;
-
-  // ── Ringkasan per CBR Worker ──
   if (y > H-50) { doc.addPage(); y=20; }
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.text('Ringkasan per CBR Worker', M, y); y += 4;
   var cbrSet = [...new Set(ANALISIS.map(function(a){return a.cb;}))].sort();
-  doc.autoTable({
-    startY: y,
-    head: [['CBR Worker','Jumlah Anak','Prioritas Tinggi','Prioritas Sedang','Prioritas Rendah']],
-    body: cbrSet.map(function(cb){
-      var g = ANALISIS.filter(function(a){return a.cb===cb;});
-      return [cb, String(g.length),
-        String(g.filter(function(a){return a.priorityLevel==='tinggi';}).length),
-        String(g.filter(function(a){return a.priorityLevel==='sedang';}).length),
-        String(g.filter(function(a){return a.priorityLevel==='rendah';}).length)];
-    }),
-    theme: 'grid',
-    headStyles: {fillColor:[20,28,46], fontSize:8.5},
-    bodyStyles: {fontSize:8.5},
-    margin: {left:M, right:M},
-  });
-
+  doc.autoTable({ startY:y, head:[['CBR Worker','Jumlah Anak','Prioritas Tinggi','Prioritas Sedang','Prioritas Rendah']], body:cbrSet.map(function(cb){var g=ANALISIS.filter(function(a){return a.cb===cb;});return[cb,String(g.length),String(g.filter(function(a){return a.priorityLevel==='tinggi';}).length),String(g.filter(function(a){return a.priorityLevel==='sedang';}).length),String(g.filter(function(a){return a.priorityLevel==='rendah';}).length)];}), theme:'grid', headStyles:{fillColor:[20,28,46],fontSize:8.5}, bodyStyles:{fontSize:8.5}, margin:{left:M,right:M} });
   pdfFooter(doc, W, H, M);
   doc.save('Ringkasan-Rekomendasi-SCN-Manggarai-' + new Date().toISOString().slice(0,10) + '.pdf');
 }
